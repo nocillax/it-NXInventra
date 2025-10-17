@@ -1,0 +1,98 @@
+[
+  {
+    "id": "inv_computers",
+    "title": "Office Laptops",
+    "description": "Tracks laptops used by team members",
+    "category": "Electronics",
+    "tags": ["hardware", "office", "computers"],
+    "public": true,
+    "ownerId": "u_rahim",
+    "idFormat": "LAP-{year}-{seq}",
+    "customFields": [
+      {
+        "id": "f_brand",
+        "name": "Brand",
+        "type": "text",
+        "showInTable": true
+      },
+      {
+        "id": "f_ram",
+        "name": "RAM (GB)",
+        "type": "number",
+        "showInTable": true
+      },
+      {
+        "id": "f_hasWebcam",
+        "name": "Webcam Available",
+        "type": "boolean",
+        "showInTable": false
+      },
+      {
+        "id": "f_purchaseDate",
+        "name": "Purchase Date",
+        "type": "text",
+        "showInTable": false
+      }
+    ]
+  },
+  {
+    "id": "inv_phones",
+    "title": "Mobile Devices",
+    "description": "Company phones for employees",
+    "category": "Electronics",
+    "tags": ["hardware", "phones"],
+    "public": false,
+    "ownerId": "u_sadia",
+    "idFormat": "PHN-{seq}",
+    "customFields": [
+      {
+        "id": "f_model",
+        "name": "Model",
+        "type": "text",
+        "showInTable": true
+      },
+      {
+        "id": "f_camera",
+        "name": "Camera (MP)",
+        "type": "number",
+        "showInTable": true
+      },
+      {
+        "id": "f_os",
+        "name": "Operating System",
+        "type": "text",
+        "showInTable": true
+      }
+    ]
+  },
+  {
+    "id": "inv_stationery",
+    "title": "Stationery Supplies",
+    "description": "Track pens, notebooks, and other office supplies",
+    "category": "Office",
+    "tags": ["office", "supplies"],
+    "public": true,
+    "ownerId": "u_tanvir",
+    "idFormat": "STN-{seq}",
+    "customFields": [
+      {
+        "id": "f_itemType",
+        "name": "Item Type",
+        "type": "text",
+        "showInTable": true
+      },
+      {
+        "id": "f_quantity",
+        "name": "Quantity",
+        "type": "number",
+        "showInTable": true
+      },
+      {
+        "id": "f_vendor",
+        "name": "Vendor",
+        "type": "text",
+        "showInTable": false
+      }
+    ]
+  }
+]

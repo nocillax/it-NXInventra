@@ -1,0 +1,69 @@
+[
+  {
+    "id": "item_uuid_001",
+    "customId": "LAP-2025-001",
+    "inventoryId": "inv_computers",
+    "fields": {
+      "Brand": "Dell",
+      "RAM (GB)": 16,
+      "Webcam Available": true,
+      "Purchase Date": "2024-03-10"
+    },
+    "likes": 3,
+    "createdBy": "u_rahim",
+    "createdAt": "2025-01-15"
+  },
+  {
+    "id": "item_uuid_002",
+    "customId": "LAP-2025-002",
+    "inventoryId": "inv_computers",
+    "fields": {
+      "Brand": "HP",
+      "RAM (GB)": 8,
+      "Webcam Available": false,
+      "Purchase Date": "2023-11-20"
+    },
+    "likes": 1,
+    "createdBy": "u_sadia",
+    "createdAt": "2025-02-01"
+  },
+  {
+    "id": "item_uuid_003",
+    "customId": "PHN-001",
+    "inventoryId": "inv_phones",
+    "fields": {
+      "Model": "iPhone 14",
+      "Camera (MP)": 48,
+      "Operating System": "iOS 17"
+    },
+    "likes": 5,
+    "createdBy": "u_tanvir",
+    "createdAt": "2025-01-02"
+  },
+  {
+    "id": "item_uuid_004",
+    "customId": "PHN-002",
+    "inventoryId": "inv_phones",
+    "fields": {
+      "Model": "Samsung Galaxy S23",
+      "Camera (MP)": 50,
+      "Operating System": "Android 14"
+    },
+    "likes": 4,
+    "createdBy": "u_rahim",
+    "createdAt": "2025-03-21"
+  },
+  {
+    "id": "item_uuid_005",
+    "customId": "STN-001",
+    "inventoryId": "inv_stationery",
+    "fields": {
+      "Item Type": "Notebook",
+      "Quantity": 25,
+      "Vendor": "RFL Stationers"
+    },
+    "likes": 0,
+    "createdBy": "u_sadia",
+    "createdAt": "2025-01-10"
+  }
+]

@@ -1,10 +1,10 @@
 "use client";
 
+import { toast } from "sonner";
+import { useEffect } from "react";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
-import { useEffect } from "react";
 import { mutate as globalMutate } from "swr";
 
 import {
@@ -29,13 +29,15 @@ import { apiFetch } from "@/lib/apiClient";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Checkbox } from "../ui/checkbox";
+import { Skeleton } from "../ui/skeleton";
+import { NewItem } from "@/types/shared";
 
-export function ItemEditDialog() {
+export function ItemCreateDialog() {
   const { isOpen, type, data, onClose } = useModalStore();
-  const { inventoryId, item } = data;
-  const { inventory } = useInventory(inventoryId);
+  const { inventoryId } = data;
+  const { inventory, isLoading } = useInventory(inventoryId);
 
-  const isModalOpen = isOpen && type === "editItem";
+  const isModalOpen = isOpen && type === "createItem";
 
   // Dynamically build the Zod schema from custom fields
   const formSchema = z.object(
@@ -56,45 +58,57 @@ export function ItemEditDialog() {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: item?.fields || {},
   });
 
   useEffect(() => {
-    if (item) {
-      form.reset(item.fields);
+    if (inventory) {
+      const defaultValues =
+        inventory.customFields.reduce((values, field) => {
+          if (field.type === "boolean") {
+            values[field.name] = false;
+          } else {
+            values[field.name] = "";
+          }
+          return values;
+        }, {} as Record<string, any>) ?? {};
+      form.reset(defaultValues);
     }
-  }, [item, form]);
+  }, [inventory, form]);
 
   const isSubmitting = form.formState.isSubmitting;
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    if (!item || !inventoryId) return;
+    if (!inventoryId) return;
 
     try {
-      await apiFetch(`/items/${item.id}`, {
-        method: "PUT",
-        body: JSON.stringify({ fields: values }),
+      const newItem: NewItem = {
+        inventoryId: inventoryId,
+        fields: values,
+      };
+      await apiFetch("/items", {
+        method: "POST",
+        body: JSON.stringify(newItem),
       });
-      toast.success("Item updated successfully!");
+      toast.success("Item created successfully!");
       globalMutate(`/inventories/${inventoryId}/items`); // Re-fetch the items list
       data.onSuccess?.();
       onClose();
     } catch (error) {
-      toast.error("Failed to update item. Please try again.");
+      toast.error("Failed to create item. Please try again.");
     }
   };
 
-  if (!inventory || !item) {
-    return null;
+  if (!inventory) {
+    return null; // Or a loading state inside the dialog
   }
 
   return (
     <Dialog open={isModalOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Edit {item.id}</DialogTitle>
+          <DialogTitle>Add New Item to {inventory.title}</DialogTitle>
           <DialogDescription>
-            Update the details for this item.
+            Fill in the details for your new item.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -131,7 +145,7 @@ export function ItemEditDialog() {
             ))}
             <DialogFooter>
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Saving..." : "Save Changes"}
+                {isSubmitting ? "Adding..." : "Add Item"}
               </Button>
             </DialogFooter>
           </form>

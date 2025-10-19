@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
+import { ModalProvider } from "@/components/providers/modal-provider";
+import { Header } from "@/components/shared/Header";
+
 import { cn } from "@/lib/utils";
 import "./globals.css";
 
@@ -26,7 +29,11 @@ export default function RootLayout({
         )}
       >
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          {children}
+          <div className="relative flex min-h-screen flex-col">
+            <Header />
+            <div className="flex-1">{children}</div>
+          </div>
+          <ModalProvider />
           <Toaster />
         </ThemeProvider>
       </body>

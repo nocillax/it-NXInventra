@@ -1,0 +1,26 @@
+"use client";
+
+import { ItemCreateDialog } from "@/components/item/ItemCreateDialog";
+import { ItemDeleteDialog } from "@/components/item/ItemDeleteDialog";
+import { ItemEditDialog } from "@/components/item/ItemEditDialog";
+import { InventoryCreateDialog } from "@/components/inventory/InventoryCreateDialog";
+import { useEffect, useState } from "react";
+
+export const ModalProvider = () => {
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) return null;
+
+  return (
+    <>
+      <InventoryCreateDialog />
+      <ItemCreateDialog />
+      <ItemEditDialog />
+      <ItemDeleteDialog />
+    </>
+  );
+};

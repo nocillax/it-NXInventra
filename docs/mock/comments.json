@@ -1,64 +1,23 @@
 [
   {
-    "id": "LAP-2025-001",
+    "id": "c_001",
     "inventoryId": "inv_computers",
-    "fields": {
-      "Brand": "Dell",
-      "RAM (GB)": 16,
-      "Webcam Available": true,
-      "Purchase Date": "2024-03-10"
-    },
-    "likes": 3,
-    "createdBy": "u_rahim",
-    "createdAt": "2025-01-15"
+    "userId": "u_sadia",
+    "message": "Can we get the purchase date for the Dell laptop? Need it for warranty tracking.",
+    "timestamp": "2025-03-05T10:30:00Z"
   },
   {
-    "id": "LAP-2025-002",
+    "id": "c_002",
     "inventoryId": "inv_computers",
-    "fields": {
-      "Brand": "HP",
-      "RAM (GB)": 8,
-      "Webcam Available": false,
-      "Purchase Date": "2023-11-20"
-    },
-    "likes": 1,
-    "createdBy": "u_sadia",
-    "createdAt": "2025-02-01"
+    "userId": "u_rahim",
+    "message": "Good point. I've added it to the item details.",
+    "timestamp": "2025-03-05T11:00:00Z"
   },
   {
-    "id": "PHN-001",
+    "id": "c_003",
     "inventoryId": "inv_phones",
-    "fields": {
-      "Model": "iPhone 14",
-      "Camera (MP)": 48,
-      "Operating System": "iOS 17"
-    },
-    "likes": 5,
-    "createdBy": "u_tanvir",
-    "createdAt": "2025-01-02"
-  },
-  {
-    "id": "PHN-002",
-    "inventoryId": "inv_phones",
-    "fields": {
-      "Model": "Samsung Galaxy S23",
-      "Camera (MP)": 50,
-      "Operating System": "Android 14"
-    },
-    "likes": 4,
-    "createdBy": "u_rahim",
-    "createdAt": "2025-03-21"
-  },
-  {
-    "id": "STN-001",
-    "inventoryId": "inv_stationery",
-    "fields": {
-      "Item Type": "Notebook",
-      "Quantity": 25,
-      "Vendor": "RFL Stationers"
-    },
-    "likes": 0,
-    "createdBy": "u_sadia",
-    "createdAt": "2025-01-10"
+    "userId": "u_tanvir",
+    "message": "The camera specs for the S23 seem off, can someone double-check?",
+    "timestamp": "2025-03-22T09:00:00Z"
   }
 ]

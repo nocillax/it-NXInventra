@@ -1,7 +1,7 @@
 # PRD #2 — Frontend Specification + Mock Data Design
 
 **Project:** NXInventra  
-**Stack:** Next.js 13+ (App Router) | TailwindCSS v3 | Shadcn/UI | Zustand | React Query | next-themes | next-i18next  
+**Stack:** Next.js 13+ (App Router) | TailwindCSS v3 | Shadcn/UI | Zustand | SWR | next-themes | next-i18next  
 **Approach:** Frontend-first with realistic mock data
 
 ---
@@ -47,7 +47,7 @@
 | Components    | Shadcn/UI                     | Table, Tabs, Dialog, Toast, Dropdown, Input, Button, Avatar, Chart, Tooltip |
 | Forms         | react-hook-form + zod         | Validation, simple setup                                                    |
 | State         | Zustand                       | Lightweight store; theme/user/modal states combined                         |
-| Fetch         | React Query                   | API caching, loading states                                                 |
+| Fetch         | SWR                           | API caching, loading states, revalidation                                   |
 | Theme         | next-themes                   | Light/dark toggle                                                           |
 | i18n          | next-i18next                  | English + Bangla                                                            |
 | Charts        | Recharts                      | For Statistics tab                                                          |
@@ -269,7 +269,7 @@ Later replaced with real API endpoints (`/api/inventories`, etc.).
 ## 9. Pagination & Scrolling
 
 * Default pagination component from Shadcn.
-* For Items tab only → optional infinite scroll using React Query’s `fetchNextPage()`.
+* For Items tab only → optional infinite scroll using SWR's `useSWRInfinite`.
 * Others use simple page-based mock pagination.
 
 ---
@@ -356,7 +356,7 @@ Later replaced with real API endpoints (`/api/inventories`, etc.).
 * Don’t introduce custom styles beyond Tailwind.
 * Don’t create duplicate components.
 * Don’t store theme or language in DB for now.
-* Don’t mix React Query and manual fetch in same component.
+* Don’t mix SWR and manual fetch in same component without a good reason.
 
 ---
 
@@ -375,7 +375,7 @@ Later replaced with real API endpoints (`/api/inventories`, etc.).
 ## 16. Development Checklist
 
 * [ ] Install Next.js + Tailwind + Shadcn.
-* [ ] Add Zustand and React Query.
+* [ ] Add Zustand and SWR.
 * [ ] Setup theme + i18n providers.
 * [ ] Add mock JSON files and connect via API hooks.
 * [ ] Build each tab component with Shadcn elements.

@@ -159,7 +159,8 @@ Full-text index on `title, description, tags`.
 
 | Field        | Type        | Notes                     |
 | ------------ | ----------- | ------------------------- |
-| id           | varchar(50) | custom ID generated       |
+| id           | UUID        | PK, internal identifier   |
+| custom_id    | varchar(50) | unique, user-facing ID    |
 | inventory_id | UUID        | FK → Inventory            |
 | fields       | JSONB       | dynamic field-value pairs |
 | likes        | int         | default 0                 |

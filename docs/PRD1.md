@@ -43,7 +43,7 @@ The goal: give both individuals and teams the ability to model any kind of colle
 [User Browser]
 ↓
 [Next.js Frontend (Vercel)]
-↔ Mock/Live API Layer (using React Query / SWR)
+↔ Mock/Live API Layer (using SWR)
 ↓
 [NestJS Backend (Render)]
 ↔ [PostgreSQL (Render)]
@@ -163,7 +163,7 @@ Each entity initially mocked via local JSON files or static API routes (`/mock/i
 | Frontend     | **Next.js 13+ (App Router)**   | Modern, SSR/SSG, Vercel native |
 | Styling      | **TailwindCSS v3 + Shadcn/UI** | Component reuse, speed         |
 | State Mgmt   | **Zustand**                    | Lightweight, boilerplate-free  |
-| Fetching     | **React Query / SWR**          | Cache + stale-while-revalidate |
+| Fetching     | **SWR**                        | Cache + stale-while-revalidate |
 | Theme        | **next-themes**                | Simple light/dark handling     |
 | i18n         | **next-i18next**               | English + Bangla               |
 | Backend      | **NestJS**                     | Modular, type-safe API         |

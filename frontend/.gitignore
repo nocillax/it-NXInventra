@@ -1,0 +1,60 @@
+# dependencies
+/node_modules
+
+# production
+/.next
+/out
+/build
+
+# testing
+/coverage
+
+# next.js build artifacts
+.next/
+out/
+build/
+
+# static files generated
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# local env files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# misc
+.DS_Store
+*.pem
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# IDEs and editors
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Optional: if you use tailwind
+.postcss-cache/
+
+# Optional: if you use vercel
+.vercel
+
+# Optional: if you use TurboRepo
+.turbo
+
+# Optional: lock files (if you want to ignore non-primary package manager)
+# yarn.lock
+# pnpm-lock.yaml
+# package-lock.json

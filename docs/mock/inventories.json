@@ -7,7 +7,7 @@
     "tags": ["hardware", "office", "computers"],
     "public": true,
     "ownerId": "u_rahim",
-    "idFormat": "LAP-{year}-{seq}",
+    "idFormat": "LAP-{YEAR}-{COUNTER(3)}",
     "customFields": [
       {
         "id": "f_brand",
@@ -43,7 +43,7 @@
     "tags": ["hardware", "phones"],
     "public": false,
     "ownerId": "u_sadia",
-    "idFormat": "PHN-{seq}",
+    "idFormat": "PHN-{COUNTER(3)}",
     "customFields": [
       {
         "id": "f_model",
@@ -73,7 +73,7 @@
     "tags": ["office", "supplies"],
     "public": true,
     "ownerId": "u_tanvir",
-    "idFormat": "STN-{seq}",
+    "idFormat": "STN-{COUNTER(4)}",
     "customFields": [
       {
         "id": "f_itemType",

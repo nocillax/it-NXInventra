@@ -1,6 +1,7 @@
 [
   {
-    "id": "LAP-2025-001",
+    "id": "item_uuid_001",
+    "customId": "LAP-2025-001",
     "inventoryId": "inv_computers",
     "fields": {
       "Brand": "Dell",
@@ -13,7 +14,8 @@
     "createdAt": "2025-01-15"
   },
   {
-    "id": "LAP-2025-002",
+    "id": "item_uuid_002",
+    "customId": "LAP-2025-002",
     "inventoryId": "inv_computers",
     "fields": {
       "Brand": "HP",
@@ -26,7 +28,8 @@
     "createdAt": "2025-02-01"
   },
   {
-    "id": "PHN-001",
+    "id": "item_uuid_003",
+    "customId": "PHN-001",
     "inventoryId": "inv_phones",
     "fields": {
       "Model": "iPhone 14",
@@ -38,7 +41,8 @@
     "createdAt": "2025-01-02"
   },
   {
-    "id": "PHN-002",
+    "id": "item_uuid_004",
+    "customId": "PHN-002",
     "inventoryId": "inv_phones",
     "fields": {
       "Model": "Samsung Galaxy S23",
@@ -50,7 +54,8 @@
     "createdAt": "2025-03-21"
   },
   {
-    "id": "STN-001",
+    "id": "item_uuid_005",
+    "customId": "STN-001",
     "inventoryId": "inv_stationery",
     "fields": {
       "Item Type": "Notebook",

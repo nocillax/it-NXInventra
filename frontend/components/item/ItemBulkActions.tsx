@@ -29,11 +29,9 @@ export function ItemBulkActions<TData>({
   };
 
   const handleDelete = () => {
-    // For now, we only support single deletion via the toolbar for simplicity.
-    // We can expand this to bulk deletion later.
-    const itemToDelete = selectedRows[0].original as Item;
+    const itemsToDelete = selectedRows.map((row) => row.original as Item);
     onOpen("deleteItem", {
-      item: itemToDelete,
+      items: itemsToDelete,
       inventoryId,
       onSuccess: () => table.resetRowSelection(),
     });
@@ -64,7 +62,7 @@ export function ItemBulkActions<TData>({
             <Button
               variant="destructive"
               onClick={handleDelete}
-              disabled={numSelected !== 1}
+              disabled={numSelected === 0}
             >
               <Trash2 className="mr-2 h-4 w-4" /> Delete
             </Button>

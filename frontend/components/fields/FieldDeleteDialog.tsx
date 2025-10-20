@@ -10,34 +10,33 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { mutate as globalMutate } from "swr";
 import { useModalStore } from "@/stores/useModalStore";
 import { apiFetch } from "@/lib/apiClient";
 import { toast } from "sonner";
+import { useInventory } from "@/hooks/useInventory";
 
-export function ItemDeleteDialog() {
+export function FieldDeleteDialog() {
   const { isOpen, type, data, onClose } = useModalStore();
-  const { inventoryId, items } = data;
+  const { inventoryId, field } = data;
+  const { inventory, mutate } = useInventory(inventoryId);
 
-  const isModalOpen = isOpen && type === "deleteItem";
+  const isModalOpen = isOpen && type === "deleteCustomField";
 
   const handleDelete = async () => {
-    if (!items || items.length === 0 || !inventoryId) return;
+    if (!field || !inventory) return;
     try {
-      await Promise.all(
-        items.map((item) => apiFetch(`/items/${item.id}`, { method: "DELETE" }))
+      const updatedFields = inventory.customFields.filter(
+        (f) => f.id !== field.id
       );
-
-      const message =
-        items.length > 1
-          ? `${items.length} items deleted.`
-          : `Item ${items[0].id} deleted.`;
-      toast.success(message);
-      globalMutate(`/inventories/${inventoryId}/items`);
-      data.onSuccess?.();
+      await apiFetch(`/inventories/${inventory.id}`, {
+        method: "PUT",
+        body: JSON.stringify({ customFields: updatedFields }),
+      });
+      toast.success(`Field "${field.name}" deleted.`);
+      mutate();
       onClose();
     } catch (error) {
-      toast.error("Failed to delete item.");
+      toast.error("Failed to delete field.");
     }
   };
 
@@ -47,10 +46,8 @@ export function ItemDeleteDialog() {
         <AlertDialogHeader>
           <AlertDialogTitle>Are you sure?</AlertDialogTitle>
           <AlertDialogDescription>
-            {`This will permanently delete ${
-              items?.length || 0
-            } item(s). This action
-            cannot be undone.`}
+            This will permanently delete the field "{field?.name}". This action
+            cannot be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

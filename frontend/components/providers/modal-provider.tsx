@@ -1,5 +1,6 @@
 "use client";
 
+import { FieldDeleteDialog } from "@/components/fields/FieldDeleteDialog";
 import { ItemCreateDialog } from "@/components/item/ItemCreateDialog";
 import { ItemDeleteDialog } from "@/components/item/ItemDeleteDialog";
 import { ItemEditDialog } from "@/components/item/ItemEditDialog";
@@ -21,6 +22,7 @@ export const ModalProvider = () => {
       <ItemCreateDialog />
       <ItemEditDialog />
       <ItemDeleteDialog />
+      <FieldDeleteDialog />
     </>
   );
 };

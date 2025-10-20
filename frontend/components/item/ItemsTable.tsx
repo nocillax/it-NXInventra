@@ -20,6 +20,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Inventory, Item } from "@/types/shared";
+import { generateItemId } from "@/lib/formatters";
 import { ItemBulkActions } from "./ItemBulkActions";
 
 interface ItemsTableProps {
@@ -30,6 +31,16 @@ interface ItemsTableProps {
 
 export function ItemsTable({ items, inventory, isLoading }: ItemsTableProps) {
   const [rowSelection, setRowSelection] = React.useState({});
+
+  // Create a map of item original index for stable ID generation
+  const itemSequenceMap = React.useMemo(() => {
+    const map = new Map<string, number>();
+    items
+      .slice()
+      .reverse()
+      .forEach((item, index) => map.set(item.id, index + 1));
+    return map;
+  }, [items]);
 
   const columns: ColumnDef<Item>[] = React.useMemo(
     () => [
@@ -59,16 +70,19 @@ export function ItemsTable({ items, inventory, isLoading }: ItemsTableProps) {
         enableHiding: false,
       },
       {
-        accessorKey: "id",
+        accessorKey: "customId",
         header: "ID",
-        cell: ({ row }: { row: Row<Item> }) => (
-          <div className="font-mono text-xs">{row.getValue("id")}</div>
-        ),
+        cell: ({ row }: { row: Row<Item> }) => {
+          const sequence = itemSequenceMap.get(row.original.id) || 0;
+          const generatedId = generateItemId(inventory.idFormat, sequence);
+          return <div className="font-mono text-xs">{generatedId}</div>;
+        },
       },
       ...(inventory?.customFields
         .filter((field) => field.showInTable)
         .map((field) => ({
           id: field.name,
+          accessorKey: `fields.${field.name}`,
           header: field.name,
           accessorFn: (row: Item) => row.fields[field.name],
           cell: ({ getValue }: CellContext<Item, any>) => (
@@ -76,7 +90,7 @@ export function ItemsTable({ items, inventory, isLoading }: ItemsTableProps) {
           ),
         })) || []),
     ],
-    [inventory]
+    [inventory, itemSequenceMap]
   );
 
   const table = useReactTable({

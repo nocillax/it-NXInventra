@@ -16,11 +16,20 @@ export type CustomFieldType =
   | "longtext";
 
 export interface CustomField {
-  id: UUID;
+  id: UUID; // Unique ID for the field definition itself
   name: string;
   type: CustomFieldType;
   showInTable?: boolean;
   validation?: string | null;
+}
+
+export type IdSegmentType = "fixed" | "date" | "sequence" | "random" | "guid";
+
+export interface IdSegment {
+  id: UUID;
+  type: IdSegmentType;
+  value?: string; // For 'fixed' type
+  format?: string; // For 'date', 'sequence', etc.
 }
 
 export interface Inventory {
@@ -31,12 +40,13 @@ export interface Inventory {
   tags: string[];
   public: boolean;
   ownerId: UUID;
-  idFormat?: string;
+  idFormat: IdSegment[];
   customFields: CustomField[];
 }
 
 export interface Item {
-  id: string; // This is the custom, user-facing ID like "LAP-2025-001"
+  id: UUID; // Internal, unique identifier for the item (e.g., a UUID)
+  customId: string; // The user-facing, formatted ID (e.g., "LAP-2024-001")
   inventoryId: string;
   fields: Record<string, any>;
   likes?: number;

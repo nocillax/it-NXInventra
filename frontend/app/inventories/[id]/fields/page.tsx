@@ -21,5 +21,5 @@ export default function InventoryFieldsPage() {
 
   if (!inventory) return <p>Inventory not found.</p>;
 
-  return <CustomFieldsEditor inventory={inventory} onUpdate={mutate} />;
+  return <CustomFieldsEditor inventory={inventory} />;
 }

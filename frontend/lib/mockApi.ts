@@ -5,17 +5,11 @@ import comments from "@/mock/comments.json";
 import users from "@/mock/users.json";
 import access from "@/mock/access.json";
 import { Inventory, Item, NewItem } from "@/types/shared";
+import { generateItemId } from "./formatters";
 
 // Make items mutable for the mock API
 let mockInventories: Inventory[] = JSON.parse(JSON.stringify(inventories));
 let mockItems: Item[] = [...items];
-
-const mockData: Record<string, any[]> = {
-  "/inventories": mockInventories,
-  "/items": mockItems,
-  "/comments": comments,
-  "/users": users,
-};
 
 /**
  * Simulates a network request by fetching from our local mock JSON files.
@@ -25,7 +19,25 @@ export async function fetchMock(path: string, opts: RequestInit = {}) {
   // Simulate network delay
   await new Promise((resolve) => setTimeout(resolve, 300));
 
+  // Handle single inventory fetch
+  if (path.startsWith("/inventories/")) {
+    const inventoryId = path.split("/").pop();
+    const inventory = mockInventories.find((inv) => inv.id === inventoryId);
+    if (inventory) return inventory;
+    // Fall through to other methods or throw error at the end
+  }
+
   const pathName = path.split("?")[0];
+
+  // Handle list fetches
+  if (opts.method === "GET" || !opts.method) {
+    if (pathName === "/inventories") {
+      return JSON.parse(JSON.stringify(mockInventories));
+    }
+    if (pathName === "/items") {
+      return JSON.parse(JSON.stringify(mockItems));
+    }
+  }
 
   if (opts.method === "PUT") {
     if (pathName.startsWith("/inventories/")) {
@@ -35,11 +47,12 @@ export async function fetchMock(path: string, opts: RequestInit = {}) {
         (inv) => inv.id === inventoryId
       );
       if (inventoryIndex !== -1) {
-        mockInventories[inventoryIndex] = {
+        const updatedInventory = {
           ...mockInventories[inventoryIndex],
           ...updatedData,
         };
-        return mockInventories[inventoryIndex];
+        mockInventories[inventoryIndex] = updatedInventory;
+        return updatedInventory;
       }
       throw new Error("Inventory not found for update");
     }
@@ -59,7 +72,6 @@ export async function fetchMock(path: string, opts: RequestInit = {}) {
     if (pathName.startsWith("/items/")) {
       const itemId = pathName.split("/").pop();
       mockItems = mockItems.filter((item) => item.id !== itemId);
-      mockData["/items"] = mockItems; // This is the critical fix
       return { success: true };
     }
   }
@@ -69,7 +81,7 @@ export async function fetchMock(path: string, opts: RequestInit = {}) {
       const newItemData: NewItem = JSON.parse(opts.body as string);
 
       // Simulate ID generation based on PRD
-      const inventory = inventories.find(
+      const inventory = mockInventories.find(
         (inv) => inv.id === newItemData.inventoryId
       );
       if (!inventory) {
@@ -78,12 +90,13 @@ export async function fetchMock(path: string, opts: RequestInit = {}) {
       const counter =
         mockItems.filter((i) => i.inventoryId === newItemData.inventoryId)
           .length + 1;
-      const customId = inventory.idFormat
-        .replace("{YEAR}", new Date().getFullYear().toString())
-        .replace("{COUNTER(3)}", counter.toString().padStart(3, "0"));
+
+      // Generate ID from segments
+      const customId = generateItemId(inventory.idFormat, counter);
 
       const newItem: Item = {
-        id: customId,
+        id: uuidv4(), // Internal UUID
+        customId: customId, // Generated user-facing ID
         inventoryId: newItemData.inventoryId,
         fields: newItemData.fields,
         likes: 0,
@@ -96,9 +109,5 @@ export async function fetchMock(path: string, opts: RequestInit = {}) {
     }
   }
 
-  const data = mockData[pathName]; // Ignore query params for mock
-  if (!data) {
-    throw new Error(`Mock data not found for path: ${path}`);
-  }
-  return data;
+  throw new Error(`Mock API handler not found for path: ${path}`);
 }

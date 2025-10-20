@@ -76,7 +76,8 @@ The goal: give both individuals and teams the ability to model any kind of colle
 - **Mock Data Structure:**
   ```json
   {
-    "id": "LAP-2025-001",
+    "id": "item_uuid_001", // Internal UUID
+    "customId": "LAP-2025-001", // User-facing ID
     "inventoryId": "inv_office_laptops",
     "fields": {
       "Model": "Dell XPS 15",
@@ -106,10 +107,10 @@ The goal: give both individuals and teams the ability to model any kind of colle
 
 ### 4.4 Custom ID Tab
 
-- Visual builder for item ID format.
-- Components: static text, date, counter, random, GUID.
+- Visual, segment-based builder for item ID format.
+- Users add, remove, and re-order segments (e.g., static text, date, counter).
 - Live preview updates on change.
-- Example pattern: `LAP-{YEAR}-{COUNTER(3)}` → `LAP-2025-001`.
+- The format is stored as an array of segment objects, not a single string.
 
 ### 4.5 Custom Fields Tab
 

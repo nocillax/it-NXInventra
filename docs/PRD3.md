@@ -125,18 +125,18 @@ User ──< Inventory ──< Item
 
 ### 4.2 Inventory
 
-| Field       | Type         | Notes              |
-| ----------- | ------------ | ------------------ |
-| id          | UUID         | PK                 |
-| title       | varchar(150) | required           |
-| description | text         | nullable           |
-| category    | varchar(100) |                    |
-| tags        | text[]       |                    |
-| public      | boolean      | default true       |
-| owner_id    | UUID         | FK → User          |
-| id_format   | text         | custom ID template |
-| created_at  | timestamp    | default now()      |
-| updated_at  | timestamp    | auto-update        |
+| Field       | Type         | Notes                       |
+| ----------- | ------------ | --------------------------- |
+| id          | UUID         | PK                          |
+| title       | varchar(150) | required                    |
+| description | text         | nullable                    |
+| category    | varchar(100) |                             |
+| tags        | text[]       |                             |
+| public      | boolean      | default true                |
+| owner_id    | UUID         | FK → User (users)           |
+| id_format   | jsonb        | Array of ID segment objects |
+| created_at  | timestamp    | default now()               |
+| updated_at  | timestamp    | auto-update                 |
 
 Full-text index on `title, description, tags`.
 

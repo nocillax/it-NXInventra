@@ -1,21 +1,19 @@
 "use client";
 
 import useSWR from "swr";
-import { Inventory } from "@/types/shared";
 import { apiFetch } from "@/lib/apiClient";
+import { Inventory } from "@/types/shared";
 
-async function inventoryFetcher(path: string) {
-  const inventories: Inventory[] = await apiFetch("/inventories");
-  const inventoryId = path.split("/").pop();
-  return inventories.find((inv) => inv.id === inventoryId) ?? null;
-}
-
-export function useInventory(id: string | undefined) {
-  // The key includes the ID to ensure SWR fetches uniquely per inventory
-  const { data, error, isLoading, mutate } = useSWR<Inventory | null>(
-    id ? `/inventories/${id}` : null,
-    inventoryFetcher
+export function useInventory(inventoryId: string | undefined) {
+  const { data, error, isLoading, mutate } = useSWR<Inventory>(
+    inventoryId ? `/inventories/${inventoryId}` : null,
+    apiFetch
   );
 
-  return { inventory: data, error, isLoading, mutate };
+  return {
+    inventory: data,
+    isLoading,
+    error,
+    mutate,
+  };
 }

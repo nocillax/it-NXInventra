@@ -7,28 +7,33 @@
     "tags": ["hardware", "office", "computers"],
     "public": true,
     "ownerId": "u_rahim",
-    "idFormat": "LAP-{YEAR}-{COUNTER(3)}",
+    "idFormat": [
+      { "id": "seg-1-1", "type": "fixed", "value": "LAP-" },
+      { "id": "seg-1-2", "type": "date", "format": "yyyy" },
+      { "id": "seg-1-3", "type": "fixed", "value": "-" },
+      { "id": "seg-1-4", "type": "sequence", "format": "D3" }
+    ],
     "customFields": [
       {
-        "id": "f_brand",
+        "id": "cf-1-1",
         "name": "Brand",
         "type": "text",
         "showInTable": true
       },
       {
-        "id": "f_ram",
+        "id": "cf-1-2",
         "name": "RAM (GB)",
         "type": "number",
         "showInTable": true
       },
       {
-        "id": "f_hasWebcam",
+        "id": "cf-1-3",
         "name": "Webcam Available",
         "type": "boolean",
         "showInTable": false
       },
       {
-        "id": "f_purchaseDate",
+        "id": "cf-1-4",
         "name": "Purchase Date",
         "type": "text",
         "showInTable": false
@@ -43,22 +48,25 @@
     "tags": ["hardware", "phones"],
     "public": false,
     "ownerId": "u_sadia",
-    "idFormat": "PHN-{COUNTER(3)}",
+    "idFormat": [
+      { "id": "seg-2-1", "type": "fixed", "value": "PHN-" },
+      { "id": "seg-2-2", "type": "sequence", "format": "D3" }
+    ],
     "customFields": [
       {
-        "id": "f_model",
+        "id": "cf-2-1",
         "name": "Model",
         "type": "text",
         "showInTable": true
       },
       {
-        "id": "f_camera",
+        "id": "cf-2-2",
         "name": "Camera (MP)",
         "type": "number",
         "showInTable": true
       },
       {
-        "id": "f_os",
+        "id": "cf-2-3",
         "name": "Operating System",
         "type": "text",
         "showInTable": true
@@ -73,22 +81,22 @@
     "tags": ["office", "supplies"],
     "public": true,
     "ownerId": "u_tanvir",
-    "idFormat": "STN-{COUNTER(4)}",
+    "idFormat": [],
     "customFields": [
       {
-        "id": "f_itemType",
+        "id": "cf-3-1",
         "name": "Item Type",
         "type": "text",
         "showInTable": true
       },
       {
-        "id": "f_quantity",
+        "id": "cf-3-2",
         "name": "Quantity",
         "type": "number",
         "showInTable": true
       },
       {
-        "id": "f_vendor",
+        "id": "cf-3-3",
         "name": "Vendor",
         "type": "text",
         "showInTable": false

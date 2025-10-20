@@ -1,6 +1,7 @@
 "use client";
 
 import * as z from "zod";
+import { mutate } from "swr";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -26,6 +27,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { CustomField, Inventory } from "@/types/shared";
+import { useInventories } from "@/hooks/useInventories";
 import { apiFetch } from "@/lib/apiClient";
 import { FieldList } from "./FieldList";
 import { useModalStore } from "@/stores/useModalStore";
@@ -38,14 +40,11 @@ const fieldSchema = z.object({
 
 interface CustomFieldsEditorProps {
   inventory: Inventory;
-  onUpdate: (data?: any, options?: any) => Promise<any>;
 }
 
-export function CustomFieldsEditor({
-  inventory,
-  onUpdate,
-}: CustomFieldsEditorProps) {
+export function CustomFieldsEditor({ inventory }: CustomFieldsEditorProps) {
   const { onOpen } = useModalStore();
+  const { inventories } = useInventories();
   const form = useForm<z.infer<typeof fieldSchema>>({
     resolver: zodResolver(fieldSchema),
     defaultValues: {
@@ -65,13 +64,27 @@ export function CustomFieldsEditor({
 
     const updatedFields = [...inventory.customFields, newField];
 
+    const newInventoryState = { ...inventory, customFields: updatedFields };
+
+    // Optimistic UI Update
+    mutate(`/inventories/${inventory.id}`, newInventoryState, {
+      revalidate: false,
+    });
+    if (inventories) {
+      const newInventories = inventories.map((inv) =>
+        inv.id === inventory.id ? newInventoryState : inv
+      );
+      mutate("/inventories", newInventories, { revalidate: false });
+    }
+
     try {
       await apiFetch(`/inventories/${inventory.id}`, {
         method: "PUT",
         body: JSON.stringify({ customFields: updatedFields }),
       });
       toast.success(`Field "${newField.name}" added.`);
-      onUpdate(); // Re-fetch inventory data to update the UI
+      mutate(`/inventories/${inventory.id}`);
+      mutate("/inventories");
       form.reset();
     } catch (error) {
       toast.error("Failed to add field.");
@@ -85,7 +98,15 @@ export function CustomFieldsEditor({
     const newInventoryState = { ...inventory, customFields: updatedFields };
 
     // Optimistic UI update
-    onUpdate(newInventoryState, { revalidate: false });
+    mutate(`/inventories/${inventory.id}`, newInventoryState, {
+      revalidate: false,
+    });
+    if (inventories) {
+      const newInventories = inventories.map((inv) =>
+        inv.id === inventory.id ? newInventoryState : inv
+      );
+      mutate("/inventories", newInventories, { revalidate: false });
+    }
 
     try {
       await apiFetch(`/inventories/${inventory.id}`, {
@@ -93,10 +114,15 @@ export function CustomFieldsEditor({
         body: JSON.stringify({ customFields: updatedFields }),
       });
       toast.success(successMessage);
+      mutate(`/inventories/${inventory.id}`);
+      mutate("/inventories");
     } catch (error) {
       toast.error("Failed to update fields.");
       // Revert on error
-      onUpdate(inventory, { revalidate: false });
+      mutate(`/inventories/${inventory.id}`, inventory, { revalidate: false });
+      if (inventories) {
+        mutate("/inventories", inventories, { revalidate: false });
+      }
     }
   }
 

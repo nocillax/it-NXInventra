@@ -167,12 +167,17 @@ All stores are small (≤ 50 lines).
     "category":"Electronics",
     "public":true,
     "ownerId":"u_01",
-    "idFormat":"LAP-{YEAR}-{COUNTER(3)}",
+    "idFormat":[
+      { "id": "seg1", "type": "fixed", "value": "LAP-" },
+      { "id": "seg2", "type": "date", "format": "yyyy" },
+      { "id": "seg3", "type": "fixed", "value": "-" },
+      { "id": "seg4", "type": "sequence", "format": "D3" }
+    ],
     "customFields":[
-      {"name":"Model","type":"text","showInTable":true},
-      {"name":"Processor","type":"text","showInTable":true},
-      {"name":"RAM","type":"number","showInTable":true},
-      {"name":"Webcam","type":"boolean","showInTable":false}
+      {"id": "cf1", "name":"Model","type":"text","showInTable":true},
+      {"id": "cf2", "name":"Processor","type":"text","showInTable":true},
+      {"id": "cf3", "name":"RAM","type":"number","showInTable":true},
+      {"id": "cf4", "name":"Webcam","type":"boolean","showInTable":false}
     ]
   },
   {
@@ -183,11 +188,11 @@ All stores are small (≤ 50 lines).
     "category":"Electronics",
     "public":true,
     "ownerId":"u_02",
-    "idFormat":"PHN-{YEAR}-{COUNTER(3)}",
+    "idFormat": [],
     "customFields":[
-      {"name":"Model","type":"text","showInTable":true},
-      {"name":"Camera","type":"text","showInTable":true},
-      {"name":"Battery","type":"number","showInTable":true}
+      {"id": "cf5", "name":"Model","type":"text","showInTable":true},
+      {"id": "cf6", "name":"Camera","type":"text","showInTable":true},
+      {"id": "cf7", "name":"Battery","type":"number","showInTable":true}
     ]
   }
 ]

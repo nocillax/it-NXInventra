@@ -60,3 +60,50 @@ export interface NewItem {
 }
 
 export type Role = "Owner" | "Writer" | "Viewer";
+
+export interface Access {
+  id: UUID;
+  inventoryId: string;
+  userId: UUID;
+  role: Role;
+}
+
+export interface Comment {
+  id: UUID;
+  inventoryId: string;
+  userId: UUID;
+  message: string;
+  timestamp: string;
+}
+
+export interface StatSummary {
+  [key: string]: number;
+}
+
+export interface FieldSummary {
+  fieldName: string;
+  type: "text" | "number";
+  summary: StatSummary;
+}
+
+export interface Contributor {
+  userId: UUID;
+  count: number;
+}
+
+export interface MonthlyAddition {
+  month: string;
+  count: number;
+}
+
+export interface InventoryStats {
+  inventoryId: string;
+  visibility: "public" | "private";
+  totalItems: number;
+  avgPrice: number | null;
+  avgQuantity: number | null;
+  totalQuantity: number | null;
+  quantityDistribution: { label: string; quantity: number }[] | null;
+  topContributors: Contributor[];
+  monthlyAdditions: MonthlyAddition[];
+}

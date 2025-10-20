@@ -1,23 +1,37 @@
 [
   {
     "id": "u_rahim",
-    "name": "Rahim Uddin",
+    "name": "Rahim",
     "email": "rahim@example.com",
-    "avatar": "https://avatars.githubusercontent.com/u/rahim",
+    "avatar": "/avatars/rahim.png",
     "provider": "google"
   },
   {
     "id": "u_sadia",
-    "name": "Sadia Khan",
+    "name": "Sadia",
     "email": "sadia@example.com",
-    "avatar": "https://avatars.githubusercontent.com/u/sadia",
+    "avatar": "/avatars/sadia.png",
     "provider": "github"
   },
   {
     "id": "u_tanvir",
-    "name": "Tanvir Hossain",
+    "name": "Tanvir",
     "email": "tanvir@example.com",
-    "avatar": "https://avatars.githubusercontent.com/u/tanvir",
+    "avatar": "/avatars/tanvir.png",
+    "provider": "google"
+  },
+  {
+    "id": "u_asif",
+    "name": "Asif",
+    "email": "asif@example.com",
+    "avatar": "/avatars/asif.png",
+    "provider": "google"
+  },
+  {
+    "id": "u_smrity",
+    "name": "Smrity",
+    "email": "smrity@example.com",
+    "avatar": "/avatars/smrity.png",
     "provider": "google"
   }
 ]

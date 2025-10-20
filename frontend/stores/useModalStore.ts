@@ -1,18 +1,21 @@
 import { create } from "zustand";
-import { CustomField, Item } from "@/types/shared";
+import { Access, CustomField, Item } from "@/types/shared";
 
 export type ModalType =
   | "createInventory"
   | "createItem"
   | "editItem"
   | "deleteItem"
-  | "deleteCustomField";
+  | "deleteCustomField"
+  | "removeAccess"
+  | "addCollaborator";
 
 interface ModalData {
   inventoryId?: string;
   item?: Item;
   items?: Item[];
   field?: CustomField;
+  access?: Access;
   onSuccess?: () => void;
 }
 

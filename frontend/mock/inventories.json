@@ -2,7 +2,7 @@
   {
     "id": "inv_computers",
     "title": "Office Laptops",
-    "description": "Tracks laptops used by team members",
+    "description": "Tracks laptops assigned to employees and their specifications.",
     "category": "Electronics",
     "tags": ["hardware", "office", "computers"],
     "public": true,
@@ -14,38 +14,35 @@
       { "id": "seg-1-4", "type": "sequence", "format": "D3" }
     ],
     "customFields": [
+      { "id": "cf-1-1", "name": "Brand", "type": "text", "showInTable": true },
+      { "id": "cf-1-2", "name": "Model", "type": "text", "showInTable": true },
       {
-        "id": "cf-1-1",
-        "name": "Brand",
-        "type": "text",
-        "showInTable": true
-      },
-      {
-        "id": "cf-1-2",
+        "id": "cf-1-3",
         "name": "RAM (GB)",
         "type": "number",
         "showInTable": true
       },
       {
-        "id": "cf-1-3",
+        "id": "cf-1-4",
         "name": "Webcam Available",
         "type": "boolean",
         "showInTable": false
       },
       {
-        "id": "cf-1-4",
+        "id": "cf-1-5",
         "name": "Purchase Date",
         "type": "text",
         "showInTable": false
-      }
+      },
+      { "id": "cf-1-6", "name": "Price", "type": "number", "showInTable": true }
     ]
   },
   {
     "id": "inv_phones",
     "title": "Mobile Devices",
-    "description": "Company phones for employees",
+    "description": "Company-issued smartphones with software and maintenance details.",
     "category": "Electronics",
-    "tags": ["hardware", "phones"],
+    "tags": ["hardware", "phones", "mobile"],
     "public": false,
     "ownerId": "u_sadia",
     "idFormat": [
@@ -53,12 +50,7 @@
       { "id": "seg-2-2", "type": "sequence", "format": "D3" }
     ],
     "customFields": [
-      {
-        "id": "cf-2-1",
-        "name": "Model",
-        "type": "text",
-        "showInTable": true
-      },
+      { "id": "cf-2-1", "name": "Model", "type": "text", "showInTable": true },
       {
         "id": "cf-2-2",
         "name": "Camera (MP)",
@@ -70,18 +62,27 @@
         "name": "Operating System",
         "type": "text",
         "showInTable": true
+      },
+      {
+        "id": "cf-2-4",
+        "name": "Assigned To",
+        "type": "text",
+        "showInTable": true
       }
     ]
   },
   {
     "id": "inv_stationery",
     "title": "Stationery Supplies",
-    "description": "Track pens, notebooks, and other office supplies",
+    "description": "Tracks pens, notebooks, markers, and other office consumables.",
     "category": "Office",
     "tags": ["office", "supplies"],
     "public": true,
     "ownerId": "u_tanvir",
-    "idFormat": [],
+    "idFormat": [
+      { "id": "seg-3-1", "type": "fixed", "value": "STN-" },
+      { "id": "seg-3-2", "type": "sequence", "format": "D3" }
+    ],
     "customFields": [
       {
         "id": "cf-3-1",
@@ -95,12 +96,7 @@
         "type": "number",
         "showInTable": true
       },
-      {
-        "id": "cf-3-3",
-        "name": "Vendor",
-        "type": "text",
-        "showInTable": false
-      }
+      { "id": "cf-3-3", "name": "Vendor", "type": "text", "showInTable": false }
     ]
   }
 ]

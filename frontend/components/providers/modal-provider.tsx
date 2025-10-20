@@ -1,5 +1,7 @@
 "use client";
 
+import { AccessRemoveDialog } from "@/components/access/AccessRemoveDialog";
+import { AccessInviteDialog } from "@/components/access/AccessInviteDialog";
 import { FieldDeleteDialog } from "@/components/fields/FieldDeleteDialog";
 import { ItemCreateDialog } from "@/components/item/ItemCreateDialog";
 import { ItemDeleteDialog } from "@/components/item/ItemDeleteDialog";
@@ -23,6 +25,8 @@ export const ModalProvider = () => {
       <ItemEditDialog />
       <ItemDeleteDialog />
       <FieldDeleteDialog />
+      <AccessRemoveDialog />
+      <AccessInviteDialog />
     </>
   );
 };

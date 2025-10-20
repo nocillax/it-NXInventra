@@ -3,21 +3,28 @@
     "id": "c_001",
     "inventoryId": "inv_computers",
     "userId": "u_sadia",
-    "message": "Can we get the purchase date for the Dell laptop? Need it for warranty tracking.",
+    "message": "Can we add a field for laptop serial numbers? It’ll help for IT tracking.",
     "timestamp": "2025-03-05T10:30:00Z"
   },
   {
     "id": "c_002",
     "inventoryId": "inv_computers",
     "userId": "u_rahim",
-    "message": "Good point. I've added it to the item details.",
+    "message": "Good idea! Added 'Serial Number' as a hidden field.",
     "timestamp": "2025-03-05T11:00:00Z"
   },
   {
     "id": "c_003",
     "inventoryId": "inv_phones",
-    "userId": "u_tanvir",
-    "message": "The camera specs for the S23 seem off, can someone double-check?",
+    "userId": "u_rahim",
+    "message": "Updated camera specs for the S23, they were slightly off before.",
     "timestamp": "2025-03-22T09:00:00Z"
+  },
+  {
+    "id": "c_004",
+    "inventoryId": "inv_stationery",
+    "userId": "u_smrity",
+    "message": "We’re running low on notebooks — please reorder before next week.",
+    "timestamp": "2025-03-10T08:45:00Z"
   }
 ]

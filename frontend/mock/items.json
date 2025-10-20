@@ -1,60 +1,66 @@
 [
   {
-    "id": "item_uuid_001",
+    "id": "item_001",
     "customId": "LAP-2025-001",
     "inventoryId": "inv_computers",
     "fields": {
       "Brand": "Dell",
+      "Model": "Latitude 5430",
       "RAM (GB)": 16,
       "Webcam Available": true,
-      "Purchase Date": "2024-03-10"
+      "Purchase Date": "2024-03-10",
+      "Price": 1450
     },
     "likes": 3,
     "createdBy": "u_rahim",
     "createdAt": "2025-01-15"
   },
   {
-    "id": "item_uuid_002",
+    "id": "item_002",
     "customId": "LAP-2025-002",
     "inventoryId": "inv_computers",
     "fields": {
       "Brand": "HP",
+      "Model": "EliteBook 850",
       "RAM (GB)": 8,
       "Webcam Available": false,
-      "Purchase Date": "2023-11-20"
+      "Purchase Date": "2023-11-20",
+      "Price": 980
     },
     "likes": 1,
     "createdBy": "u_sadia",
     "createdAt": "2025-02-01"
   },
   {
-    "id": "item_uuid_003",
+    "id": "item_003",
     "customId": "PHN-001",
     "inventoryId": "inv_phones",
     "fields": {
       "Model": "iPhone 14",
       "Camera (MP)": 48,
-      "Operating System": "iOS 17"
+      "Operating System": "iOS 17",
+      "Assigned To": "Rahim"
     },
     "likes": 5,
-    "createdBy": "u_tanvir",
+    "createdBy": "u_sadia",
     "createdAt": "2025-01-02"
   },
   {
-    "id": "item_uuid_004",
+    "id": "item_004",
     "customId": "PHN-002",
     "inventoryId": "inv_phones",
     "fields": {
       "Model": "Samsung Galaxy S23",
       "Camera (MP)": 50,
-      "Operating System": "Android 14"
+      "Operating System": "Android 14",
+      "Assigned To": "Asif"
     },
     "likes": 4,
     "createdBy": "u_rahim",
     "createdAt": "2025-03-21"
   },
   {
-    "id": "item_uuid_005",
+    "id": "item_005",
     "customId": "STN-001",
     "inventoryId": "inv_stationery",
     "fields": {
@@ -63,7 +69,20 @@
       "Vendor": "RFL Stationers"
     },
     "likes": 0,
-    "createdBy": "u_sadia",
+    "createdBy": "u_tanvir",
     "createdAt": "2025-01-10"
+  },
+  {
+    "id": "item_006",
+    "customId": "STN-002",
+    "inventoryId": "inv_stationery",
+    "fields": {
+      "Item Type": "Ballpoint Pen",
+      "Quantity": 50,
+      "Vendor": "Kazi Office Supplies"
+    },
+    "likes": 2,
+    "createdBy": "u_smrity",
+    "createdAt": "2025-03-04"
   }
 ]

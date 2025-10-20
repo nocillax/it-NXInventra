@@ -1,69 +1,78 @@
-🧩 What Is a Custom ID?
+💬 DISCUSSION TAB
+🧠 Core Idea
 
-A Custom ID is a concatenation of multiple ordered segments.
-Each segment contributes part of the final ID string (e.g., prefix, sequence number, random value, or date).
+The Discussion tab is a lightweight, per-inventory message board — basically a chat/forum for collaborators.
 
-Example of generated ID:
+It’s there so users working on the same inventory (e.g., “Office Laptops”) can discuss things like:
 
-📦-A7E3A-013-2025
+“We should add more Dell units.”
+“HP laptop overheating, maybe mark it for replacement.”
 
-Example of user-defined format:
+Each inventory has its own discussion thread, stored in the backend.
 
-Type Format Example Output
-Fixed 📦- 📦-
-Random (Hex 5 digits) X5* A7E3A
-Sequence (3 digits, padded) D3* 013
-Date (year) yyyy 2025
+🧱 Data Model (from PRD #3)
+Field Type Description
+id uuid Unique message ID
+inventoryId FK → Inventory Which inventory this discussion belongs to
+userId FK → User The sender
+message text Message content
+createdAt timestamp Posted date/time
+💬 Behavior Rules
+Action Who Description
+View messages All with access (Owner/Writer/Viewer) Sees live discussion thread
+Post message Owner, Writer Can send new messages
+Delete message Owner (for all) / Author (own) Optional, but can remove their own posts
+Edit message Optional Not required by the project (you can skip)
+⚡ Realtime / Socket
 
-Combined → 📦-A7E3A-013-2025
+The PRD design assumes Socket.io (or similar WebSocket library) for real-time updates.
 
-⚙️ Segment Types (all must be supported)
-Type Description User Control Example
-Fixed Static text added literally. Can contain emoji or symbols. Text input (e.g., “INV-” or “📦-”) 📦-
-Sequence Auto-incrementing number per inventory. Can have padding (e.g. 3 digits = D3). Dropdown: D2–D6 001, 002, 003
-Random Random numeric (D6) or hexadecimal (X5) value. Dropdown: D# or X# A7E3A, 042913
-Date/Time Injects date/time tokens from when the item is created. Dropdown: yyyy, yy, MM, dd, DDD 2025, 25, 10, Mon
-Custom Field (optional) Pulls a value from one of the item’s custom fields. Dropdown of custom fields (from inventory.fields[]) {Brand} → Dell
-🧮 Formatting Rules
+When a new message is posted → emit socket event → all connected clients update their thread.
 
-The final ID = concatenation of all segment outputs in order.
+🖥️ UI Layout (Next.js + Shadcn + Tailwind)
 
-Segment order is drag-and-drop sortable.
+Header:
+💬 Discussion for Inventory: Office Laptops
 
-Each segment is displayed as a row with:
+Chat Area:
+Scrollable list of messages, most recent at bottom.
+Each message bubble shows:
 
-Handle icon (drag)
+Avatar + name (left or right depending on user)
 
-Dropdown (select type)
+Message text
 
-Input field (format/value)
+Timestamp (relative)
 
-Help / delete icons
+Input Area:
+Text input + send button (bottom fixed).
 
-User can add new segment → “Add element” button.
-
-Example of generated ID shown live at the top (e.g., “Example: 📦-A7E3A-013-2025”).
-
-Each inventory stores its format as JSON array of segments:
-
+📁 Mock Data Example
 [
-{ "type": "fixed", "format": "📦-" },
-{ "type": "random", "format": "X5" },
-{ "type": "sequence", "format": "D3" },
-{ "type": "date", "format": "yyyy" }
+{
+"id": "msg_1",
+"inventoryId": "inv_computers",
+"userId": "u_rahim",
+"message": "We need to replace the HP laptop soon, it's overheating.",
+"createdAt": "2025-03-12T10:45:00Z"
+},
+{
+"id": "msg_2",
+"inventoryId": "inv_computers",
+"userId": "u_sadia",
+"message": "Agreed. Let’s add it to the procurement list.",
+"createdAt": "2025-03-13T08:25:00Z"
+}
 ]
 
-Example Layout
-New Inventory 1
-[ All changes saved ]
-───────────────────────────────
-Tabs: Items | Chat | Settings | Custom ID | Fields | Access | Stats | Export
-───────────────────────────────
-Example: 📦-A7E3A-013-2025
-───────────────────────────────
-[⇅] [Select Type: Fixed] [Input: 📦-] [InfoIcon] [TrashIcon]
-[⇅] [Select Type: Random] [Input: X5_] [InfoIcon] [TrashIcon]
-[⇅] [Select Type: Sequence] [Input: D3_] [InfoIcon] [TrashIcon]
-[⇅] [Select Type: Date] [Input: yyyy] [InfoIcon] [TrashIcon]
+🎨 Design Notes
 
-[ + Add element ]
+Use Shadcn ScrollArea, Avatar, Input, Button, and Card components.
+
+Messages grouped by date (optional).
+
+“All changes saved” not needed here.
+
+Show placeholder if no messages yet.
+
+For mock version, local state simulates socket updates.

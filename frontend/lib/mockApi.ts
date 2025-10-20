@@ -1,15 +1,20 @@
 import { v4 as uuidv4 } from "uuid";
 import inventories from "@/mock/inventories.json";
 import items from "@/mock/items.json";
-import comments from "@/mock/comments.json";
-import users from "@/mock/users.json";
-import access from "@/mock/access.json";
+import initialComments from "@/mock/comments.json";
+import initialUsers from "@/mock/users.json";
+import initialAccess from "@/mock/access.json";
+import initialStats from "@/mock/stats.json";
 import { Inventory, Item, NewItem } from "@/types/shared";
 import { generateItemId } from "./formatters";
 
 // Make items mutable for the mock API
 let mockInventories: Inventory[] = JSON.parse(JSON.stringify(inventories));
 let mockItems: Item[] = [...items];
+let mockComments = [...initialComments];
+let mockUsers = [...initialUsers];
+let mockAccess = [...initialAccess];
+let mockStats = [...initialStats];
 
 /**
  * Simulates a network request by fetching from our local mock JSON files.
@@ -37,6 +42,18 @@ export async function fetchMock(path: string, opts: RequestInit = {}) {
     if (pathName === "/items") {
       return JSON.parse(JSON.stringify(mockItems));
     }
+    if (pathName === "/users") {
+      return JSON.parse(JSON.stringify(mockUsers));
+    }
+    if (pathName === "/comments") {
+      return JSON.parse(JSON.stringify(mockComments));
+    }
+    if (pathName === "/access") {
+      return JSON.parse(JSON.stringify(mockAccess));
+    }
+    if (pathName === "/stats") {
+      return JSON.parse(JSON.stringify(mockStats));
+    }
   }
 
   if (opts.method === "PUT") {
@@ -56,6 +73,19 @@ export async function fetchMock(path: string, opts: RequestInit = {}) {
       }
       throw new Error("Inventory not found for update");
     }
+    if (pathName.startsWith("/access/")) {
+      const accessId = pathName.split("/").pop();
+      const updatedData = JSON.parse(opts.body as string);
+      const accessIndex = mockAccess.findIndex((a) => a.id === accessId);
+      if (accessIndex !== -1) {
+        mockAccess[accessIndex] = {
+          ...mockAccess[accessIndex],
+          ...updatedData,
+        };
+        return mockAccess[accessIndex];
+      }
+      throw new Error("Access entry not found for update");
+    }
     if (pathName.startsWith("/items/")) {
       const itemId = pathName.split("/").pop();
       const updatedData = JSON.parse(opts.body as string);
@@ -72,6 +102,11 @@ export async function fetchMock(path: string, opts: RequestInit = {}) {
     if (pathName.startsWith("/items/")) {
       const itemId = pathName.split("/").pop();
       mockItems = mockItems.filter((item) => item.id !== itemId);
+      return { success: true };
+    }
+    if (pathName.startsWith("/access/")) {
+      const accessId = pathName.split("/").pop();
+      mockAccess = mockAccess.filter((a) => a.id !== accessId);
       return { success: true };
     }
   }
@@ -106,6 +141,25 @@ export async function fetchMock(path: string, opts: RequestInit = {}) {
 
       mockItems.unshift(newItem); // Add to the start of the array
       return newItem;
+    }
+    if (pathName === "/comments") {
+      const newCommentData = JSON.parse(opts.body as string);
+      const newComment = {
+        id: uuidv4(),
+        inventoryId: newCommentData.inventoryId,
+        userId: "u_rahim", // Mocked current user
+        message: newCommentData.message,
+        timestamp: new Date().toISOString(),
+      };
+
+      mockComments.push(newComment);
+      return newComment;
+    }
+    if (pathName === "/access") {
+      const newAccessData = JSON.parse(opts.body as string);
+      // In a real app, you'd validate this data
+      mockAccess.push(newAccessData);
+      return newAccessData;
     }
   }
 

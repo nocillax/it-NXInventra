@@ -161,6 +161,9 @@
     "top_contributors": "শীর্ষ অবদানকারীরা",
     "items": "আইটেম",
     "visualize_more_data_message": "আরও ডেটা ভিজ্যুয়ালাইজ করুন",
-    "visualize_more_data_description": "এই ইনভেন্টরিতে 'Quantity' নামে একটি কাস্টম ফিল্ড যোগ করুন একটি বিতরণ চার্ট দেখতে।"
+    "visualize_more_data_description": "এই ইনভেন্টরিতে 'Quantity' নামে একটি কাস্টম ফিল্ড যোগ করুন একটি বিতরণ চার্ট দেখতে।",
+    "qty_distribution": "পরিমাণ দ্বারা বিতরণ",
+    "qty_short": "পরিমাণ:",
+    "others": "অন্যান্য"
   }
 }

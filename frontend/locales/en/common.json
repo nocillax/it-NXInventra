@@ -167,6 +167,9 @@
     "top_contributors": "Top Contributors",
     "items": "items",
     "visualize_more_data_message": "Visualize More Data",
-    "visualize_more_data_description": "Add a custom field named 'Quantity' to this inventory to see a distribution chart."
+    "visualize_more_data_description": "Add a custom field named 'Quantity' to this inventory to see a distribution chart.",
+    "qty_distribution": "Distribution by Quantity",
+    "qty_short": "Qty:",
+    "others": "Others"
   }
 }

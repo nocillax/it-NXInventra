@@ -142,7 +142,7 @@ export default function InventoryStatisticsPage() {
           {quantityChartData ? (
             <Card>
               <CardHeader>
-                <CardTitle>Distribution by Quantity</CardTitle>
+                <CardTitle>{t("qty_distribution")}</CardTitle>
               </CardHeader>
               <CardContent>
                 <FieldDistributionChart data={quantityChartData} />

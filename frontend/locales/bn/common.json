@@ -147,5 +147,20 @@
     "visibility_private_desc": "এই ইনভেন্টরি প্রাইভেট এবং শুধুমাত্র সহযোগীদের জন্য অ্যাক্সেসযোগ্য।",
     "public": "পাবলিক",
     "private": "প্রাইভেট"
+  },
+  "StatisticsPage": {
+    "no_data_message": "পরিসংখ্যান প্রদর্শনের জন্য পর্যাপ্ত ডেটা নেই।",
+    "monthly_additions": "মাসিক আইটেম সংযোজন",
+    "total_items": "মোট আইটেম",
+    "total_quantity": "মোট পরিমাণ",
+    "total_quantity_placeholder": "একটি 'Quantity' ফিল্ড যোগ করুন এই পরিসংখ্যান দেখতে।",
+    "avg_price": "গড় মূল্য",
+    "avg_price_placeholder": "একটি 'Price' ফিল্ড যোগ করুন এই পরিসংখ্যান দেখতে।",
+    "avg_quantity": "গড় পরিমাণ",
+    "avg_quantity_placeholder": "একটি 'Quantity' ফিল্ড যোগ করুন এই পরিসংখ্যান দেখতে।",
+    "top_contributors": "শীর্ষ অবদানকারীরা",
+    "items": "আইটেম",
+    "visualize_more_data_message": "আরও ডেটা ভিজ্যুয়ালাইজ করুন",
+    "visualize_more_data_description": "এই ইনভেন্টরিতে 'Quantity' নামে একটি কাস্টম ফিল্ড যোগ করুন একটি বিতরণ চার্ট দেখতে।"
   }
 }

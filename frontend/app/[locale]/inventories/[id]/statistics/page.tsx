@@ -12,6 +12,7 @@ import { PlaceholderStatCard } from "@/components/statistics/PlaceholderStatCard
 import { TopContributorsCard } from "@/components/statistics/TopContributorsCard";
 import { FieldDistributionChart } from "@/components/statistics/FieldDistributionChart";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useTranslations, useLocale } from "next-intl";
 
 export default function InventoryStatisticsPage() {
   const params = useParams();
@@ -22,6 +23,19 @@ export default function InventoryStatisticsPage() {
     useInventory(inventoryId);
   const { items, isLoading: isLoadingItems } = useItems(inventoryId);
   const { users, isLoading: isLoadingUsers } = useUsers();
+
+  const t = useTranslations("StatisticsPage");
+  const locale = useLocale();
+
+  const formatNumber = (num: number) => {
+    return new Intl.NumberFormat(locale).format(num);
+  };
+  const formatDecimal = (num: number) => {
+    return new Intl.NumberFormat(locale, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(num);
+  };
 
   const isLoading =
     isLoadingStats || isLoadingInventory || isLoadingUsers || isLoadingItems;
@@ -44,7 +58,7 @@ export default function InventoryStatisticsPage() {
   }
 
   if (!stats || !inventory || !users || !items) {
-    return <p>No statistics available for this inventory.</p>;
+    return <p>{t("no_data_message")}</p>;
   }
 
   // Prepare data for the 12-month bar chart
@@ -69,38 +83,44 @@ export default function InventoryStatisticsPage() {
   return (
     <div className="space-y-4">
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <StatCard title="Total Items" value={stats.totalItems} />
+        <StatCard
+          title={t("total_items")}
+          value={formatNumber(stats.totalItems)}
+        />
 
         {stats.totalQuantity !== null ? (
-          <StatCard title="Total Quantity" value={stats.totalQuantity} />
+          <StatCard
+            title={t("total_quantity")}
+            value={formatNumber(stats.totalQuantity)}
+          />
         ) : (
           <PlaceholderStatCard
-            title="Total Quantity"
-            message='Add a "Quantity" field to see this stat.'
+            title={t("total_quantity")}
+            message={t("total_quantity_placeholder")}
           />
         )}
 
         {stats.avgPrice !== null ? (
           <StatCard
-            title="Avg. Price"
-            value={`$${stats.avgPrice.toFixed(2)}`}
+            title={t("avg_price")}
+            value={`$${formatDecimal(stats.avgPrice)}`}
           />
         ) : (
           <PlaceholderStatCard
-            title="Avg. Price"
-            message='Add a "Price" field to see this stat.'
+            title={t("avg_price")}
+            message={t("avg_price_placeholder")}
           />
         )}
 
         {stats.avgQuantity !== null ? (
           <StatCard
-            title="Avg. Quantity"
-            value={stats.avgQuantity.toFixed(2)}
+            title={t("avg_quantity")}
+            value={formatDecimal(stats.avgQuantity)}
           />
         ) : (
           <PlaceholderStatCard
-            title="Avg. Quantity"
-            message='Add a "Quantity" field to see this stat.'
+            title={t("avg_quantity")}
+            message={t("avg_quantity_placeholder")}
           />
         )}
       </div>
@@ -108,7 +128,7 @@ export default function InventoryStatisticsPage() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
         <Card className="lg:col-span-4">
           <CardHeader>
-            <CardTitle>Items Added Per Month</CardTitle>
+            <CardTitle>{t("monthly_additions")}</CardTitle>
           </CardHeader>
           <CardContent className="pl-2">
             <MonthlyAdditionsChart data={monthlyAdditionsData} />
@@ -131,12 +151,11 @@ export default function InventoryStatisticsPage() {
           ) : (
             <Card className="flex flex-col items-center justify-center text-center p-6">
               <CardHeader>
-                <CardTitle>Visualize More Data</CardTitle>
+                <CardTitle>{t("visualize_more_data_message")}</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  Add a custom field named "Quantity" to this inventory to see a
-                  distribution chart.
+                  {t("visualize_more_data_description")}
                 </p>
               </CardContent>
             </Card>

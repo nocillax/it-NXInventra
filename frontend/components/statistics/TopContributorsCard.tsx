@@ -3,6 +3,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Contributor, User } from "@/types/shared";
+import { useTranslations, useLocale } from "next-intl";
 
 interface TopContributorsCardProps {
   contributors: Contributor[];
@@ -14,11 +15,17 @@ export function TopContributorsCard({
   users,
 }: TopContributorsCardProps) {
   const usersMap = new Map(users.map((user) => [user.id, user]));
+  const t = useTranslations("StatisticsPage");
+  const locale = useLocale();
+
+  const formatNumber = (num: number) => {
+    return new Intl.NumberFormat(locale).format(num);
+  };
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Top Contributors</CardTitle>
+        <CardTitle>{t("top_contributors")}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         {contributors.map((contributor) => {
@@ -36,7 +43,7 @@ export function TopContributorsCard({
                 <p className="text-sm text-muted-foreground">{user?.email}</p>
               </div>
               <div className="ml-auto font-medium">
-                {contributor.count} items
+                {formatNumber(contributor.count)} {t("items")}
               </div>
             </div>
           );

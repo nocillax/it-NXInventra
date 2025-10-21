@@ -153,5 +153,20 @@
     "visibility_private_desc": "This inventory is private and only accessible to collaborators.",
     "public": "Public",
     "private": "Private"
+  },
+  "StatisticsPage": {
+    "no_data_message": "No statistics available for this inventory.",
+    "monthly_additions": "Items Added Per Month",
+    "total_items": "Total Items",
+    "total_quantity": "Total Quantity",
+    "total_quantity_placeholder": "Add a 'Quantity' field to see this stat.",
+    "avg_price": "Avg. Price",
+    "avg_price_placeholder": "Add a 'Price' field to see this stat.",
+    "avg_quantity": "Avg. Quantity",
+    "avg_quantity_placeholder": "Add a 'Quantity' field to see this stat.",
+    "top_contributors": "Top Contributors",
+    "items": "items",
+    "visualize_more_data_message": "Visualize More Data",
+    "visualize_more_data_description": "Add a custom field named 'Quantity' to this inventory to see a distribution chart."
   }
 }

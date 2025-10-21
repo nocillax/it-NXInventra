@@ -53,5 +53,13 @@
     "failure_message": "আইটেম(গুলি) মুছে ফেলতে ব্যর্থ। অনুগ্রহ করে আবার চেষ্টা করুন।",
     "cancel": "বাতিল করুন",
     "delete": "মুছে ফেলুন"
+  },
+  "CommentForm": {
+    "cmt_placeholder": "একটি মন্তব্য লিখুন...",
+    "post": "পোস্ট করুন",
+    "posting_message": "পোস্ট হচ্ছে..."
+  },
+  "CommentItem": {
+    "unknown_user": "অজ্ঞাত ইউজার"
   }
 }

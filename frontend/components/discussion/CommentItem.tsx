@@ -4,6 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import ReactMarkdown from "react-markdown";
 import { Comment, User } from "@/types/shared";
 import { formatDistanceToNow } from "date-fns";
+import { useTranslations } from "next-intl";
 
 interface CommentItemProps {
   comment: Comment;
@@ -14,6 +15,8 @@ export function CommentItem({ comment, user }: CommentItemProps) {
   const timeAgo = formatDistanceToNow(new Date(comment.timestamp), {
     addSuffix: true,
   });
+
+  const t = useTranslations("CommentItem");
 
   return (
     <div className="flex items-start space-x-4">
@@ -26,7 +29,7 @@ export function CommentItem({ comment, user }: CommentItemProps) {
       <div className="space-y-1">
         <div className="flex items-center gap-2">
           <p className="font-semibold text-sm">
-            {user?.name || "Unknown User"}
+            {user?.name || t("unknown_user")}
           </p>
           <p className="text-xs text-muted-foreground">{timeAgo}</p>
         </div>

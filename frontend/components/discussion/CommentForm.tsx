@@ -8,6 +8,7 @@ import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import TextareaAutosize from "react-textarea-autosize";
 import { apiFetch } from "@/lib/apiClient";
+import { useTranslations } from "next-intl";
 
 const formSchema = z.object({
   message: z.string().min(1, "Message cannot be empty."),
@@ -30,6 +31,7 @@ export function CommentForm({
   });
 
   const isSubmitting = form.formState.isSubmitting;
+  const t = useTranslations("CommentForm");
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
@@ -59,7 +61,7 @@ export function CommentForm({
               <FormControl>
                 <div className="flex items-center w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background">
                   <TextareaAutosize
-                    placeholder="Write a comment..."
+                    placeholder={t("cmt_placeholder")}
                     className="w-full resize-none appearance-none bg-transparent focus:outline-none"
                     maxRows={4}
                     {...field}
@@ -70,7 +72,7 @@ export function CommentForm({
           )}
         />
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Posting..." : "Post"}
+          {isSubmitting ? t("posting_message") : t("post")}
         </Button>
       </form>
     </Form>

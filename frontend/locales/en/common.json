@@ -53,5 +53,13 @@
     "failure_message": "Failed to delete item(s). Please try again.",
     "cancel": "Cancel",
     "delete": "Delete"
+  },
+  "CommentForm": {
+    "cmt_placeholder": "Write a comment...",
+    "post": "Post",
+    "posting_message": "Posting..."
+  },
+  "CommentItem": {
+    "unknown_user": "Unknown User"
   }
 }

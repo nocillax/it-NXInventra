@@ -14,10 +14,12 @@ import { mutate as globalMutate } from "swr";
 import { useModalStore } from "@/stores/useModalStore";
 import { apiFetch } from "@/lib/apiClient";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 export function ItemDeleteDialog() {
   const { isOpen, type, data, onClose } = useModalStore();
   const { inventoryId, items } = data;
+  const t = useTranslations("ItemDeleteDialog");
 
   const isModalOpen = isOpen && type === "deleteItem";
 
@@ -28,16 +30,12 @@ export function ItemDeleteDialog() {
         items.map((item) => apiFetch(`/items/${item.id}`, { method: "DELETE" }))
       );
 
-      const message =
-        items.length > 1
-          ? `${items.length} items deleted.`
-          : `Item ${items[0].id} deleted.`;
-      toast.success(message);
+      toast.success(t("success_message"));
       globalMutate(`/inventories/${inventoryId}/items`);
       data.onSuccess?.();
       onClose();
     } catch (error) {
-      toast.error("Failed to delete item.");
+      toast.error(t("failure_message"));
     }
   };
 
@@ -45,21 +43,16 @@ export function ItemDeleteDialog() {
     <AlertDialog open={isModalOpen} onOpenChange={onClose}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-          <AlertDialogDescription>
-            {`This will permanently delete ${
-              items?.length || 0
-            } item(s). This action
-            cannot be undone.`}
-          </AlertDialogDescription>
+          <AlertDialogTitle>{t("title")}</AlertDialogTitle>
+          <AlertDialogDescription>{t("description")}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
           <AlertDialogAction
             onClick={handleDelete}
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
-            Delete
+            {t("delete")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

@@ -22,5 +22,36 @@
   "LanguageToggle": {
     "english": "English",
     "bengali": "বাংলা (Bengali)"
+  },
+  "ItemsActions": {
+    "add_item_button": "আইটেম যোগ করুন",
+    "edit_item_button": "সম্পাদনা করুন",
+    "delete_item_button": "মুছে ফেলুন"
+  },
+  "ItemCreateDialog": {
+    "title": "আইটেম যোগ করুন",
+    "description": "ইনভেন্টরিতে একটি নতুন আইটেম যোগ করুন।",
+    "success_message": "আইটেম সফলভাবে তৈরি হয়েছে!",
+    "failure_message": "আইটেম তৈরি করতে ব্যর্থ। অনুগ্রহ করে আবার চেষ্টা করুন।",
+    "input_placeholder": "টাইপ করুন...",
+    "saving_message": "সংরক্ষণ হচ্ছে...",
+    "save_button": "যোগ করুন"
+  },
+  "ItemEditDialog": {
+    "title": "সম্পাদনা করুন",
+    "description": "এই আইটেমের বিবরণ আপডেট করুন।",
+    "success_message": "আইটেম সফলভাবে আপডেট হয়েছে!",
+    "failure_message": "আইটেম আপডেট করতে ব্যর্থ। অনুগ্রহ করে আবার চেষ্টা করুন।",
+    "input_placeholder": "টাইপ করুন...",
+    "saving_message": "আপডেট হচ্ছে...",
+    "save_button": "আপডেট করুন"
+  },
+  "ItemDeleteDialog": {
+    "title": "আপনি কি নিশ্চিত?",
+    "description": "এটি স্থায়ীভাবে আইটেম(গুলি) মুছে ফেলবে। এই ক্রিয়াটি পূর্বাবস্থায় ফেরানো যাবে না।",
+    "success_message": "আইটেম(গুলি) সফলভাবে মুছে ফেলা হয়েছে!",
+    "failure_message": "আইটেম(গুলি) মুছে ফেলতে ব্যর্থ। অনুগ্রহ করে আবার চেষ্টা করুন।",
+    "cancel": "বাতিল করুন",
+    "delete": "মুছে ফেলুন"
   }
 }

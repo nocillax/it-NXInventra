@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useModalStore } from "@/stores/useModalStore";
 import { Item } from "@/types/shared";
 import { Plus, Pencil, Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface ItemBulkActionsProps<TData> {
   table: Table<TData>;
@@ -18,6 +19,7 @@ export function ItemBulkActions<TData>({
   const { onOpen } = useModalStore();
   const selectedRows = table.getFilteredSelectedRowModel().rows;
   const numSelected = selectedRows.length;
+  const t = useTranslations("ItemsActions");
 
   const handleEdit = () => {
     const itemToEdit = selectedRows[0].original as Item;
@@ -48,7 +50,7 @@ export function ItemBulkActions<TData>({
             })
           }
         >
-          <Plus className="mr-2 h-4 w-4" /> Add Item
+          <Plus className="mr-2 h-4 w-4" /> {t("add_item_button")}
         </Button>
         {numSelected > 0 && (
           <>
@@ -57,14 +59,14 @@ export function ItemBulkActions<TData>({
               onClick={handleEdit}
               disabled={numSelected !== 1}
             >
-              <Pencil className="mr-2 h-4 w-4" /> Edit
+              <Pencil className="mr-2 h-4 w-4" /> {t("edit_item_button")}
             </Button>
             <Button
               variant="destructive"
               onClick={handleDelete}
               disabled={numSelected === 0}
             >
-              <Trash2 className="mr-2 h-4 w-4" /> Delete
+              <Trash2 className="mr-2 h-4 w-4" /> {t("delete_item_button")}
             </Button>
           </>
         )}

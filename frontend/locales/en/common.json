@@ -22,5 +22,36 @@
   "LanguageToggle": {
     "english": "English",
     "bengali": "বাংলা (Bengali)"
+  },
+  "ItemsActions": {
+    "add_item_button": "Add Item",
+    "edit_item_button": "Edit",
+    "delete_item_button": "Delete"
+  },
+  "ItemCreateDialog": {
+    "title": "Add Item",
+    "description": "Add a new item in the inventory.",
+    "success_message": "Item created successfully!",
+    "failure_message": "Failed to create item. Please try again.",
+    "input_placeholder": "Type here...",
+    "saving_message": "Adding Item...",
+    "save_button": "Add Item"
+  },
+  "ItemEditDialog": {
+    "title": "Edit Item",
+    "description": "Update the details for this item.",
+    "success_message": "Item updated successfully!",
+    "failure_message": "Failed to update item. Please try again.",
+    "input_placeholder": "Type here...",
+    "saving_message": "Updating Item...",
+    "save_button": "Update Item"
+  },
+  "ItemDeleteDialog": {
+    "title": "Are you sure?",
+    "description": "This will permanently delete the item(s). This action cannot be undone.",
+    "success_message": "Item(s) deleted successfully!",
+    "failure_message": "Failed to delete item(s). Please try again.",
+    "cancel": "Cancel",
+    "delete": "Delete"
   }
 }

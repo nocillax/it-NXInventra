@@ -6,6 +6,7 @@ import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { mutate as globalMutate } from "swr";
+import { useTranslations } from "next-intl";
 
 import {
   Dialog,
@@ -31,11 +32,13 @@ import { Input } from "../ui/input";
 import { Checkbox } from "../ui/checkbox";
 import { Skeleton } from "../ui/skeleton";
 import { NewItem } from "@/types/shared";
+import { title } from "process";
 
 export function ItemCreateDialog() {
   const { isOpen, type, data, onClose } = useModalStore();
   const { inventoryId } = data;
   const { inventory, isLoading } = useInventory(inventoryId);
+  const t = useTranslations("ItemCreateDialog");
 
   const isModalOpen = isOpen && type === "createItem";
 
@@ -89,12 +92,12 @@ export function ItemCreateDialog() {
         method: "POST",
         body: JSON.stringify(newItem),
       });
-      toast.success("Item created successfully!");
+      toast.success(t("success_message"));
       globalMutate(`/inventories/${inventoryId}/items`); // Re-fetch the items list
       data.onSuccess?.();
       onClose();
     } catch (error) {
-      toast.error("Failed to create item. Please try again.");
+      toast.error(t("failure_message"));
     }
   };
 
@@ -106,10 +109,10 @@ export function ItemCreateDialog() {
     <Dialog open={isModalOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Add New Item to {inventory.title}</DialogTitle>
-          <DialogDescription>
-            Fill in the details for your new item.
-          </DialogDescription>
+          <DialogTitle>
+            {t("title")} - {inventory.title}
+          </DialogTitle>
+          <DialogDescription>{t("description")}</DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form
@@ -132,7 +135,7 @@ export function ItemCreateDialog() {
                         />
                       ) : (
                         <Input
-                          placeholder={`Enter ${field.name}`}
+                          placeholder={t("input_placeholder")}
                           {...formField}
                           value={formField.value ?? ""}
                         />
@@ -145,7 +148,7 @@ export function ItemCreateDialog() {
             ))}
             <DialogFooter>
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Adding..." : "Add Item"}
+                {isSubmitting ? t("saving_message") : t("save_button")}
               </Button>
             </DialogFooter>
           </form>

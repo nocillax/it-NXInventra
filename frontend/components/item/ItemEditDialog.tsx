@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useEffect } from "react";
 import { mutate as globalMutate } from "swr";
+import { useTranslations } from "next-intl";
 
 import {
   Dialog,
@@ -34,6 +35,7 @@ export function ItemEditDialog() {
   const { isOpen, type, data, onClose } = useModalStore();
   const { inventoryId, item } = data;
   const { inventory } = useInventory(inventoryId);
+  const t = useTranslations("ItemEditDialog");
 
   const isModalOpen = isOpen && type === "editItem";
 
@@ -75,12 +77,12 @@ export function ItemEditDialog() {
         method: "PUT",
         body: JSON.stringify({ fields: values }),
       });
-      toast.success("Item updated successfully!");
+      toast.success(t("success_message"));
       globalMutate(`/inventories/${inventoryId}/items`); // Re-fetch the items list
       data.onSuccess?.();
       onClose();
     } catch (error) {
-      toast.error("Failed to update item. Please try again.");
+      toast.error(t("failure_message"));
     }
   };
 
@@ -92,10 +94,10 @@ export function ItemEditDialog() {
     <Dialog open={isModalOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Edit {item.id}</DialogTitle>
-          <DialogDescription>
-            Update the details for this item.
-          </DialogDescription>
+          <DialogTitle>
+            {t("title")} - {item.customId}
+          </DialogTitle>
+          <DialogDescription>{t("description")}</DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form
@@ -118,7 +120,7 @@ export function ItemEditDialog() {
                         />
                       ) : (
                         <Input
-                          placeholder={`Enter ${field.name}`}
+                          placeholder={t("input_placeholder")}
                           {...formField}
                           value={formField.value ?? ""}
                         />
@@ -131,7 +133,7 @@ export function ItemEditDialog() {
             ))}
             <DialogFooter>
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Saving..." : "Save Changes"}
+                {isSubmitting ? t("saving_message") : t("save_button")}
               </Button>
             </DialogFooter>
           </form>

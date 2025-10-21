@@ -61,5 +61,15 @@
   },
   "CommentItem": {
     "unknown_user": "Unknown User"
+  },
+  "InventorySettingsForm": {
+    "title": "Title",
+    "title_placeholder": "e.g. Office Laptops",
+    "description": "Description",
+    "description_placeholder": "A short description of this inventory.",
+    "save_button": "Save Changes",
+    "saving_message": "Saving...",
+    "success_message": "Inventory settings updated.",
+    "failure_message": "Failed to update settings."
   }
 }

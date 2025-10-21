@@ -61,5 +61,15 @@
   },
   "CommentItem": {
     "unknown_user": "অজ্ঞাত ইউজার"
+  },
+  "InventorySettingsForm": {
+    "title": "শিরোনাম",
+    "title_placeholder": "যেমন: অফিস ল্যাপটপ",
+    "description": "বর্ণনা",
+    "description_placeholder": "এই ইনভেন্টরির একটি সংক্ষিপ্ত বিবরণ।",
+    "success_message": "ইনভেন্টরি সেটিংস সফলভাবে আপডেট হয়েছে!",
+    "failure_message": "সেটিংস আপডেট করতে ব্যর্থ। অনুগ্রহ করে আবার চেষ্টা করুন।",
+    "saving_message": "সংরক্ষণ হচ্ছে...",
+    "save_button": "পরিবর্তন সংরক্ষণ করুন"
   }
 }

@@ -2,7 +2,7 @@
 
 import { useParams } from "next/navigation";
 import { useInventory } from "@/hooks/useInventory";
-import { InventorySettingsForm } from "@/components/inventory/InventorySettingsForm";
+import { InventorySettingsForm } from "@/components/settings/InventorySettingsForm";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function InventorySettingsPage() {

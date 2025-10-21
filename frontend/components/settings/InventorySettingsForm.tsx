@@ -18,6 +18,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Inventory } from "@/types/shared";
 import { apiFetch } from "@/lib/apiClient";
+import { useTranslations } from "next-intl";
 
 const formSchema = z.object({
   title: z.string().min(3, {
@@ -42,6 +43,7 @@ export function InventorySettingsForm({
       description: inventory.description || "",
     },
   });
+  const t = useTranslations("InventorySettingsForm");
 
   const isSubmitting = form.formState.isSubmitting;
 
@@ -51,10 +53,10 @@ export function InventorySettingsForm({
         method: "PUT",
         body: JSON.stringify(values),
       });
-      toast.success("Inventory settings updated.");
+      toast.success(t("success_message"));
       onUpdate(); // This will trigger the SWR re-fetch
     } catch (error) {
-      toast.error("Failed to update settings.");
+      toast.error(t("failure_message"));
     }
   }
 
@@ -69,9 +71,9 @@ export function InventorySettingsForm({
           name="title"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Title</FormLabel>
+              <FormLabel>{t("title")}</FormLabel>
               <FormControl>
-                <Input placeholder="e.g. Office Laptops" {...field} />
+                <Input placeholder={t("title_placeholder")} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -82,10 +84,10 @@ export function InventorySettingsForm({
           name="description"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Description</FormLabel>
+              <FormLabel>{t("description")}</FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder="A short description of this inventory."
+                  placeholder={t("description_placeholder")}
                   {...field}
                 />
               </FormControl>
@@ -94,7 +96,7 @@ export function InventorySettingsForm({
           )}
         />
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Saving..." : "Save Changes"}
+          {isSubmitting ? t("saving_message") : t("save_button")}
         </Button>
       </form>
     </Form>

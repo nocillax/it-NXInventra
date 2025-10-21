@@ -71,5 +71,27 @@
     "saving_message": "Saving...",
     "success_message": "Inventory settings updated.",
     "failure_message": "Failed to update settings."
+  },
+  "IDBuilder": {
+    "success_message": "ID format updated successfully.",
+    "failure_message": "Failed to update ID format.",
+    "add_segment_button": "Add Segment",
+    "save_changes_button": "Save Changes"
+  },
+  "IDPreview": {
+    "preview_title": "Custom ID Preview",
+    "preview_description": "Example of what your Custom IDs will look like."
+  },
+  "IdSegmentRow": {
+    "segment_type": "Segment Type",
+    "fixed_text": "Fixed Text",
+    "date": "Date",
+    "sequence": "Sequence",
+    "fixed_text_placeholder": "Value (e.g. INV-)",
+    "date_placeholder": "Format (e.g. yyyy)",
+    "sequence_placeholder": "Format (e.g. D3 for 001)"
+  },
+  "CustomIdPage": {
+    "inventory_not_found": "Inventory not found."
   }
 }

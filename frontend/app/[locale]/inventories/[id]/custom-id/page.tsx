@@ -4,11 +4,13 @@ import { useParams } from "next/navigation";
 import { useInventory } from "@/hooks/useInventory";
 import { IDBuilder } from "@/components/customId/IDBuilder";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useTranslations } from "use-intl";
 
 export default function InventoryCustomIdPage() {
   const params = useParams();
   const inventoryId = params.id as string;
   const { inventory, isLoading, mutate } = useInventory(inventoryId);
+  const t = useTranslations("CustomIdPage");
 
   if (isLoading) {
     return (
@@ -19,7 +21,7 @@ export default function InventoryCustomIdPage() {
     );
   }
 
-  if (!inventory) return <p>Inventory not found.</p>;
+  if (!inventory) return <p>{t("inventory_not_found")}</p>;
 
   return <IDBuilder inventory={inventory} />;
 }

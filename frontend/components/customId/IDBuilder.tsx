@@ -23,8 +23,9 @@ import { Button } from "@/components/ui/button";
 import { Inventory, IdSegment } from "@/types/shared";
 import { useInventories } from "@/hooks/useInventories";
 import { apiFetch } from "@/lib/apiClient";
-import { IDPreview } from "./IDPreview";
-import { SortableIdSegmentRow } from "./SortableIdSegmentRow";
+import { IDPreview } from "@/components/customId/IDPreview";
+import { SortableIdSegmentRow } from "@/components/customId/SortableIdSegmentRow";
+import { useTranslations } from "next-intl";
 
 interface IDBuilderProps {
   inventory: Inventory;
@@ -93,12 +94,12 @@ export function IDBuilder({ inventory }: IDBuilderProps) {
         body: JSON.stringify({ idFormat: segments }),
       });
 
-      toast.success("ID format updated successfully.");
+      toast.success(t("success_message"));
       // Revalidate both to get fresh data from the "server"
       mutate(`/inventories/${inventory.id}`);
       mutate("/inventories");
     } catch (error) {
-      toast.error("Failed to update ID format.");
+      toast.error(t("failure_message"));
       // Revert on error
       mutate(`/inventories/${inventory.id}`, inventory, { revalidate: false });
       if (inventories) {
@@ -106,6 +107,8 @@ export function IDBuilder({ inventory }: IDBuilderProps) {
       }
     }
   };
+
+  const t = useTranslations("IDBuilder");
 
   return (
     <div className="grid gap-8 md:grid-cols-3">
@@ -134,9 +137,11 @@ export function IDBuilder({ inventory }: IDBuilderProps) {
           </DndContext>
           <div className="flex justify-between items-center pt-4">
             <Button variant="outline" onClick={handleAddSegment}>
-              Add Segment
+              {t("add_segment_button")}
             </Button>
-            <Button onClick={handleSaveChanges}>Save Changes</Button>
+            <Button onClick={handleSaveChanges}>
+              {t("save_changes_button")}
+            </Button>
           </div>
         </div>
       </div>

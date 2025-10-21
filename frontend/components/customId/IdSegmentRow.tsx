@@ -7,6 +7,7 @@ import { IdSegment, IdSegmentType } from "@/types/shared";
 import { Button } from "@/components/ui/button";
 import { GripVertical, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { useTranslations } from "next-intl";
 import {
   Select,
   SelectContent,
@@ -40,6 +41,8 @@ export const IdSegmentRow = React.forwardRef<HTMLDivElement, IdSegmentRowProps>(
       onUpdate({ ...segment, format: e.target.value });
     };
 
+    const t = useTranslations("IdSegmentRow");
+
     return (
       <div
         ref={ref}
@@ -55,31 +58,31 @@ export const IdSegmentRow = React.forwardRef<HTMLDivElement, IdSegmentRowProps>(
         </div>
         <Select value={segment.type} onValueChange={handleTypeChange}>
           <SelectTrigger className="w-[150px]">
-            <SelectValue placeholder="Segment Type" />
+            <SelectValue placeholder={t("segment_type")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="fixed">Fixed Text</SelectItem>
-            <SelectItem value="date">Date</SelectItem>
-            <SelectItem value="sequence">Sequence</SelectItem>
+            <SelectItem value="fixed">{t("fixed_text")}</SelectItem>
+            <SelectItem value="date">{t("date")}</SelectItem>
+            <SelectItem value="sequence">{t("sequence")}</SelectItem>
           </SelectContent>
         </Select>
         {segment.type === "fixed" && (
           <Input
-            placeholder="Value (e.g. INV-)"
+            placeholder={t("fixed_text_placeholder")}
             value={segment.value || ""}
             onChange={handleValueChange}
           />
         )}
         {segment.type === "date" && (
           <Input
-            placeholder="Format (e.g. yyyy)"
+            placeholder={t("date_placeholder")}
             value={segment.format || ""}
             onChange={handleFormatChange}
           />
         )}
         {segment.type === "sequence" && (
           <Input
-            placeholder="Format (e.g. D3 for 001)"
+            placeholder={t("sequence_placeholder")}
             value={segment.format || ""}
             onChange={handleFormatChange}
           />

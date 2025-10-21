@@ -135,5 +135,23 @@
     "show_in_table_description": "Display this field as a column in the items table.",
     "add_field_button": "Add Field",
     "saving_message": "Adding..."
+  },
+  "AccessList": {
+    "success_message": "User role updated.",
+    "failure_message": "Failed to update role.",
+    "user": "User",
+    "role": "Role",
+    "role_owner": "Owner",
+    "role_writer": "Writer",
+    "role_viewer": "Viewer"
+  },
+  "AccessPages": {
+    "title": "Collaborators",
+    "add_collab_btn": "Add Collaborator",
+    "visibility": "Visibility",
+    "visibility_public_desc": "This inventory is public and can be viewed by anyone.",
+    "visibility_private_desc": "This inventory is private and only accessible to collaborators.",
+    "public": "Public",
+    "private": "Private"
   }
 }

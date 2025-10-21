@@ -23,6 +23,7 @@ import { Access, Role, User } from "@/types/shared";
 import { useModalStore } from "@/stores/useModalStore";
 import { apiFetch } from "@/lib/apiClient";
 import { useAccess } from "@/hooks/useAccess";
+import { useTranslations } from "next-intl";
 
 interface AccessListProps {
   accessList: Access[];
@@ -41,6 +42,7 @@ export function AccessList({
   const { onOpen } = useModalStore();
   const { mutate } = useAccess(inventoryId);
   const ownerCount = accessList.filter((a) => a.role === "Owner").length;
+  const t = useTranslations("AccessList");
 
   const handleRoleChange = async (accessId: string, role: Role) => {
     try {
@@ -48,10 +50,10 @@ export function AccessList({
         method: "PUT",
         body: JSON.stringify({ role }),
       });
-      toast.success("User role updated.");
+      toast.success(t("success_message"));
       mutate();
     } catch (error) {
-      toast.error("Failed to update role.");
+      toast.error(t("failure_message"));
     }
   };
 
@@ -60,8 +62,8 @@ export function AccessList({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>User</TableHead>
-            <TableHead className="text-center">Role</TableHead>
+            <TableHead>{t("user")}</TableHead>
+            <TableHead className="text-center">{t("role")}</TableHead>
             <TableHead className="w-[80px]"></TableHead>
           </TableRow>
         </TableHeader>
@@ -100,9 +102,9 @@ export function AccessList({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Owner">Owner</SelectItem>
-                      <SelectItem value="Writer">Writer</SelectItem>
-                      <SelectItem value="Viewer">Viewer</SelectItem>
+                      <SelectItem value="Owner">{t("role_owner")}</SelectItem>
+                      <SelectItem value="Writer">{t("role_writer")}</SelectItem>
+                      <SelectItem value="Viewer">{t("role_viewer")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </TableCell>

@@ -129,5 +129,23 @@
     "show_in_table_description": "এই ফিল্ডটিকে আইটেম টেবিলের একটি কলাম হিসেবে প্রদর্শন করুন।",
     "add_field_button": "ফিল্ড যোগ করুন",
     "saving_message": "সংরক্ষণ হচ্ছে..."
+  },
+  "AccessList": {
+    "success_message": "ইউজার ভূমিকা সফলভাবে আপডেট হয়েছে।",
+    "failure_message": "ইউজার ভূমিকা আপডেট করতে ব্যর্থ। অনুগ্রহ করে আবার চেষ্টা করুন।",
+    "user": "ইউজার",
+    "role": "ভূমিকা",
+    "role_owner": "মালিক",
+    "role_writer": "লেখক",
+    "role_viewer": "দর্শক"
+  },
+  "AccessPages": {
+    "title": "সহযোগীরা",
+    "add_collab_btn": "সহযোগী যোগ করুন",
+    "visibility": "দৃশ্যমানতা",
+    "visibility_public_desc": "এই ইনভেন্টরি পাবলিক এবং যেকেউ এটি দেখতে পারে।",
+    "visibility_private_desc": "এই ইনভেন্টরি প্রাইভেট এবং শুধুমাত্র সহযোগীদের জন্য অ্যাক্সেসযোগ্য।",
+    "public": "পাবলিক",
+    "private": "প্রাইভেট"
   }
 }

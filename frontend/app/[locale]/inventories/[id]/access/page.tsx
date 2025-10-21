@@ -8,6 +8,7 @@ import { AccessList } from "@/components/access/AccessList";
 import { AccessInvite } from "@/components/access/AccessInvite";
 import { VisibilityToggle } from "@/components/access/VisibilityToggle";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useTranslations } from "next-intl";
 
 export default function InventoryAccessPage() {
   const params = useParams();
@@ -22,14 +23,14 @@ export default function InventoryAccessPage() {
   const { users, isLoading: isLoadingUsers } = useUsers();
 
   const isLoading = isLoadingInventory || isLoadingAccess || isLoadingUsers;
-
+  const t = useTranslations("AccessPages");
   return (
     <div className="space-y-6">
       {inventory && (
         <VisibilityToggle inventory={inventory} onUpdate={mutateInventory} />
       )}
       <div className="space-y-2">
-        <h3 className="text-lg font-medium">Collaborators</h3>
+        <h3 className="text-lg font-medium">{t("title")}</h3>
         {inventory && <AccessInvite inventoryId={inventory.id} />}
       </div>
       {isLoading && (

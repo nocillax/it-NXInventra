@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Inventory } from "@/types/shared";
 import { apiFetch } from "@/lib/apiClient";
+import { useTranslations } from "next-intl";
 
 interface VisibilityToggleProps {
   inventory: Inventory;
@@ -37,15 +38,16 @@ export function VisibilityToggle({
       onUpdate(inventory, { revalidate: false });
     }
   };
+  const t = useTranslations("AccessPages");
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Visibility</CardTitle>
+        <CardTitle>{t("visibility")}</CardTitle>
         <CardDescription>
           {inventory.public
-            ? "This inventory is public and can be viewed by anyone."
-            : "This inventory is private and only accessible to collaborators."}
+            ? t("visibility_public_desc")
+            : t("visibility_private_desc")}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -56,7 +58,7 @@ export function VisibilityToggle({
             onCheckedChange={handleVisibilityChange}
           />
           <Label htmlFor="visibility-toggle">
-            {inventory.public ? "Public" : "Private"}
+            {inventory.public ? t("public") : t("private")}
           </Label>
         </div>
       </CardContent>

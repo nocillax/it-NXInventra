@@ -2,6 +2,7 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { useTranslations } from "next-intl";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,6 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export function UserNav() {
+  const t = useTranslations("UserNav");
   // Mock user data for now, will come from useAuth() hook later
   const user = {
     name: "Nocillax",
@@ -40,7 +42,7 @@ export function UserNav() {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>Log out</DropdownMenuItem>
+        <DropdownMenuItem>{t("log_out")}</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

@@ -1,3 +1,5 @@
+import { ReactNode } from "react";
+
 export type UUID = string;
 
 export interface User {
@@ -107,3 +109,8 @@ export interface InventoryStats {
   topContributors: Contributor[];
   monthlyAdditions: MonthlyAddition[];
 }
+
+export type LocaleLayoutProps = {
+  children: ReactNode;
+  params: { locale: string };
+};

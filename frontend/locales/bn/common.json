@@ -13,7 +13,11 @@
   "InventoryTabs": {
     "items": "আইটেম",
     "discussion": "আলোচনা",
-    "settings": "সেটিংস"
+    "settings": "সেটিংস",
+    "custom_id": "কাস্টম আইডি",
+    "fields": "ফিল্ডস",
+    "access": "অ্যাক্সেস",
+    "statistics": "পরিসংখ্যান"
   },
   "LanguageToggle": {
     "english": "English",

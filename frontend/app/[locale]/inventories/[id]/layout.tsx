@@ -1,19 +1,20 @@
 "use client";
 
-import { usePathname, useParams } from "next/navigation";
-import { Link } from "@/navigation";
+import { useParams } from "next/navigation";
+import { Link, usePathname } from "@/navigation";
 import { useInventory } from "@/hooks/useInventory";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useTranslations } from "next-intl";
 
 const TABS = [
-  { name: "Items", href: "" },
-  { name: "Discussion", href: "/discussion" },
-  { name: "Settings", href: "/settings" },
-  { name: "Custom ID", href: "/custom-id" },
-  { name: "Fields", href: "/fields" },
-  { name: "Access", href: "/access" },
-  { name: "Statistics", href: "/statistics" },
+  { key: "items", href: "" },
+  { key: "discussion", href: "/discussion" },
+  { key: "settings", href: "/settings" },
+  { key: "custom_id", href: "/custom-id" },
+  { key: "fields", href: "/fields" },
+  { key: "access", href: "/access" },
+  { key: "statistics", href: "/statistics" },
 ];
 
 export default function InventoryDetailLayout({
@@ -22,12 +23,12 @@ export default function InventoryDetailLayout({
   children: React.ReactNode;
 }) {
   const params = useParams();
-  const pathname = usePathname();
+  const pathname = usePathname(); // now from next-intl
   const { inventory, isLoading } = useInventory(params.id as string);
-
+  const t = useTranslations("InventoryTabs");
   const activeTab =
     TABS.find((tab) => `/inventories/${params.id}${tab.href}` === pathname)
-      ?.name || "Items";
+      ?.key || "Items";
 
   return (
     <div className="container py-6">
@@ -49,12 +50,12 @@ export default function InventoryDetailLayout({
         <TabsList className="grid w-full grid-cols-3 sm:w-auto sm:grid-cols-7">
           {TABS.map((tab) => (
             <Link
-              key={tab.name}
+              key={tab.key}
               href={`/inventories/${params.id}${tab.href}`}
               passHref
             >
-              <TabsTrigger value={tab.name} className="w-full">
-                {tab.name}
+              <TabsTrigger value={tab.key} className="w-full">
+                {t(tab.key)}
               </TabsTrigger>
             </Link>
           ))}

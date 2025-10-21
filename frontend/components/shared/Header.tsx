@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { ThemeToggle } from "@/components/shared/ThemeToggle";
 import { UserNav } from "@/components/shared/UserNav";
 import { Package2 } from "lucide-react";
-import Link from "next/link";
+import { Link } from "@/navigation";
 import LanguageToggle from "@/components/shared/LanguageToggle";
 import { useTranslations } from "next-intl";
 

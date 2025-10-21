@@ -7,6 +7,7 @@ import { ThemeProvider } from "@/components/providers/theme-provider";
 import { Header } from "@/components/shared/Header";
 import "../globals.css";
 import { LocaleLayoutProps } from "@/types/shared";
+import { ModalProvider } from "@/components/providers/modal-provider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,14 +21,12 @@ export default async function LocaleLayout({
     <html lang={locale} suppressHydrationWarning>
       <body className={inter.className}>
         <NextIntlClientProvider messages={messages}>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <Header />
-            <main>{children}</main>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            <div className="relative flex min-h-screen flex-col">
+              <Header />
+              <main className="flex-1">{children}</main>
+            </div>
+            <ModalProvider />
             <Toaster />
           </ThemeProvider>
         </NextIntlClientProvider>

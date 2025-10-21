@@ -13,7 +13,11 @@
   "InventoryTabs": {
     "items": "Items",
     "discussion": "Discussion",
-    "settings": "Settings"
+    "settings": "Settings",
+    "custom_id": "Custom ID",
+    "fields": "Fields",
+    "access": "Access",
+    "statistics": "Statistics"
   },
   "LanguageToggle": {
     "english": "English",

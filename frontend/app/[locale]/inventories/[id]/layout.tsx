@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useParams } from "next/navigation";
-import Link from "next/link";
+import { Link } from "@/navigation";
 import { useInventory } from "@/hooks/useInventory";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";

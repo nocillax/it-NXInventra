@@ -1,0 +1,22 @@
+{
+  "Header": {
+    "search_placeholder": "ইনভেন্টরি বা আইটেম খুঁজুন..."
+  },
+  "UserNav": {
+    "log_out": "লগ আউট"
+  },
+  "Dashboard": {
+    "create_inventory": "ইনভেন্টরি তৈরি করুন",
+    "inventories": "ইনভেন্টরি",
+    "dashboard": "ড্যাশবোর্ড"
+  },
+  "InventoryTabs": {
+    "items": "আইটেম",
+    "discussion": "আলোচনা",
+    "settings": "সেটিংস"
+  },
+  "LanguageToggle": {
+    "english": "English",
+    "bengali": "বাংলা (Bengali)"
+  }
+}

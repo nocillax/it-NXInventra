@@ -1,0 +1,22 @@
+{
+  "Header": {
+    "search_placeholder": "Search inventories or items..."
+  },
+  "UserNav": {
+    "log_out": "Log out"
+  },
+  "Dashboard": {
+    "create_inventory": "Create Inventory",
+    "inventories": "Inventories",
+    "dashboard": "Dashboard"
+  },
+  "InventoryTabs": {
+    "items": "Items",
+    "discussion": "Discussion",
+    "settings": "Settings"
+  },
+  "LanguageToggle": {
+    "english": "English",
+    "bengali": "বাংলা (Bengali)"
+  }
+}

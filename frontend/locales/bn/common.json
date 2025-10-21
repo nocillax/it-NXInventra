@@ -91,7 +91,43 @@
     "date_placeholder": "ফরম্যাট (যেমন: yyyy)",
     "sequence_placeholder": "ফরম্যাট (যেমন: D3 এর জন্য 001)"
   },
-  "CustomIdPage": {
+  "NotFoundPage": {
     "inventory_not_found": "ইনভেন্টরি পাওয়া যায়নি।"
+  },
+  "FieldList": {
+    "noFieldsMessage": "কোন কাস্টম ফিল্ড নেই। 'ফিল্ড যোগ করুন' বাটনে ক্লিক করে একটি যোগ করুন।",
+    "orderUpdateSuccessMessage": "ফিল্ড অর্ডার আপডেট করা হয়েছে।",
+    "visibilityUpdateSuccessMessage": "ফিল্ড দৃশ্যমানতা আপডেট করা হয়েছে।",
+    "field_type": "ধরন:",
+    "text": "টেক্সট",
+    "number": "সংখ্যা",
+    "date": "তারিখ",
+    "boolean": "বুলিয়ান",
+    "showInTable": "টেবিলে দেখান"
+  },
+  "FieldDeleteDialog": {
+    "title": "আপনি কি নিশ্চিত?",
+    "description": "এটি স্থায়ীভাবে ফিল্ডটি মুছে ফেলবে। এই ক্রিয়াটি পূর্বাবস্থায় ফেরানো যাবে না।",
+    "success_message": "ফিল্ডটি সফলভাবে মুছে ফেলা হয়েছে!",
+    "failure_message": "ফিল্ডটি মুছে ফেলতে ব্যর্থ। অনুগ্রহ করে আবার চেষ্টা করুন।",
+    "cancel": "বাতিল করুন",
+    "delete": "মুছে ফেলুন"
+  },
+  "CustomFieldsEditor": {
+    "title": "বিদ্যমান ফিল্ডসমূহ",
+    "add_field": "ফিল্ড যোগ করুন",
+    "field_name": "ফিল্ডের নাম",
+    "field_name_placeholder": "যেমন: নাম",
+    "field_type": "ফিল্ডের ধরন",
+    "field_type_placeholder": "ফিল্ডের ধরন নির্বাচন করুন",
+    "field_type_text": "টেক্সট",
+    "field_type_number": "সংখ্যা",
+    "field_type_boolean": "বুলিয়ান (হ্যাঁ/না)",
+    "field_type_url": "ইউআরএল",
+    "field_type_longtext": "লং টেক্সট",
+    "show_in_table": "টেবিলে দেখান",
+    "show_in_table_description": "এই ফিল্ডটিকে আইটেম টেবিলের একটি কলাম হিসেবে প্রদর্শন করুন।",
+    "add_field_button": "ফিল্ড যোগ করুন",
+    "saving_message": "সংরক্ষণ হচ্ছে..."
   }
 }

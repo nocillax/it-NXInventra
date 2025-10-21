@@ -31,6 +31,7 @@ import { useInventories } from "@/hooks/useInventories";
 import { apiFetch } from "@/lib/apiClient";
 import { FieldList } from "./FieldList";
 import { useModalStore } from "@/stores/useModalStore";
+import { useTranslations } from "next-intl";
 
 const fieldSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
@@ -53,6 +54,7 @@ export function CustomFieldsEditor({ inventory }: CustomFieldsEditorProps) {
       showInTable: false,
     },
   });
+  const t = useTranslations("CustomFieldsEditor");
 
   const isSubmitting = form.formState.isSubmitting;
 
@@ -131,7 +133,7 @@ export function CustomFieldsEditor({ inventory }: CustomFieldsEditorProps) {
       <div className="md:col-span-2">
         <Card>
           <CardHeader>
-            <CardTitle>Existing Fields</CardTitle>
+            <CardTitle>{t("title")}</CardTitle>
           </CardHeader>
           <CardContent>
             <FieldList
@@ -145,7 +147,7 @@ export function CustomFieldsEditor({ inventory }: CustomFieldsEditorProps) {
       <div className="md:col-span-1">
         <Card>
           <CardHeader>
-            <CardTitle>Add New Field</CardTitle>
+            <CardTitle>{t("add_field")}</CardTitle>
           </CardHeader>
           <CardContent>
             <Form {...form}>
@@ -158,9 +160,12 @@ export function CustomFieldsEditor({ inventory }: CustomFieldsEditorProps) {
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Field Name</FormLabel>
+                      <FormLabel>{t("field_name")}</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g. Serial Number" {...field} />
+                        <Input
+                          placeholder={t("field_name_placeholder")}
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -171,24 +176,34 @@ export function CustomFieldsEditor({ inventory }: CustomFieldsEditorProps) {
                   name="type"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Field Type</FormLabel>
+                      <FormLabel>{t("field_type")}</FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select a type" />
+                            <SelectValue
+                              placeholder={t("field_type_placeholder")}
+                            />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="text">Text</SelectItem>
-                          <SelectItem value="number">Number</SelectItem>
-                          <SelectItem value="boolean">
-                            Boolean (Yes/No)
+                          <SelectItem value="text">
+                            {t("field_type_text")}
                           </SelectItem>
-                          <SelectItem value="url">URL</SelectItem>
-                          <SelectItem value="longtext">Long Text</SelectItem>
+                          <SelectItem value="number">
+                            {t("field_type_number")}
+                          </SelectItem>
+                          <SelectItem value="boolean">
+                            {t("field_type_boolean")}
+                          </SelectItem>
+                          <SelectItem value="url">
+                            {t("field_type_url")}
+                          </SelectItem>
+                          <SelectItem value="longtext">
+                            {t("field_type_longtext")}
+                          </SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -201,9 +216,9 @@ export function CustomFieldsEditor({ inventory }: CustomFieldsEditorProps) {
                   render={({ field }) => (
                     <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
                       <div className="space-y-0.5">
-                        <FormLabel>Show in Table</FormLabel>
+                        <FormLabel>{t("show_in_table")}</FormLabel>
                         <FormDescription>
-                          Display this field as a column in the items table.
+                          {t("show_in_table_description")}
                         </FormDescription>
                       </div>
                       <FormControl>
@@ -216,7 +231,7 @@ export function CustomFieldsEditor({ inventory }: CustomFieldsEditorProps) {
                   )}
                 />
                 <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? "Adding..." : "Add Field"}
+                  {isSubmitting ? t("saving_message") : t("add_field_button")}
                 </Button>
               </form>
             </Form>

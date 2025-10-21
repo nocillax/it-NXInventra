@@ -18,6 +18,7 @@ import {
 import { CustomField, Inventory } from "@/types/shared";
 import { useModalStore } from "@/stores/useModalStore";
 import { SortableFieldEditorRow } from "./SortableFieldEditorRow";
+import { useTranslations } from "next-intl";
 
 interface FieldListProps {
   inventory: Inventory; // The whole inventory is needed to construct updated field arrays
@@ -30,12 +31,11 @@ interface FieldListProps {
 export function FieldList({ inventory, onUpdateFields }: FieldListProps) {
   const { onOpen } = useModalStore();
   const { customFields } = inventory;
+  const t = useTranslations("FieldList");
 
   if (customFields.length === 0) {
     return (
-      <p className="text-sm text-muted-foreground">
-        No custom fields yet. Add one to get started.
-      </p>
+      <p className="text-sm text-muted-foreground">{t("noFieldsMessage")}</p>
     );
   }
 
@@ -53,7 +53,7 @@ export function FieldList({ inventory, onUpdateFields }: FieldListProps) {
       const oldIndex = customFields.findIndex((f) => f.id === active.id);
       const newIndex = customFields.findIndex((f) => f.id === over.id);
       const reorderedFields = arrayMove(customFields, oldIndex, newIndex);
-      onUpdateFields(reorderedFields, "Field order updated.");
+      onUpdateFields(reorderedFields, t("orderUpdateSuccessMessage"));
     }
   }
 

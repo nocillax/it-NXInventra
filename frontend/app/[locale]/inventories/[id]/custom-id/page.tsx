@@ -10,7 +10,7 @@ export default function InventoryCustomIdPage() {
   const params = useParams();
   const inventoryId = params.id as string;
   const { inventory, isLoading, mutate } = useInventory(inventoryId);
-  const t = useTranslations("CustomIdPage");
+  const t = useTranslations("NotFoundPage");
 
   if (isLoading) {
     return (

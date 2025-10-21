@@ -14,6 +14,7 @@ import { useModalStore } from "@/stores/useModalStore";
 import { apiFetch } from "@/lib/apiClient";
 import { toast } from "sonner";
 import { useInventory } from "@/hooks/useInventory";
+import { useTranslations } from "next-intl";
 
 export function FieldDeleteDialog() {
   const { isOpen, type, data, onClose } = useModalStore();
@@ -21,6 +22,7 @@ export function FieldDeleteDialog() {
   const { inventory, mutate } = useInventory(inventoryId);
 
   const isModalOpen = isOpen && type === "deleteCustomField";
+  const t = useTranslations("FieldDeleteDialog");
 
   const handleDelete = async () => {
     if (!field || !inventory) return;
@@ -32,11 +34,11 @@ export function FieldDeleteDialog() {
         method: "PUT",
         body: JSON.stringify({ customFields: updatedFields }),
       });
-      toast.success(`Field "${field.name}" deleted.`);
+      toast.success(t("success_message"));
       mutate();
       onClose();
     } catch (error) {
-      toast.error("Failed to delete field.");
+      toast.error(t("failure_message"));
     }
   };
 
@@ -44,19 +46,16 @@ export function FieldDeleteDialog() {
     <AlertDialog open={isModalOpen} onOpenChange={onClose}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-          <AlertDialogDescription>
-            This will permanently delete the field "{field?.name}". This action
-            cannot be undone.
-          </AlertDialogDescription>
+          <AlertDialogTitle>{t("title")}</AlertDialogTitle>
+          <AlertDialogDescription>{t("description")}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
           <AlertDialogAction
             onClick={handleDelete}
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
-            Delete
+            {t("delete")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

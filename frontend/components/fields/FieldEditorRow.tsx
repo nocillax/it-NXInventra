@@ -7,6 +7,7 @@ import { CustomField } from "@/types/shared";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { GripVertical, Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface FieldEditorRowProps extends React.HTMLAttributes<HTMLDivElement> {
   field: CustomField;
@@ -31,6 +32,7 @@ export const FieldEditorRow = React.forwardRef<
     },
     ref
   ) => {
+    const t = useTranslations("FieldList");
     return (
       <div
         ref={ref}
@@ -48,12 +50,14 @@ export const FieldEditorRow = React.forwardRef<
           <div className="flex flex-col">
             <span className="font-medium">{field.name}</span>
             <span className="text-sm text-muted-foreground">
-              Type: {field.type}
+              {t("field_type")} {t(field.type)}
             </span>
           </div>
         </div>
         <div className="flex items-center space-x-4">
-          <span className="text-sm text-muted-foreground">Show in table</span>
+          <span className="text-sm text-muted-foreground">
+            {t("showInTable")}
+          </span>
           <Switch
             checked={field.showInTable}
             onCheckedChange={onToggleShowInTable} // This was missing its prop

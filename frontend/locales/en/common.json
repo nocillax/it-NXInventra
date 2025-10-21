@@ -91,7 +91,49 @@
     "date_placeholder": "Format (e.g. yyyy)",
     "sequence_placeholder": "Format (e.g. D3 for 001)"
   },
-  "CustomIdPage": {
+  "NotFoundPage": {
     "inventory_not_found": "Inventory not found."
+  },
+  "FieldList": {
+    "noFieldsMessage": "No custom fields yet. Add one to get started.",
+    "orderUpdateSuccessMessage": "Field order updated.",
+    "visibilityUpdateSuccessMessage": "Field visibility updated.",
+    "field_type": "Type:",
+    "text": "Text",
+    "number": "Number",
+    "date": "Date",
+    "boolean": "Boolean",
+    "showInTable": "Show in table"
+  },
+  "FieldTypes": {
+    "text": "Text",
+    "number": "Number",
+    "date": "Date",
+    "boolean": "Boolean"
+  },
+  "FieldDeleteDialog": {
+    "title": "Are you sure?",
+    "description": "This will permanently delete the field. This action cannot be undone.",
+    "success_message": "Field deleted successfully!",
+    "failure_message": "Failed to delete field. Please try again.",
+    "cancel": "Cancel",
+    "delete": "Delete"
+  },
+  "CustomFieldsEditor": {
+    "title": "Existing Fields",
+    "add_field": "Add Field",
+    "field_name": "Field Name",
+    "field_name_placeholder": "e.g. Name",
+    "field_type": "Field Type",
+    "field_type_placeholder": "Select a field type",
+    "field_type_text": "Text",
+    "field_type_number": "Number",
+    "field_type_boolean": "Boolean (Yes/No)",
+    "field_type_url": "URL",
+    "field_type_longtext": "Long Text",
+    "show_in_table": "Show in Table",
+    "show_in_table_description": "Display this field as a column in the items table.",
+    "add_field_button": "Add Field",
+    "saving_message": "Adding..."
   }
 }

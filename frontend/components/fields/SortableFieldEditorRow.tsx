@@ -2,9 +2,10 @@
 
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { FieldEditorRow } from "./FieldEditorRow";
+import { FieldEditorRow } from "@/components/fields/FieldEditorRow";
 import { CustomField, Inventory } from "@/types/shared";
 import { useModalStore } from "@/stores/useModalStore";
+import { useTranslations } from "next-intl";
 
 interface SortableFieldEditorRowProps {
   field: CustomField;
@@ -28,6 +29,7 @@ export function SortableFieldEditorRow({
     transform: CSS.Transform.toString(transform),
     transition,
   };
+  const t = useTranslations("FieldList");
 
   return (
     <FieldEditorRow
@@ -41,10 +43,7 @@ export function SortableFieldEditorRow({
         const updatedFields = inventory.customFields.map((f) =>
           f.id === field.id ? { ...f, showInTable: checked } : f
         );
-        onUpdateFields(
-          updatedFields,
-          `Field "${field.name}" visibility updated.`
-        );
+        onUpdateFields(updatedFields, t("visibilityUpdateSuccessMessage"));
       }}
       dragAttributes={attributes}
       dragListeners={listeners}

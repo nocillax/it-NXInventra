@@ -4,11 +4,13 @@ import { useParams } from "next/navigation";
 import { useInventory } from "@/hooks/useInventory";
 import { CustomFieldsEditor } from "@/components/fields/CustomFieldsEditor";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useTranslations } from "next-intl";
 
 export default function InventoryFieldsPage() {
   const params = useParams();
   const inventoryId = params.id as string;
   const { inventory, isLoading, mutate } = useInventory(inventoryId);
+  const t = useTranslations("NotFoundPage");
 
   if (isLoading) {
     return (
@@ -19,7 +21,7 @@ export default function InventoryFieldsPage() {
     );
   }
 
-  if (!inventory) return <p>Inventory not found.</p>;
+  if (!inventory) return <p>{t("inventory_not_found")}</p>;
 
   return <CustomFieldsEditor inventory={inventory} />;
 }

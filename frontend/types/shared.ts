@@ -41,7 +41,7 @@ export interface Inventory {
   category?: string;
   tags: string[];
   public: boolean;
-  ownerId: UUID;
+  createdBy: UUID;
   idFormat: IdSegment[];
   customFields: CustomField[];
 }

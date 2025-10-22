@@ -6,7 +6,7 @@
     "category": "Electronics",
     "tags": ["hardware", "office", "computers"],
     "public": true,
-    "ownerId": "u_rahim",
+    "createdBy": "u_rahim",
     "idFormat": [
       { "id": "seg-1-1", "type": "fixed", "value": "LAP-" },
       { "id": "seg-1-2", "type": "date", "format": "yyyy" },
@@ -44,7 +44,7 @@
     "category": "Electronics",
     "tags": ["hardware", "phones", "mobile"],
     "public": false,
-    "ownerId": "u_sadia",
+    "createdBy": "u_sadia",
     "idFormat": [
       { "id": "seg-2-1", "type": "fixed", "value": "PHN-" },
       { "id": "seg-2-2", "type": "sequence", "format": "D3" }
@@ -78,7 +78,7 @@
     "category": "Office",
     "tags": ["office", "supplies"],
     "public": true,
-    "ownerId": "u_tanvir",
+    "createdBy": "u_tanvir",
     "idFormat": [
       { "id": "seg-3-1", "type": "fixed", "value": "STN-" },
       { "id": "seg-3-2", "type": "sequence", "format": "D3" }

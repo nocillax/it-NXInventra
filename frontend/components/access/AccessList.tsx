@@ -29,14 +29,14 @@ interface AccessListProps {
   accessList: Access[];
   users: User[];
   inventoryId: string;
-  ownerId: string;
+  createdBy: string;
 }
 
 export function AccessList({
   accessList,
   users,
   inventoryId,
-  ownerId,
+  createdBy,
 }: AccessListProps) {
   const usersMap = new Map(users.map((user) => [user.id, user]));
   const { onOpen } = useModalStore();
@@ -70,7 +70,7 @@ export function AccessList({
         <TableBody>
           {accessList.map((access) => {
             const user = usersMap.get(access.userId);
-            const isOwner = access.userId === ownerId;
+            const isOwner = access.userId === createdBy;
             const isLastOwner = isOwner && ownerCount === 1;
             return (
               <TableRow key={access.userId}>

@@ -54,6 +54,37 @@ export async function fetchMock(path: string, opts: RequestInit = {}) {
     if (pathName === "/stats") {
       return JSON.parse(JSON.stringify(mockStats));
     }
+
+    // Handle search requests
+    if (path.startsWith("/search/")) {
+      const url = new URL(path, "http://localhost"); // Dummy base to parse URL
+      const query = url.searchParams.get("q")?.toLowerCase();
+
+      if (!query) {
+        return [];
+      }
+
+      if (path.startsWith("/search/inventories")) {
+        return mockInventories.filter(
+          (inv) =>
+            inv.title.toLowerCase().includes(query) ||
+            (inv.description &&
+              inv.description.toLowerCase().includes(query)) ||
+            inv.tags.some((tag) => tag.toLowerCase().includes(query))
+        );
+      }
+
+      if (path.startsWith("/search/items")) {
+        return mockItems.filter((item) => {
+          if (item.customId.toLowerCase().includes(query)) {
+            return true;
+          }
+          return Object.values(item.fields).some((value) =>
+            String(value).toLowerCase().includes(query)
+          );
+        });
+      }
+    }
   }
 
   if (opts.method === "PUT") {

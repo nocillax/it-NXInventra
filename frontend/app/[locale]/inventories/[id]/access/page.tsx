@@ -45,7 +45,7 @@ export default function InventoryAccessPage() {
           accessList={accessList}
           users={users}
           inventoryId={inventory.id}
-          ownerId={inventory.ownerId}
+          createdBy={inventory.createdBy}
         />
       )}
     </div>

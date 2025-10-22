@@ -45,6 +45,7 @@
     "swr": "^2.2.5",
     "tailwind-merge": "^2.6.0",
     "tailwindcss-animate": "^1.0.7",
+    "use-debounce": "^10.0.6",
     "uuid": "^13.0.0",
     "zod": "^3.25.76",
     "zustand": "^4.5.2"

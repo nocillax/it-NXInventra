@@ -62,9 +62,15 @@ export async function fetchMock(path: string, opts: RequestInit = {}) {
       return results.slice(startIndex, startIndex + limit);
     }
     if (pathName === "/access") {
+      if (inventoryId) {
+        return mockAccess.filter((a) => a.inventoryId === inventoryId);
+      }
       return JSON.parse(JSON.stringify(mockAccess));
     }
     if (pathName === "/stats") {
+      if (inventoryId) {
+        return mockStats.find((s) => s.inventoryId === inventoryId) || null;
+      }
       return JSON.parse(JSON.stringify(mockStats));
     }
 

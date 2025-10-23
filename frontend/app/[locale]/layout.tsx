@@ -8,6 +8,7 @@ import { Header } from "@/components/shared/Header";
 import "../globals.css";
 import { LocaleLayoutProps } from "@/types/shared";
 import { ModalProvider } from "@/components/providers/modal-provider";
+import { Footer } from "@/components/shared/Footer";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -25,6 +26,7 @@ export default async function LocaleLayout({
             <div className="relative flex min-h-screen flex-col">
               <Header />
               <main className="flex-1">{children}</main>
+              <Footer />
             </div>
             <ModalProvider />
             <Toaster />

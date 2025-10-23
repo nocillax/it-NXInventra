@@ -25,29 +25,33 @@ export default function InventoryAccessPage() {
   const isLoading = isLoadingInventory || isLoadingAccess || isLoadingUsers;
   const t = useTranslations("AccessPages");
   return (
-    <div className="space-y-6">
-      {inventory && (
-        <VisibilityToggle inventory={inventory} onUpdate={mutateInventory} />
-      )}
-      <div className="space-y-2">
-        <h3 className="text-lg font-medium">{t("title")}</h3>
-        {inventory && <AccessInvite inventoryId={inventory.id} />}
-      </div>
-      {isLoading && (
+    <>
+      {isLoading || !inventory || !accessList || !users ? (
         <div className="space-y-2">
+          {/* Skeleton for VisibilityToggle */}
+          <Skeleton className="h-24 w-full" />
+          {/* Skeleton for AccessInvite */}
+          <Skeleton className="h-20 w-full" />
+          {/* Skeleton for AccessList */}
           <Skeleton className="h-12 w-full" />
           <Skeleton className="h-12 w-full" />
           <Skeleton className="h-12 w-full" />
         </div>
+      ) : (
+        <div className="space-y-6">
+          <VisibilityToggle inventory={inventory} onUpdate={mutateInventory} />
+          <div className="space-y-2">
+            <h3 className="text-lg font-medium">{t("title")}</h3>
+            <AccessInvite inventoryId={inventory.id} />
+          </div>
+          <AccessList
+            accessList={accessList}
+            users={users}
+            inventoryId={inventory.id}
+            createdBy={inventory.createdBy}
+          />
+        </div>
       )}
-      {!isLoading && accessList && users && inventory && (
-        <AccessList
-          accessList={accessList}
-          users={users}
-          inventoryId={inventory.id}
-          createdBy={inventory.createdBy}
-        />
-      )}
-    </div>
+    </>
   );
 }

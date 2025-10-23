@@ -166,7 +166,7 @@ All stores are small (≤ 50 lines).
     "tags":["hardware","office","electronics"],
     "category":"Electronics",
     "public":true,
-    "ownerId":"u_01",
+    "createdBy":"u_01",
     "idFormat":[
       { "id": "seg1", "type": "fixed", "value": "LAP-" },
       { "id": "seg2", "type": "date", "format": "yyyy" },
@@ -187,7 +187,7 @@ All stores are small (≤ 50 lines).
     "tags":["mobile","assets"],
     "category":"Electronics",
     "public":true,
-    "ownerId":"u_02",
+    "createdBy":"u_02",
     "idFormat": [],
     "customFields":[
       {"id": "cf5", "name":"Model","type":"text","showInTable":true},

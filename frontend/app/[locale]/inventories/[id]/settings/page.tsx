@@ -4,11 +4,13 @@ import { useParams } from "next/navigation";
 import { useInventory } from "@/hooks/useInventory";
 import { InventorySettingsForm } from "@/components/settings/InventorySettingsForm";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useTranslations } from "next-intl";
 
 export default function InventorySettingsPage() {
   const params = useParams();
   const inventoryId = params.id as string;
   const { inventory, isLoading, mutate } = useInventory(inventoryId);
+  const t = useTranslations("NotFound");
 
   if (isLoading) {
     return (
@@ -20,7 +22,7 @@ export default function InventorySettingsPage() {
     );
   }
 
-  if (!inventory) return <p>Inventory not found.</p>;
+  if (!inventory) return <p>{t("inventory_not_found")}</p>;
 
   return <InventorySettingsForm inventory={inventory} onUpdate={mutate} />;
 }

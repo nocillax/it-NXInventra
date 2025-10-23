@@ -32,21 +32,34 @@ export async function fetchMock(path: string, opts: RequestInit = {}) {
     // Fall through to other methods or throw error at the end
   }
 
-  const pathName = path.split("?")[0];
+  const url = new URL(path, "http://localhost"); // Dummy base to parse URL
+  const pathName = url.pathname;
 
   // Handle list fetches
   if (opts.method === "GET" || !opts.method) {
+    const inventoryId = url.searchParams.get("inventoryId");
+
     if (pathName === "/inventories") {
       return JSON.parse(JSON.stringify(mockInventories));
     }
     if (pathName === "/items") {
+      if (inventoryId) {
+        return mockItems.filter((item) => item.inventoryId === inventoryId);
+      }
       return JSON.parse(JSON.stringify(mockItems));
     }
     if (pathName === "/users") {
       return JSON.parse(JSON.stringify(mockUsers));
     }
     if (pathName === "/comments") {
-      return JSON.parse(JSON.stringify(mockComments));
+      let results = mockComments;
+      if (inventoryId) {
+        results = mockComments.filter((c) => c.inventoryId === inventoryId);
+      }
+      const page = parseInt(url.searchParams.get("page") || "1", 10);
+      const limit = parseInt(url.searchParams.get("limit") || "10", 10);
+      const startIndex = (page - 1) * limit;
+      return results.slice(startIndex, startIndex + limit);
     }
     if (pathName === "/access") {
       return JSON.parse(JSON.stringify(mockAccess));
@@ -57,7 +70,6 @@ export async function fetchMock(path: string, opts: RequestInit = {}) {
 
     // Handle search requests
     if (path.startsWith("/search/")) {
-      const url = new URL(path, "http://localhost"); // Dummy base to parse URL
       const query = url.searchParams.get("q")?.toLowerCase();
 
       if (!query) {

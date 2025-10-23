@@ -88,11 +88,11 @@ package.json
 │ │ ├── AccessList.tsx
 │ │ └── AccessInvite.tsx
 │ └── /shared
-│   ├── PageHeader.tsx
-│   ├── SearchBar.tsx
-│   ├── TagCloud.tsx
-│   ├── ThemeToggle.tsx
-│   └── Avatar.tsx
+│ ├── PageHeader.tsx
+│ ├── SearchBar.tsx
+│ ├── TagCloud.tsx
+│ ├── ThemeToggle.tsx
+│ └── Avatar.tsx
 │
 ├── /hooks
 │ ├── useInventories.ts
@@ -308,7 +308,7 @@ export interface Inventory {
   category?: string;
   tags: string[];
   public: boolean;
-  ownerId: string;
+  createdBy: string;
   idFormat?: string;
   customFields: CustomField[];
 }
@@ -467,7 +467,7 @@ export default function InventoryTable({
         {inventories.map((inv) => (
           <tr key={inv.id} onClick={() => onSelect(inv.id)}>
             <td>{inv.title}</td>
-            <td>{inv.ownerId}</td>
+            <td>{inv.createdBy}</td>
             <td>{inv.tags.join(", ")}</td>
           </tr>
         ))}

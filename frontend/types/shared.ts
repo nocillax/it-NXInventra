@@ -61,7 +61,7 @@ export interface NewItem {
   fields: { [key: string]: any };
 }
 
-export type Role = "Owner" | "Writer" | "Viewer";
+export type Role = "Owner" | "Editor" | "Viewer";
 
 export interface Access {
   id: UUID;
@@ -76,6 +76,10 @@ export interface Comment {
   userId: UUID;
   message: string;
   timestamp: string;
+}
+
+export interface CommentWithUser extends Comment {
+  user?: User;
 }
 
 export interface StatSummary {

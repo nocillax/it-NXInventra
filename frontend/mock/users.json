@@ -4,34 +4,44 @@
     "name": "Rahim",
     "email": "rahim@example.com",
     "avatar": "/avatars/rahim.png",
-    "provider": "google"
+    "provider": "google",
+    "providerId": "1234567890...",
+    "createdAt": "2025-01-01T12:00:00Z"
   },
   {
     "id": "u_sadia",
     "name": "Sadia",
     "email": "sadia@example.com",
     "avatar": "/avatars/sadia.png",
-    "provider": "github"
+    "provider": "github",
+    "providerId": "1122334455...",
+    "createdAt": "2025-01-01T12:00:00Z"
   },
   {
     "id": "u_tanvir",
     "name": "Tanvir",
     "email": "tanvir@example.com",
     "avatar": "/avatars/tanvir.png",
-    "provider": "google"
+    "provider": "google",
+    "providerId": "9876543210...",
+    "createdAt": "2025-01-01T12:00:00Z"
   },
   {
     "id": "u_asif",
     "name": "Asif",
     "email": "asif@example.com",
     "avatar": "/avatars/asif.png",
-    "provider": "google"
+    "provider": "google",
+    "providerId": "100987654321...",
+    "createdAt": "2025-01-01T12:00:00Z"
   },
   {
     "id": "u_smrity",
     "name": "Smrity",
     "email": "smrity@example.com",
     "avatar": "/avatars/smrity.png",
-    "provider": "google"
+    "provider": "google",
+    "providerId": "1234567890...",
+    "createdAt": "2025-01-01T12:00:00Z"
   }
 ]

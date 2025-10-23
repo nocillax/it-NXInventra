@@ -130,7 +130,7 @@ export function AccessInviteDialog() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="Owner">Owner</SelectItem>
-              <SelectItem value="Writer">Writer</SelectItem>
+              <SelectItem value="Editor">Editor</SelectItem>
               <SelectItem value="Viewer">Viewer</SelectItem>
             </SelectContent>
           </Select>

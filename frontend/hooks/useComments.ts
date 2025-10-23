@@ -1,26 +1,39 @@
 "use client";
 
-import useSWR from "swr";
+import useSWRInfinite from "swr/infinite";
 import { apiFetch } from "@/lib/apiClient";
 import { Comment } from "@/types/shared";
 
-async function commentsFetcher(path: string) {
-  // The real API will be `/api/inventories/:id/comments`
-  const inventoryId = path.split("/")[2];
-  const allComments: Comment[] = await apiFetch("/comments");
-  return allComments
-    .filter((comment) => comment.inventoryId === inventoryId)
-    .sort(
-      (a, b) =>
-        new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+const PAGE_SIZE = 10;
+
+const getKey = (
+  pageIndex: number,
+  previousPageData: Comment[] | null,
+  inventoryId: string
+) => {
+  if (previousPageData && !previousPageData.length) return null; // Reached the end
+  return `/comments?inventoryId=${inventoryId}&page=${
+    pageIndex + 1
+  }&limit=${PAGE_SIZE}`;
+};
+
+export function useComments(inventoryId: string) {
+  const { data, error, isLoading, mutate, size, setSize, isValidating } =
+    useSWRInfinite<Comment[]>(
+      (pageIndex, previousPageData) =>
+        getKey(pageIndex, previousPageData, inventoryId),
+      apiFetch
     );
-}
 
-export function useComments(inventoryId: string | undefined) {
-  const { data, error, isLoading, mutate } = useSWR<Comment[]>(
-    inventoryId ? `/inventories/${inventoryId}/comments` : null,
-    commentsFetcher
-  );
-
-  return { comments: data, error, isLoading, mutate };
+  return {
+    comments: data,
+    error,
+    isLoading,
+    mutate,
+    size,
+    setSize,
+    isLoadingMore:
+      isLoading || (size > 0 && data && typeof data[size - 1] === "undefined"),
+    isReachingEnd: data && data[data.length - 1]?.length < PAGE_SIZE,
+  };
 }

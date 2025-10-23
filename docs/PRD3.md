@@ -191,7 +191,7 @@ Use `JSONB` for field values to keep flexible per-inventory schema.
 | id           | UUID                            | PK             |
 | inventory_id | UUID                            | FK → Inventory |
 | user_id      | UUID                            | FK → User      |
-| role         | enum('Owner','Writer','Viewer') |                |
+| role         | enum('Owner','Editor','Viewer') |                |
 
 ---
 

@@ -44,7 +44,7 @@
     "category": "Electronics",
     "tags": ["hardware", "phones", "mobile"],
     "public": false,
-    "createdBy": "u_sadia",
+    "createdBy": "u_rahim",
     "idFormat": [
       { "id": "seg-2-1", "type": "fixed", "value": "PHN-" },
       { "id": "seg-2-2", "type": "sequence", "format": "D3" }

@@ -103,7 +103,7 @@ export function AccessList({
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="Owner">{t("role_owner")}</SelectItem>
-                      <SelectItem value="Writer">{t("role_writer")}</SelectItem>
+                      <SelectItem value="Editor">{t("role_editor")}</SelectItem>
                       <SelectItem value="Viewer">{t("role_viewer")}</SelectItem>
                     </SelectContent>
                   </Select>

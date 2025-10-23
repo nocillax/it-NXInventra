@@ -14,9 +14,26 @@ export default function InventoryFieldsPage() {
 
   if (isLoading) {
     return (
-      <div className="space-y-4">
-        <Skeleton className="h-10 w-1/3" />
-        <Skeleton className="h-40 w-full" />
+      <div className="grid gap-6 md:grid-cols-3">
+        {/* Skeleton for the FieldList card */}
+        <div className="md:col-span-2 space-y-4">
+          <Skeleton className="h-10 w-1/3" />
+          <div className="space-y-3">
+            <Skeleton className="h-16 w-full" />
+            <Skeleton className="h-16 w-full" />
+            <Skeleton className="h-16 w-full" />
+          </div>
+        </div>
+        {/* Skeleton for the Add Field card */}
+        <div className="md:col-span-1 space-y-4">
+          <Skeleton className="h-10 w-1/2" />
+          <div className="space-y-6">
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-16 w-full" />
+            <Skeleton className="h-10 w-24" />
+          </div>
+        </div>
       </div>
     );
   }

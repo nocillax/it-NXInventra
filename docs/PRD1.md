@@ -29,7 +29,7 @@ The goal: give both individuals and teams the ability to model any kind of colle
 | **Guest**           | View public inventories/items.                                        | Read-only.                      |
 | **Registered User** | Create inventories, add/edit items, comment, like.                    | Auth via Google/GitHub (OAuth). |
 | **Owner**           | Full CRUD over their inventories, manage access, custom fields & IDs. | Can invite collaborators.       |
-| **Writer**          | Add/edit items in inventories shared with write access.               | Cannot modify settings.         |
+| **Editor**          | Add/edit items in inventories shared with write access.               | Cannot modify settings.         |
 | **Admin**           | Platform-level moderation (manage users, delete inventories).         | System only.                    |
 
 ---
@@ -121,7 +121,7 @@ The goal: give both individuals and teams the ability to model any kind of colle
 
 ### 4.6 Access Tab
 
-- Lists users with roles: Owner / Writer / Viewer.
+- Lists users with roles: Owner / Editor / Viewer.
 - Add by email / username.
 - Remove button for each user.
 - **Mock Example:**
@@ -129,7 +129,7 @@ The goal: give both individuals and teams the ability to model any kind of colle
   ```json
   [
     { "user": "rahim", "role": "Owner" },
-    { "user": "sadia", "role": "Writer" },
+    { "user": "sadia", "role": "Editor" },
     { "user": "tanvir", "role": "Viewer" }
   ]
   ```
@@ -148,7 +148,7 @@ The goal: give both individuals and teams the ability to model any kind of colle
 ### Entities
 
 - **User** → id, name, email, avatar, authProvider
-- **Inventory** → id, title, description, tags, category, public, ownerId, customFields[], idFormat
+- **Inventory** → id, title, description, tags, category, public, createdBy, customFields[], idFormat
 - **Item** → id, inventoryId, fields{}, likes[], createdBy
 - **Comment** → id, inventoryId, userId, message, timestamp
 - **Access** → inventoryId, userId, role

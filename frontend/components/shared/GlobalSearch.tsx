@@ -71,7 +71,7 @@ export function GlobalSearch({
                 key={inv.id}
                 value={inv.title}
                 onSelect={() => {
-                  runCommand(() => router.push(`/inventories/${inv.id}/items`));
+                  runCommand(() => router.push(`/inventories/${inv.id}`));
                 }}
               >
                 <Package className="mr-2 h-4 w-4" />
@@ -88,7 +88,7 @@ export function GlobalSearch({
                 value={item.customId}
                 onSelect={() => {
                   runCommand(() =>
-                    router.push(`/inventories/${item.inventoryId}/items`)
+                    router.push(`/inventories/${item.inventoryId}`)
                   );
                 }}
               >

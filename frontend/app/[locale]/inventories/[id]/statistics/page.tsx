@@ -1,5 +1,6 @@
 "use client";
 
+import * as React from "react";
 import { useParams } from "next/navigation";
 import { useStats } from "@/hooks/useStats";
 import { useInventory } from "@/hooks/useInventory";
@@ -12,20 +13,59 @@ import { PlaceholderStatCard } from "@/components/statistics/PlaceholderStatCard
 import { TopContributorsCard } from "@/components/statistics/TopContributorsCard";
 import { FieldDistributionChart } from "@/components/statistics/FieldDistributionChart";
 import { Skeleton } from "@/components/ui/skeleton";
+import { GenericError } from "@/components/shared/GenericError";
 import { useTranslations, useLocale } from "next-intl";
 
 export default function InventoryStatisticsPage() {
   const params = useParams();
   const inventoryId = params.id as string;
 
-  const { stats, isLoading: isLoadingStats } = useStats(inventoryId);
-  const { inventory, isLoading: isLoadingInventory } =
-    useInventory(inventoryId);
-  const { items, isLoading: isLoadingItems } = useItems(inventoryId);
-  const { users, isLoading: isLoadingUsers } = useUsers();
+  const {
+    stats,
+    isLoading: isLoadingStats,
+    error: statsError,
+  } = useStats(inventoryId);
+  const {
+    inventory,
+    isLoading: isLoadingInventory,
+    error: inventoryError,
+  } = useInventory(inventoryId);
+  const {
+    items,
+    isLoading: isLoadingItems,
+    error: itemsError,
+  } = useItems(inventoryId);
+  const { users, isLoading: isLoadingUsers, error: usersError } = useUsers();
 
   const t = useTranslations("StatisticsPage");
   const locale = useLocale();
+  const error = statsError || inventoryError || itemsError || usersError;
+
+  // Prepare data for the 12-month bar chart
+  const monthlyAdditionsData = React.useMemo(() => {
+    if (!stats) return []; // Guard against null/undefined stats
+    const last12Months = Array.from({ length: 12 })
+      .map((_, i) => {
+        const d = new Date();
+        d.setMonth(d.getMonth() - i);
+        return d.toLocaleString(locale, { month: "short" });
+      })
+      .reverse();
+
+    return last12Months.map((month) => {
+      const existing = stats.monthlyAdditions.find((m) => m.month === month);
+      return { month, count: existing ? existing.count : 0 };
+    });
+  }, [stats, locale]);
+
+  const quantityChartData = React.useMemo(
+    () =>
+      stats?.quantityDistribution?.map((item) => ({
+        name: item.label,
+        value: item.quantity,
+      })),
+    [stats]
+  );
 
   const formatNumber = (num: number) => {
     return new Intl.NumberFormat(locale).format(num);
@@ -57,28 +97,13 @@ export default function InventoryStatisticsPage() {
     );
   }
 
+  if (error) {
+    return <GenericError />;
+  }
+
   if (!stats || !inventory || !users || !items) {
     return <p>{t("no_data_message")}</p>;
   }
-
-  // Prepare data for the 12-month bar chart
-  const last12Months = Array.from({ length: 12 })
-    .map((_, i) => {
-      const d = new Date();
-      d.setMonth(d.getMonth() - i);
-      return d.toLocaleString("default", { month: "short" });
-    })
-    .reverse();
-
-  const monthlyAdditionsData = last12Months.map((month) => {
-    const existing = stats.monthlyAdditions.find((m) => m.month === month);
-    return { month, count: existing ? existing.count : 0 };
-  });
-
-  const quantityChartData = stats.quantityDistribution?.map((item) => ({
-    name: item.label,
-    value: item.quantity,
-  }));
 
   return (
     <div className="space-y-4">

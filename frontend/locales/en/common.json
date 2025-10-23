@@ -1,14 +1,38 @@
 {
   "Header": {
-    "search_placeholder": "Search inventories or items..."
+    "search_placeholder": "Search inventories or items...",
+    "explore_link": "Explore",
+    "home_link": "Home",
+    "shared_link": "Shared",
+    "greeting": "Hi, {name}"
   },
   "UserNav": {
-    "log_out": "Log out"
+    "log_out": "Log out",
+    "profile_link": "Profile"
   },
   "Dashboard": {
+    "dashboard": "Dashboard",
     "create_inventory": "Create Inventory",
-    "inventories": "Inventories",
-    "dashboard": "Dashboard"
+    "my_inventories": "My Inventories",
+    "my_inventories_description": "Inventories that you own and manage."
+  },
+  "InventoryTable": {
+    "no_inventories_title": "No Inventories Yet",
+    "no_inventories_description": "It looks a bit empty here. Get started by creating your first inventory.",
+    "name": "Name",
+    "category": "Category",
+    "createdBy": "Created By",
+    "visibility": "Visibility",
+    "tags": "Tags",
+    "you": "You",
+    "public": "Public",
+    "private": "Private",
+    "your_role": "Your Role",
+    "role_owner": "Owner",
+    "role_editor": "Editor",
+    "role_viewer": "Viewer",
+    "role_public_viewer": "Public Viewer",
+    "role_no_access": "No Access"
   },
   "InventoryTabs": {
     "items": "Items",
@@ -142,7 +166,7 @@
     "user": "User",
     "role": "Role",
     "role_owner": "Owner",
-    "role_writer": "Writer",
+    "role_editor": "Editor",
     "role_viewer": "Viewer"
   },
   "AccessPages": {
@@ -171,5 +195,55 @@
     "qty_distribution": "Distribution by Quantity",
     "qty_short": "Qty:",
     "others": "Others"
+  },
+  "Explore": {
+    "title": "Explore Public Inventories",
+    "description": "Discover inventories that have been shared publicly by other users."
+  },
+  "Shared": {
+    "title": "Shared With Me",
+    "description": "Private inventories that other users have shared with you."
+  },
+  "NotFound": {
+    "title": "Whoops! Wrong Turn.",
+    "description": "We searched high and low, but this page seems to have vanished into thin air.",
+    "go_home": "Take Me Home",
+    "inventory_not_found": "Inventory not found."
+  },
+  "NoAccess": {
+    "title": "Private Party!",
+    "description": "Looks like you don't have the secret password for this page. Let's get you back to where you belong.",
+    "go_home": "Back to the Main Hub"
+  },
+  "Empty": {
+    "title": "Nothing to see here... yet!",
+    "description": "This space is a blank canvas, waiting for something awesome to be added.",
+    "go_home": "Back to the Action"
+  },
+  "Footer": {
+    "copyright": "© {year} Built by <link>nocillax</link>. All rights reserved."
+  },
+  "Profile": {
+    "title": "My Profile",
+    "description": "Update your personal information here.",
+    "avatar_note": "Your avatar is automatically generated from the first letter of your name.",
+    "name_label": "Name",
+    "email_label": "Email",
+    "email_note": "Your email is linked to your authentication provider and cannot be changed.",
+    "save_button": "Save Changes",
+    "saving_message": "Saving...",
+    "success_message": "Profile updated successfully!",
+    "failure_message": "Failed to update profile. Please try again.",
+    "delete_account_button": "Delete Account",
+    "delete_dialog_title": "Are you absolutely sure?",
+    "delete_dialog_description": "This action cannot be undone. This will permanently delete your account and remove your data from our servers.",
+    "delete_dialog_cancel": "Cancel",
+    "delete_dialog_confirm": "Continue",
+    "delete_success_message": "Account deleted successfully.",
+    "delete_failure_message": "Failed to delete account. Please try again."
+  },
+  "Errors": {
+    "server_error_title": "Something Went Wrong",
+    "server_error_description": "We couldn't load the data. Please try refreshing the page."
   }
 }

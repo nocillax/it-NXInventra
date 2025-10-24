@@ -17,8 +17,7 @@
     "my_inventories_description": "Inventories that you own and manage."
   },
   "InventoryTable": {
-    "no_inventories_title": "No Inventories Yet",
-    "no_inventories_description": "It looks a bit empty here. Get started by creating your first inventory.",
+    "no_inventories": "It looks a bit empty here. Get started by creating your first inventory.",
     "name": "Name",
     "category": "Category",
     "createdBy": "Created By",

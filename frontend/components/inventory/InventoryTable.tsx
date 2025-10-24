@@ -60,8 +60,8 @@ export function InventoryTable({
           <TableHead>{t("category")}</TableHead>
           <TableHead>{t("createdBy")}</TableHead>
           <TableHead>{t("visibility")}</TableHead>
-          <TableHead>{t("tags")}</TableHead>
           <TableHead>{t("your_role")}</TableHead> {/* New column header */}
+          <TableHead>{t("tags")}</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -71,9 +71,11 @@ export function InventoryTable({
             onClick={() => router.push(`/inventories/${inventory.id}`)}
             className="cursor-pointer"
           >
-            <TableCell className="font-medium flex items-center gap-2">
-              <Package className="h-4 w-4 text-muted-foreground" />{" "}
-              {inventory.title}
+            <TableCell className="font-semibold">
+              <div className="flex items-center gap-2">
+                <Package className="h-4 w-4 text-muted-foreground" />{" "}
+                {inventory.title}
+              </div>
             </TableCell>
             <TableCell>{inventory.category || "-"}</TableCell>
             <TableCell>
@@ -94,15 +96,6 @@ export function InventoryTable({
                 )}
                 {inventory.public ? t("public") : t("private")}
               </Badge>
-            </TableCell>
-            <TableCell>
-              <div className="flex flex-wrap gap-1">
-                {inventory.tags.map((tag) => (
-                  <Badge key={tag} variant="secondary">
-                    {tag}
-                  </Badge>
-                ))}
-              </div>
             </TableCell>
             <TableCell>
               {/* Determine and display the current user's role */}
@@ -126,6 +119,15 @@ export function InventoryTable({
                 : inventory.public
                 ? t("role_public_viewer")
                 : t("role_no_access")}
+            </TableCell>
+            <TableCell>
+              <div className="flex flex-wrap gap-1">
+                {inventory.tags.map((tag) => (
+                  <Badge key={tag} variant="secondary">
+                    {tag}
+                  </Badge>
+                ))}
+              </div>
             </TableCell>
           </TableRow>
         ))}

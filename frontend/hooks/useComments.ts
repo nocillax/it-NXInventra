@@ -1,8 +1,9 @@
 "use client";
 
 import useSWRInfinite from "swr/infinite";
-import { apiFetch } from "@/lib/apiClient";
 import { Comment } from "@/types/shared";
+import { getComments } from "@/lib/api/comments";
+import { apiFetch } from "@/lib/apiClient";
 
 const PAGE_SIZE = 10;
 

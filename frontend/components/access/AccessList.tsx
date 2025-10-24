@@ -1,6 +1,7 @@
 "use client";
 
 import { toast } from "sonner";
+import * as React from "react";
 import {
   Table,
   TableBody,
@@ -58,74 +59,145 @@ export function AccessList({
   };
 
   return (
-    <div className="rounded-md border">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>{t("user")}</TableHead>
-            <TableHead className="text-center">{t("role")}</TableHead>
-            <TableHead className="w-[80px]"></TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {accessList.map((access) => {
-            const user = usersMap.get(access.userId);
-            const isOwner = access.userId === createdBy;
-            const isLastOwner = isOwner && ownerCount === 1;
-            return (
-              <TableRow key={access.userId}>
-                <TableCell>
-                  <div className="flex items-center gap-3">
-                    <Avatar>
-                      <AvatarImage src={user?.avatar} alt={user?.name} />
-                      <AvatarFallback>
-                        {user?.name?.charAt(0).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <p className="font-medium">{user?.name}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {user?.email}
-                      </p>
+    <>
+      {/* Desktop View: Table */}
+      <div className="hidden rounded-md border sm:block">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>{t("user")}</TableHead>
+              <TableHead className="text-center">{t("role")}</TableHead>
+              <TableHead className="w-[80px]"></TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {accessList.map((access) => {
+              const user = usersMap.get(access.userId);
+              if (!user) return null;
+              const isOwner = access.role === "Owner";
+              const isLastOwner = isOwner && ownerCount === 1;
+              return (
+                <TableRow key={access.id}>
+                  <TableCell>
+                    <div className="flex items-center gap-3">
+                      <Avatar>
+                        <AvatarImage src={user?.avatar} alt={user?.name} />
+                        <AvatarFallback>
+                          {user?.name?.charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="font-medium">{user?.name}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {user?.email}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                </TableCell>
-                <TableCell className="text-center">
-                  <Select
-                    value={access.role}
-                    onValueChange={(value: Role) =>
-                      handleRoleChange(access.id, value)
-                    }
-                    disabled={isLastOwner}
-                  >
-                    <SelectTrigger className="w-[120px] mx-auto">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Owner">{t("role_owner")}</SelectItem>
-                      <SelectItem value="Editor">{t("role_editor")}</SelectItem>
-                      <SelectItem value="Viewer">{t("role_viewer")}</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </TableCell>
-                <TableCell className="text-center">
-                  {!isOwner && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() =>
-                        onOpen("removeAccess", { access, inventoryId })
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <Select
+                      value={access.role}
+                      onValueChange={(value: Role) =>
+                        handleRoleChange(access.id, value)
                       }
+                      disabled={isLastOwner}
                     >
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
-                  )}
-                </TableCell>
-              </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
-    </div>
+                      <SelectTrigger className="w-[120px] mx-auto">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Owner">{t("role_owner")}</SelectItem>
+                        <SelectItem value="Editor">
+                          {t("role_editor")}
+                        </SelectItem>
+                        <SelectItem value="Viewer">
+                          {t("role_viewer")}
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </TableCell>
+                  <TableCell className="text-center">
+                    {!isOwner && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() =>
+                          onOpen("removeAccess", { access, inventoryId })
+                        }
+                      >
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    )}
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </div>
+
+      {/* Mobile View: List of Cards */}
+      <div className="grid gap-4 sm:hidden">
+        {accessList.map((access) => {
+          const user = usersMap.get(access.userId);
+          if (!user) return null;
+          const isOwner = access.role === "Owner";
+          const isLastOwner = isOwner && ownerCount === 1;
+
+          return (
+            <div
+              key={access.id}
+              className="flex flex-col gap-4 rounded-lg border bg-card p-4 text-card-foreground"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Avatar>
+                    <AvatarImage src={user?.avatar} alt={user?.name} />
+                    <AvatarFallback>
+                      {user?.name?.charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="font-medium">{user?.name}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {user?.email}
+                    </p>
+                  </div>
+                </div>
+                {!isOwner && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() =>
+                      onOpen("removeAccess", { access, inventoryId })
+                    }
+                  >
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                  </Button>
+                )}
+              </div>
+              <div>
+                <Select
+                  value={access.role}
+                  onValueChange={(value: Role) =>
+                    handleRoleChange(access.id, value)
+                  }
+                  disabled={isLastOwner}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Owner">{t("role_owner")}</SelectItem>
+                    <SelectItem value="Editor">{t("role_editor")}</SelectItem>
+                    <SelectItem value="Viewer">{t("role_viewer")}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </>
   );
 }

@@ -44,14 +44,14 @@ export function VisibilityToggle({
     <Card>
       <CardHeader>
         <CardTitle>{t("visibility")}</CardTitle>
-        <CardDescription>
+      </CardHeader>
+      <CardContent className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-2 sm:pt-6">
+        <p className="text-sm text-muted-foreground pr-4">
           {inventory.public
             ? t("visibility_public_desc")
             : t("visibility_private_desc")}
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="flex items-center space-x-2">
+        </p>
+        <div className="flex items-center space-x-2 shrink-0">
           <Switch
             id="visibility-toggle"
             checked={inventory.public}

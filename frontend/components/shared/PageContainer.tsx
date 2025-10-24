@@ -11,7 +11,7 @@ export function PageContainer({
   ...props
 }: PageContainerProps) {
   return (
-    <main className={cn("container py-6", className)} {...props}>
+    <main className={cn("container px-4 sm:px-6 py-6", className)} {...props}>
       {children}
     </main>
   );

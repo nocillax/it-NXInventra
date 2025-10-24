@@ -51,7 +51,7 @@ export function CommentForm({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex items-end gap-2"
+        className="flex flex-col gap-2 sm:flex-row sm:items-end"
       >
         <FormField
           control={form.control}
@@ -71,7 +71,11 @@ export function CommentForm({
             </FormItem>
           )}
         />
-        <Button type="submit" disabled={isSubmitting}>
+        <Button
+          type="submit"
+          disabled={isSubmitting}
+          className="w-full sm:w-auto"
+        >
           {isSubmitting ? t("posting_message") : t("post")}
         </Button>
       </form>

@@ -2,6 +2,7 @@
 
 import { Link, usePathname } from "@/navigation";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { useTranslations } from "next-intl";
 
 const TABS = [
@@ -27,20 +28,23 @@ export function InventoryToolbar({ inventoryId }: InventoryToolbarProps) {
       ?.key || "items";
 
   return (
-    <Tabs value={activeTab} className="mt-6">
-      <TabsList className="grid w-full grid-cols-3 sm:w-auto sm:grid-cols-7">
-        {TABS.map((tab) => (
-          <Link
-            key={tab.key}
-            href={`/inventories/${inventoryId}${tab.href}`}
-            passHref
-          >
-            <TabsTrigger value={tab.key} className="w-full">
-              {t(tab.key)}
-            </TabsTrigger>
-          </Link>
-        ))}
-      </TabsList>
-    </Tabs>
+    <div className="relative mt-6">
+      <ScrollArea className="w-full whitespace-nowrap">
+        <Tabs value={activeTab}>
+          <TabsList>
+            {TABS.map((tab) => (
+              <Link
+                key={tab.key}
+                href={`/inventories/${inventoryId}${tab.href}`}
+                passHref
+              >
+                <TabsTrigger value={tab.key}>{t(tab.key)}</TabsTrigger>
+              </Link>
+            ))}
+          </TabsList>
+        </Tabs>
+        <ScrollBar orientation="horizontal" className="invisible" />
+      </ScrollArea>
+    </div>
   );
 }

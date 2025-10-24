@@ -20,7 +20,7 @@ export function CommentList({
   const t = useTranslations("DiscussionTab");
 
   return (
-    <ScrollArea className="max-h-[60vh] pr-4">
+    <ScrollArea className="max-h-[60vh] pr-2 sm:pr-4">
       <div className="space-y-6">
         {comments.length > 0 ? (
           comments.map((comment) => (

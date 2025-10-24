@@ -47,54 +47,55 @@ export const IdSegmentRow = React.forwardRef<HTMLDivElement, IdSegmentRowProps>(
       <div
         ref={ref}
         {...props}
-        className="flex items-center gap-2 p-3 border bg-background rounded-md"
+        className="flex flex-col gap-3 rounded-md border bg-background p-3 sm:flex-row sm:items-center sm:gap-2"
       >
-        <div
-          {...dragAttributes}
-          {...dragListeners}
-          className="cursor-grab touch-none p-2"
-        >
-          <GripVertical className="h-5 w-5 text-muted-foreground" />
+        <div className="flex items-center gap-2">
+          <div
+            {...dragAttributes}
+            {...dragListeners}
+            className="cursor-grab touch-none p-2"
+          >
+            <GripVertical className="h-5 w-5 text-muted-foreground" />
+          </div>
+          <Select value={segment.type} onValueChange={handleTypeChange}>
+            <SelectTrigger className="w-full sm:w-[150px]">
+              <SelectValue placeholder={t("segment_type")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="fixed">{t("fixed_text")}</SelectItem>
+              <SelectItem value="date">{t("date")}</SelectItem>
+              <SelectItem value="sequence">{t("sequence")}</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onDelete}
+            className="ml-auto"
+          >
+            <Trash2 className="h-4 w-4 text-destructive" />
+          </Button>
         </div>
-        <Select value={segment.type} onValueChange={handleTypeChange}>
-          <SelectTrigger className="w-[150px]">
-            <SelectValue placeholder={t("segment_type")} />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="fixed">{t("fixed_text")}</SelectItem>
-            <SelectItem value="date">{t("date")}</SelectItem>
-            <SelectItem value="sequence">{t("sequence")}</SelectItem>
-          </SelectContent>
-        </Select>
-        {segment.type === "fixed" && (
-          <Input
-            placeholder={t("fixed_text_placeholder")}
-            value={segment.value || ""}
-            onChange={handleValueChange}
-          />
-        )}
-        {segment.type === "date" && (
-          <Input
-            placeholder={t("date_placeholder")}
-            value={segment.format || ""}
-            onChange={handleFormatChange}
-          />
-        )}
-        {segment.type === "sequence" && (
-          <Input
-            placeholder={t("sequence_placeholder")}
-            value={segment.format || ""}
-            onChange={handleFormatChange}
-          />
-        )}
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={onDelete}
-          className="ml-auto"
-        >
-          <Trash2 className="h-4 w-4 text-destructive" />
-        </Button>
+        <div className="flex-grow">
+          {segment.type === "fixed" && (
+            <Input
+              placeholder={t("fixed_text_placeholder")}
+              value={segment.value || ""}
+              onChange={handleValueChange}
+            />
+          )}
+          {(segment.type === "date" || segment.type === "sequence") && (
+            <Input
+              placeholder={
+                segment.type === "date"
+                  ? t("date_placeholder")
+                  : t("sequence_placeholder")
+              }
+              value={segment.format || ""}
+              onChange={handleFormatChange}
+            />
+          )}
+        </div>
       </div>
     );
   }

@@ -1,11 +1,11 @@
 "use client";
 
 import useSWR from "swr";
-import { apiFetch } from "@/lib/apiClient";
+import { getUsers } from "@/lib/api/users";
 import { User } from "@/types/shared";
 
 export function useUsers() {
-  const { data, error, isLoading } = useSWR<User[]>("/users", apiFetch);
+  const { data, error, isLoading } = useSWR<User[] | null>("/users", getUsers);
 
   return {
     users: data,

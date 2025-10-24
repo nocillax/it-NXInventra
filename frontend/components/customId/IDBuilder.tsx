@@ -111,8 +111,9 @@ export function IDBuilder({ inventory }: IDBuilderProps) {
   const t = useTranslations("IDBuilder");
 
   return (
-    <div className="grid gap-8 md:grid-cols-3">
-      <div className="md:col-span-2">
+    <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+      {/* Segment Editor: Appears second on mobile, first on desktop */}
+      <div className="order-2 md:col-span-2 md:order-1">
         <div className="space-y-4">
           <DndContext
             sensors={sensors}
@@ -145,7 +146,8 @@ export function IDBuilder({ inventory }: IDBuilderProps) {
           </div>
         </div>
       </div>
-      <div className="md:col-span-1">
+      {/* ID Preview: Appears first on mobile, second on desktop */}
+      <div className="order-1 md:col-span-1 md:order-2">
         <IDPreview segments={segments} />
       </div>
     </div>

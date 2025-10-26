@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { Menu, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "./ThemeToggle";
 import { UserNav } from "@/components/shared/UserNav";
@@ -10,11 +11,20 @@ import { useTranslations } from "next-intl";
 import { GlobalSearch } from "./GlobalSearch";
 import { useTheme } from "next-themes";
 import { useUserStore } from "@/stores/useUserStore";
+import {
+  Sheet,
+  SheetContent,
+  SheetFooter,
+  SheetHeader,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Image from "next/image";
 
 export function Header() {
   const t = useTranslations("Header");
   const [searchOpen, setSearchOpen] = React.useState(false);
+  const [sheetOpen, setSheetOpen] = React.useState(false);
   const { theme } = useTheme();
   const { user } = useUserStore();
   const [mounted, setMounted] = React.useState(false);
@@ -23,8 +33,11 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-14 items-center">
-        <div className="mr-4 hidden md:flex">
+      {/* ======================================================================= */}
+      {/* Desktop Header                                                          */}
+      {/* ======================================================================= */}
+      <div className="container hidden h-14 items-center md:flex">
+        <div className="mr-4 flex items-center">
           <Link href="/" className="mr-10 flex items-center space-x-2">
             {mounted ? (
               <Image
@@ -41,7 +54,7 @@ export function Header() {
               <div className="h-6 w-6" />
             )}
           </Link>
-          <nav className="flex items-center space-x-6 text-sm font-medium">
+          <nav className="hidden items-center space-x-6 text-sm font-medium md:flex">
             <Link
               href="/"
               className="transition-colors hover:text-foreground/80 text-foreground/60"
@@ -90,8 +103,137 @@ export function Header() {
             <UserNav />
           </nav>
         </div>
-        <GlobalSearch open={searchOpen} setOpen={setSearchOpen} />
       </div>
+
+      {/* ======================================================================= */}
+      {/* Mobile Header                                                           */}
+      {/* ======================================================================= */}
+      <div className="container grid h-14 grid-cols-3 items-center px-2 md:hidden">
+        {/* Left Side: Burger Menu */}
+        <div className="justify-self-start">
+          <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <Menu className="h-6 w-6" />
+                <span className="sr-only">Open mobile menu</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="flex w-[280px] flex-col p-0">
+              <SheetHeader className="border-b p-4">
+                {user && (
+                  <div className="flex items-center gap-3">
+                    <Avatar>
+                      <AvatarImage src={user.avatar} alt={user.name} />
+                      <AvatarFallback>
+                        {user.name.charAt(0).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex flex-col">
+                      <span className="text-sm font-semibold">{user.name}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {user.email}
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </SheetHeader>
+              <nav className="flex-1 space-y-2 p-4">
+                <Button
+                  variant="outline"
+                  className="w-full justify-start"
+                  asChild
+                  onClick={() => setSheetOpen(false)}
+                >
+                  <Link href="/">{t("home_link")}</Link>
+                </Button>
+                <Button
+                  variant="outline"
+                  className="w-full justify-start"
+                  asChild
+                  onClick={() => setSheetOpen(false)}
+                >
+                  <Link href="/shared-with-me">{t("shared_link")}</Link>
+                </Button>
+                <Button
+                  variant="outline"
+                  className="w-full justify-start"
+                  asChild
+                  onClick={() => setSheetOpen(false)}
+                >
+                  <Link href="/explore">{t("explore_link")}</Link>
+                </Button>
+                <Button
+                  variant="outline"
+                  className="w-full justify-start"
+                  asChild
+                  onClick={() => setSheetOpen(false)}
+                >
+                  <Link href="/profile">{t("profile_link")}</Link>
+                </Button>
+              </nav>
+              <SheetFooter className="mt-auto flex-col items-stretch gap-2 border-t p-4">
+                <div className="flex w-full items-center justify-between gap-2">
+                  <Button variant="ghost" className="w-full justify-start px-2">
+                    <span className="text-sm text-muted-foreground">
+                      {t("theme_toggle")}
+                    </span>
+                  </Button>
+                  <ThemeToggle />
+                </div>
+                <div className="flex w-full items-center justify-between gap-2">
+                  <Button variant="ghost" className="w-full justify-start px-2">
+                    <span className="text-sm text-muted-foreground">
+                      {t("language_toggle")}
+                    </span>
+                  </Button>
+                  <LanguageToggle />
+                </div>
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => {
+                    useUserStore.getState().logout();
+                    setSheetOpen(false);
+                  }}
+                >
+                  {t("log_out")}
+                </Button>
+              </SheetFooter>
+            </SheetContent>
+          </Sheet>
+        </div>
+
+        {/* Center: Logo */}
+        <div className="justify-self-center">
+          <Link href="/" className="flex items-center">
+            <Image
+              src={
+                theme === "dark"
+                  ? "/logos/nocillax-logo-light.png"
+                  : "/logos/nocillax-logo-dark.png"
+              }
+              alt="Logo"
+              width={32}
+              height={32}
+            />
+          </Link>
+        </div>
+
+        {/* Right Side: Search and UserNav */}
+        <div className="flex items-center justify-self-end gap-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setSearchOpen(true)}
+          >
+            <Search className="h-6 w-6" />
+            <span className="sr-only">Search</span>
+          </Button>
+          <UserNav />
+        </div>
+      </div>
+      {/* GlobalSearch is now a single instance outside the responsive divs */}
+      <GlobalSearch open={searchOpen} setOpen={setSearchOpen} />
     </header>
   );
 }

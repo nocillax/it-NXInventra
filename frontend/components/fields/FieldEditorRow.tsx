@@ -6,7 +6,13 @@ import { SyntheticListenerMap } from "@dnd-kit/core/dist/hooks/utilities";
 import { CustomField } from "@/types/shared";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import { GripVertical, Trash2 } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { GripVertical, Trash2, Eye, EyeOff } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 interface FieldEditorRowProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -37,34 +43,53 @@ export const FieldEditorRow = React.forwardRef<
       <div
         ref={ref}
         {...props}
-        className="flex items-center justify-between p-3 border bg-background rounded-md"
+        className="flex items-center gap-3 rounded-md border bg-background p-3"
       >
-        <div className="flex items-center gap-2">
-          <div
-            {...dragAttributes}
-            {...dragListeners}
-            className="cursor-grab touch-none"
-          >
-            <GripVertical className="h-5 w-5 text-muted-foreground" />
-          </div>
-          <div className="flex flex-col">
+        {/* Grip Handle */}
+        <div
+          {...dragAttributes}
+          {...dragListeners}
+          className="cursor-grab touch-none"
+        >
+          <GripVertical className="h-5 w-5 text-muted-foreground" />
+        </div>
+
+        {/* Main Content Block */}
+        <div className="flex flex-grow items-center justify-between gap-4">
+          {/* Left Side: Name & Type */}
+          <div className="flex flex-col items-start">
             <span className="font-medium">{field.name}</span>
             <span className="text-sm text-muted-foreground">
               {t("field_type")} {t(field.type)}
             </span>
           </div>
-        </div>
-        <div className="flex items-center space-x-4">
-          <span className="text-sm text-muted-foreground">
-            {t("showInTable")}
-          </span>
-          <Switch
-            checked={field.showInTable}
-            onCheckedChange={onToggleShowInTable} // This was missing its prop
-          />
-          <Button variant="ghost" size="icon" onClick={onDelete}>
-            <Trash2 className="h-4 w-4 text-destructive" />
-          </Button>
+
+          {/* Right Side: Controls */}
+          <div className="flex items-center gap-2">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => onToggleShowInTable(!field.showInTable)}
+                  >
+                    {field.showInTable ? (
+                      <Eye className="h-4 w-4" />
+                    ) : (
+                      <EyeOff className="h-4 w-4 text-muted-foreground" />
+                    )}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{t("showInTable")}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            <Button variant="ghost" size="icon" onClick={onDelete}>
+              <Trash2 className="h-4 w-4 text-destructive" />
+            </Button>
+          </div>
         </div>
       </div>
     );

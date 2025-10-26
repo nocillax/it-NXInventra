@@ -15,7 +15,7 @@ export function Footer() {
 
   return (
     <footer className="border-t">
-      <div className="container flex h-24 items-center justify-between">
+      <div className="container flex flex-col items-center justify-between gap-4 py-10 sm:h-24 sm:flex-row sm:py-0">
         <Link href="/" className="flex items-center space-x-2">
           {mounted ? (
             <Image

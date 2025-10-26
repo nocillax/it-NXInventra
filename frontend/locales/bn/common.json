@@ -4,7 +4,11 @@
     "explore_link": "ঘুরে দেখুন",
     "home_link": "হোম",
     "shared_link": "শেয়ার্ড",
-    "greeting": "হাই, {name}"
+    "greeting": "হাই, {name}",
+    "profile_link": "আমার প্রোফাইল",
+    "log_out": "লগ আউট",
+    "theme_toggle": "থিম",
+    "language_toggle": "ভাষা"
   },
   "UserNav": {
     "log_out": "লগ আউট",

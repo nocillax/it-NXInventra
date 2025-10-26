@@ -107,7 +107,7 @@ export default function InventoryStatisticsPage() {
 
   return (
     <div className="space-y-4">
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <StatCard
           title={t("total_items")}
           value={formatNumber(stats.totalItems)}
@@ -151,21 +151,21 @@ export default function InventoryStatisticsPage() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="lg:col-span-4">
+        <Card className="lg:col-span-4 overflow-hidden min-w-0 flex flex-col">
           <CardHeader>
             <CardTitle>{t("monthly_additions")}</CardTitle>
           </CardHeader>
-          <CardContent className="pl-2">
+          <CardContent className="pl-2 flex-grow">
             <MonthlyAdditionsChart data={monthlyAdditionsData} />
           </CardContent>
         </Card>
-        <div className="lg:col-span-3 space-y-4">
+        <div className="lg:col-span-3 space-y-4 min-w-0">
           <TopContributorsCard
             contributors={stats.topContributors}
             users={users}
           />
           {quantityChartData ? (
-            <Card>
+            <Card className="overflow-hidden">
               <CardHeader>
                 <CardTitle>{t("qty_distribution")}</CardTitle>
               </CardHeader>

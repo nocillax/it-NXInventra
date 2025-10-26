@@ -1,6 +1,6 @@
 "use client";
 
-import { Bar, BarChart, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, XAxis, YAxis, ResponsiveContainer } from "recharts";
 import {
   ChartContainer,
   ChartTooltip,
@@ -21,25 +21,27 @@ export function MonthlyAdditionsChart({ data }: MonthlyAdditionsChartProps) {
   };
 
   return (
-    <ChartContainer config={chartConfig} className="min-h-[350px] w-full">
-      <BarChart accessibilityLayer data={data}>
-        <XAxis
-          dataKey="month"
-          stroke="#888888"
-          fontSize={12}
-          tickLine={false}
-          axisLine={false}
-        />
-        <YAxis
-          stroke="#888888"
-          fontSize={12}
-          tickLine={false}
-          axisLine={false}
-          allowDecimals={false}
-        />
-        <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
-        <Bar dataKey="count" fill="var(--color-count)" radius={4} />
-      </BarChart>
-    </ChartContainer>
+    <ResponsiveContainer width="100%" height="100%">
+      <ChartContainer config={chartConfig}>
+        <BarChart accessibilityLayer data={data}>
+          <XAxis
+            dataKey="month"
+            stroke="#888888"
+            fontSize={12}
+            tickLine={false}
+            axisLine={false}
+          />
+          <YAxis
+            stroke="#888888"
+            fontSize={12}
+            tickLine={false}
+            axisLine={false}
+            allowDecimals={false}
+          />
+          <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
+          <Bar dataKey="count" fill="var(--color-count)" radius={4} />
+        </BarChart>
+      </ChartContainer>
+    </ResponsiveContainer>
   );
 }

@@ -4,7 +4,11 @@
     "explore_link": "Explore",
     "home_link": "Home",
     "shared_link": "Shared",
-    "greeting": "Hi, {name}"
+    "greeting": "Hi, {name}",
+    "profile_link": "My Profile",
+    "log_out": "Log Out",
+    "theme_toggle": "Theme",
+    "language_toggle": "Language"
   },
   "UserNav": {
     "log_out": "Log out",

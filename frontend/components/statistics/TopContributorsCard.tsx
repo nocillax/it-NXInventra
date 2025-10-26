@@ -31,18 +31,25 @@ export function TopContributorsCard({
         {contributors.map((contributor) => {
           const user = usersMap.get(contributor.userId);
           return (
-            <div key={contributor.userId} className="flex items-center">
-              <Avatar className="h-9 w-9">
-                <AvatarImage src={user?.avatar} alt={user?.name} />
-                <AvatarFallback>
-                  {user?.name?.charAt(0).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              <div className="ml-4 space-y-1">
-                <p className="text-sm font-medium leading-none">{user?.name}</p>
-                <p className="text-sm text-muted-foreground">{user?.email}</p>
+            <div
+              key={contributor.userId}
+              className="flex items-center justify-between"
+            >
+              <div className="flex items-center">
+                <Avatar className="h-9 w-9">
+                  <AvatarImage src={user?.avatar} alt={user?.name} />
+                  <AvatarFallback>
+                    {user?.name?.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="ml-4 space-y-1">
+                  <p className="text-sm font-medium leading-none">
+                    {user?.name}
+                  </p>
+                  <p className="text-sm text-muted-foreground">{user?.email}</p>
+                </div>
               </div>
-              <div className="ml-auto font-medium">
+              <div className="font-medium">
                 {formatNumber(contributor.count)} {t("items")}
               </div>
             </div>

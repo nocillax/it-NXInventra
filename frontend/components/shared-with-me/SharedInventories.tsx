@@ -8,6 +8,7 @@ import { useUserStore } from "@/stores/useUserStore";
 import { InventoryTable } from "@/components/inventory/InventoryTable";
 import { Inventory, Access, Role } from "@/types/shared";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Pagination } from "@/components/shared/Pagination";
 import { GenericError } from "../shared/GenericError";
 
@@ -93,18 +94,23 @@ export function SharedInventories() {
 
   return (
     <>
-      <InventoryTable
-        inventories={paginatedInventories}
-        users={users || []}
-        accessList={accessList || []}
-        isLoading={isLoading}
-        currentUserId={currentUserId}
-      />
-      <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={setCurrentPage}
-      />
+      <ScrollArea className="w-full whitespace-nowrap rounded-md border">
+        <InventoryTable
+          inventories={paginatedInventories}
+          users={users || []}
+          accessList={accessList || []}
+          isLoading={isLoading}
+          currentUserId={currentUserId}
+        />
+        <ScrollBar orientation="horizontal" />
+      </ScrollArea>
+      {totalPages > 1 && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
+      )}
     </>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Pie, Cell, PieChart } from "recharts";
+import { Pie, Cell, PieChart, ResponsiveContainer } from "recharts";
 import {
   ChartContainer,
   ChartTooltip,
@@ -41,48 +41,50 @@ export function FieldDistributionChart({ data }: FieldDistributionChartProps) {
   };
 
   return (
-    <ChartContainer config={{}} className="min-h-[350px] w-full">
-      <PieChart>
-        <ChartTooltip
-          cursor={false}
-          content={
-            <ChartTooltipContent
-              formatter={(value, name, props) => {
-                const percentage =
-                  total > 0 ? ((Number(value) / total) * 100).toFixed(0) : 0;
-                return (
-                  <div>
-                    <p className="font-mono">{props.payload.name}</p>
-                    <p>
-                      {t("qty_short")} {formatNumber(Number(value))} (
-                      {formatNumber(Number(percentage))}%)
-                    </p>
-                  </div>
-                );
-              }}
-            />
-          }
-        />
-        <Pie
-          data={chartData}
-          cx="50%"
-          cy="50%"
-          labelLine={false}
-          outerRadius={140}
-          fill="#8884d8"
-          dataKey="value"
-          nameKey="name"
-        >
-          {chartData.map((entry, index) => (
-            <Cell
-              key={`cell-${index}`}
-              fill={COLORS[index % COLORS.length]}
-              stroke="hsl(var(--background))"
-              strokeWidth={2}
-            />
-          ))}
-        </Pie>
-      </PieChart>
-    </ChartContainer>
+    <ResponsiveContainer width="100%" height={350}>
+      <ChartContainer config={{}}>
+        <PieChart>
+          <ChartTooltip
+            cursor={false}
+            content={
+              <ChartTooltipContent
+                formatter={(value, name, props) => {
+                  const percentage =
+                    total > 0 ? ((Number(value) / total) * 100).toFixed(0) : 0;
+                  return (
+                    <div>
+                      <p className="font-mono">{props.payload.name}</p>
+                      <p>
+                        {t("qty_short")} {formatNumber(Number(value))} (
+                        {formatNumber(Number(percentage))}%)
+                      </p>
+                    </div>
+                  );
+                }}
+              />
+            }
+          />
+          <Pie
+            data={chartData}
+            cx="50%"
+            cy="50%"
+            labelLine={false}
+            outerRadius="80%"
+            fill="#8884d8"
+            dataKey="value"
+            nameKey="name"
+          >
+            {chartData.map((entry, index) => (
+              <Cell
+                key={`cell-${index}`}
+                fill={COLORS[index % COLORS.length]}
+                stroke="hsl(var(--background))"
+                strokeWidth={2}
+              />
+            ))}
+          </Pie>
+        </PieChart>
+      </ChartContainer>
+    </ResponsiveContainer>
   );
 }

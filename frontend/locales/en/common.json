@@ -46,6 +46,13 @@
     "access": "Access",
     "statistics": "Statistics"
   },
+  "InventoryCreateDialog": {
+    "title": "Create Inventory",
+    "description": "Give your new inventory a name to get started. You can change this later.",
+    "title_label": "Title",
+    "title_placeholder": "e.g. Office Laptops",
+    "create_button": "Create"
+  },
   "LanguageToggle": {
     "english": "English",
     "bengali": "বাংলা (Bengali)"

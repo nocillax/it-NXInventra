@@ -46,6 +46,13 @@
     "access": "অ্যাক্সেস",
     "statistics": "পরিসংখ্যান"
   },
+  "InventoryCreateDialog": {
+    "title": "ইনভেন্টরি তৈরি করুন",
+    "description": "আপনার নতুন ইনভেন্টরির একটি নাম দিন। আপনি পরে এটি পরিবর্তন করতে পারবেন।",
+    "title_label": "শিরোনাম",
+    "title_placeholder": "যেমন: অফিস ল্যাপটপ",
+    "create_button": "তৈরি করুন"
+  },
   "LanguageToggle": {
     "english": "English",
     "bengali": "বাংলা (Bengali)"

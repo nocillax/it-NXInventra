@@ -7,6 +7,7 @@ import { ItemCreateDialog } from "@/components/item/ItemCreateDialog";
 import { ItemDeleteDialog } from "@/components/item/ItemDeleteDialog";
 import { ItemEditDialog } from "@/components/item/ItemEditDialog";
 import { InventoryCreateDialog } from "@/components/inventory/InventoryCreateDialog";
+import { InventoryDeleteDialog } from "@/components/settings/InventoryDeleteDialog";
 import { useEffect, useState } from "react";
 
 export const ModalProvider = () => {
@@ -27,6 +28,7 @@ export const ModalProvider = () => {
       <FieldDeleteDialog />
       <AccessRemoveDialog />
       <AccessInviteDialog />
+      <InventoryDeleteDialog />
     </>
   );
 };

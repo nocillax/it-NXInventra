@@ -14,11 +14,13 @@ import { useModalStore } from "@/stores/useModalStore";
 import { apiFetch } from "@/lib/apiClient";
 import { toast } from "sonner";
 import { useAccess } from "@/hooks/useAccess";
+import { useTranslations } from "next-intl";
 
 export function AccessRemoveDialog() {
   const { isOpen, type, data, onClose } = useModalStore();
   const { inventoryId, access } = data;
   const { mutate } = useAccess(inventoryId);
+  const t = useTranslations("AccessRemoveDialog");
 
   const isModalOpen = isOpen && type === "removeAccess";
 
@@ -26,11 +28,11 @@ export function AccessRemoveDialog() {
     if (!access) return;
     try {
       await apiFetch(`/access/${access.id}`, { method: "DELETE" });
-      toast.success(`User access removed.`);
+      toast.success(t("remove_success"));
       mutate();
       onClose();
     } catch (error) {
-      toast.error("Failed to remove access.");
+      toast.error(t("remove_error"));
     }
   };
 
@@ -38,19 +40,16 @@ export function AccessRemoveDialog() {
     <AlertDialog open={isModalOpen} onOpenChange={onClose}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-          <AlertDialogDescription>
-            This will permanently remove this user's access to the inventory.
-            This action cannot be undone.
-          </AlertDialogDescription>
+          <AlertDialogTitle>{t("title")}</AlertDialogTitle>
+          <AlertDialogDescription>{t("description")}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
           <AlertDialogAction
             onClick={handleDelete}
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
-            Remove
+            {t("remove")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

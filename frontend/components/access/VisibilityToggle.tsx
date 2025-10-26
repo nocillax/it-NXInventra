@@ -38,9 +38,9 @@ export function VisibilityToggle({
         method: "PUT",
         body: JSON.stringify({ public: isPublic }),
       });
-      toast.success(`Inventory is now ${isPublic ? "Public" : "Private"}.`);
+      toast.success(t("visibility_updated_success"));
     } catch (error) {
-      toast.error("Failed to update visibility.");
+      toast.error(t("visibility_updated_error"));
       onUpdate(inventory, { revalidate: false });
     }
   };

@@ -84,12 +84,12 @@ export function CustomFieldsEditor({ inventory }: CustomFieldsEditorProps) {
         method: "PUT",
         body: JSON.stringify({ customFields: updatedFields }),
       });
-      toast.success(`Field "${newField.name}" added.`);
+      toast.success(t("add_field_success"));
       mutate(`/inventories/${inventory.id}`);
       mutate("/inventories");
       form.reset();
     } catch (error) {
-      toast.error("Failed to add field.");
+      toast.error(t("add_field_error"));
     }
   }
 

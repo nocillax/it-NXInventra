@@ -51,7 +51,10 @@
     "description": "Give your new inventory a name to get started. You can change this later.",
     "title_label": "Title",
     "title_placeholder": "e.g. Office Laptops",
-    "create_button": "Create"
+    "create_button": "Create",
+    "creating_button": "Creating...",
+    "success_message": "Inventory created successfully!",
+    "failure_message": "Failed to create inventory."
   },
   "LanguageToggle": {
     "english": "English",
@@ -91,7 +94,9 @@
   "CommentForm": {
     "cmt_placeholder": "Write a comment...",
     "post": "Post",
-    "posting_message": "Posting..."
+    "posting_message": "Posting...",
+    "comment_posted_success": "Comment posted.",
+    "comment_posted_error": "Failed to post comment."
   },
   "CommentItem": {
     "unknown_user": "Unknown User"
@@ -104,7 +109,19 @@
     "save_button": "Save Changes",
     "saving_message": "Saving...",
     "success_message": "Inventory settings updated.",
-    "failure_message": "Failed to update settings."
+    "failure_message": "Failed to update settings.",
+    "danger_zone_title": "Delete Inventory",
+    "danger_zone_description": "Permanently delete this inventory and all of its items.",
+    "delete_inventory_button": "Delete"
+  },
+  "InventoryDeleteDialog": {
+    "title": "Are you absolutely sure?",
+    "description": "This will permanently delete this inventory and all of its items. This action cannot be undone.",
+    "delete_button": "Delete Inventory",
+    "deleting_button": "Deleting...",
+    "cancel_button": "Cancel",
+    "success_message": "Inventory deleted successfully.",
+    "failure_message": "Failed to delete inventory."
   },
   "IDBuilder": {
     "success_message": "ID format updated successfully.",
@@ -168,7 +185,9 @@
     "show_in_table": "Show in Table",
     "show_in_table_description": "Display this field as a column in the items table.",
     "add_field_button": "Add Field",
-    "saving_message": "Adding..."
+    "saving_message": "Adding...",
+    "add_field_success": "Field added successfully!",
+    "add_field_error": "Failed to add field."
   },
   "AccessList": {
     "success_message": "User role updated.",
@@ -177,7 +196,9 @@
     "role": "Role",
     "role_owner": "Owner",
     "role_editor": "Editor",
-    "role_viewer": "Viewer"
+    "role_viewer": "Viewer",
+    "visibility_updated_success": "Inventory visibility updated successfully.",
+    "visibility_updated_error": "Failed to update inventory visibility."
   },
   "AccessPages": {
     "title": "Collaborators",
@@ -187,6 +208,29 @@
     "visibility_private_desc": "This inventory is private and only accessible to collaborators.",
     "public": "Public",
     "private": "Private"
+  },
+  "AccessInviteDialog": {
+    "title": "Add Collaborator",
+    "description": "Select a user and assign a role to invite them to this inventory.",
+    "search_placeholder": "Search for a user...",
+    "select_role_placeholder": "Select a role",
+    "role_owner": "Owner",
+    "role_editor": "Editor",
+    "role_viewer": "Viewer",
+    "add_button": "Add",
+    "adding_button": "Adding...",
+    "success_message": "User added successfully!",
+    "failure_message": "Failed to add user. Please try again.",
+    "no_user_selected": "Please select a user and role.",
+    "no_users_found": "No users found."
+  },
+  "AccessRemoveDialog": {
+    "title": "Are you absolutely sure?",
+    "description": "This will remove the user's access to this inventory. This action cannot be undone.",
+    "cancel": "Cancel",
+    "remove": "Remove",
+    "remove_success": "User access removed.",
+    "remove_error": "Failed to remove access."
   },
   "StatisticsPage": {
     "no_data_message": "No statistics available for this inventory.",

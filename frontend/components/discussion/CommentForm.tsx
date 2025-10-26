@@ -39,11 +39,11 @@ export function CommentForm({
         method: "POST",
         body: JSON.stringify({ ...values, inventoryId }),
       });
-      toast.success("Comment posted.");
+      toast.success(t("comment_posted_success"));
       form.reset();
       onCommentPosted();
     } catch (error) {
-      toast.error("Failed to post comment.");
+      toast.error(t("comment_posted_error"));
     }
   }
 

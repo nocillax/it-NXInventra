@@ -91,7 +91,9 @@
   "CommentForm": {
     "cmt_placeholder": "একটি মন্তব্য লিখুন...",
     "post": "পোস্ট করুন",
-    "posting_message": "পোস্ট হচ্ছে..."
+    "posting_message": "পোস্ট হচ্ছে...",
+    "comment_posted_success": "মন্তব্য সফলভাবে পোস্ট হয়েছে।",
+    "comment_posted_error": "মন্তব্য পোস্ট করতে ব্যর্থ।"
   },
   "CommentItem": {
     "unknown_user": "অজ্ঞাত ইউজার"
@@ -104,7 +106,19 @@
     "success_message": "ইনভেন্টরি সেটিংস সফলভাবে আপডেট হয়েছে!",
     "failure_message": "সেটিংস আপডেট করতে ব্যর্থ। অনুগ্রহ করে আবার চেষ্টা করুন।",
     "saving_message": "সংরক্ষণ হচ্ছে...",
-    "save_button": "সংরক্ষণ করুন"
+    "save_button": "সংরক্ষণ করুন",
+    "danger_zone_title": "ইনভেন্টরি মুছে ফেলুন",
+    "danger_zone_description": "এই ইনভেন্টরি এবং এর সমস্ত আইটেম স্থায়ীভাবে মুছে ফেলুন।",
+    "delete_inventory_button": "মুছে ফেলুন"
+  },
+  "InventoryDeleteDialog": {
+    "title": "আপনি কি পুরোপুরি নিশ্চিত?",
+    "description": "এটি স্থায়ীভাবে এই ইনভেন্টরি এবং এর সমস্ত আইটেম মুছে ফেলবে। এই ক্রিয়াটি পূর্বাবস্থায় ফেরানো যাবে না।",
+    "delete_button": "ইনভেন্টরি মুছে ফেলুন",
+    "deleting_button": "মুছে ফেলা হচ্ছে...",
+    "cancel_button": "বাতিল করুন",
+    "success_message": "ইনভেন্টরি সফলভাবে মুছে ফেলা হয়েছে।",
+    "failure_message": "ইনভেন্টরি মুছে ফেলতে ব্যর্থ।"
   },
   "IDBuilder": {
     "success_message": "আইডি ফরম্যাট সফলভাবে আপডেট হয়েছে।",
@@ -162,7 +176,9 @@
     "show_in_table": "টেবিলে দেখান",
     "show_in_table_description": "এই ফিল্ডটিকে আইটেম টেবিলের একটি কলাম হিসেবে প্রদর্শন করুন।",
     "add_field_button": "ফিল্ড যোগ করুন",
-    "saving_message": "সংরক্ষণ হচ্ছে..."
+    "saving_message": "সংরক্ষণ হচ্ছে...",
+    "add_field_success": "ফিল্ড সফলভাবে যোগ করা হয়েছে!",
+    "add_field_error": "ফিল্ড যোগ করতে ব্যর্থ। অনুগ্রহ করে আবার চেষ্টা করুন।"
   },
   "AccessList": {
     "success_message": "ইউজার রোল সফলভাবে আপডেট হয়েছে।",
@@ -180,7 +196,32 @@
     "visibility_public_desc": "এই ইনভেন্টরি পাবলিক এবং যেকেউ এটি দেখতে পারে।",
     "visibility_private_desc": "এই ইনভেন্টরি প্রাইভেট এবং শুধুমাত্র সহযোগীদের জন্য অ্যাক্সেসযোগ্য।",
     "public": "পাবলিক",
-    "private": "প্রাইভেট"
+    "private": "প্রাইভেট",
+    "visibility_updated_success": "ইনভেন্টরি দৃশ্যমানতা সফলভাবে আপডেট হয়েছে।",
+    "visibility_updated_error": "ইনভেন্টরি দৃশ্যমানতা আপডেট করতে ব্যর্থ হয়েছে।"
+  },
+  "AccessInviteDialog": {
+    "title": "সহযোগী যোগ করুন",
+    "description": "এই ইনভেন্টরিতে একটি সহযোগী যোগ করুন।",
+    "search_placeholder": "ইউজার খুঁজুন...",
+    "select_role_placeholder": "রোল নির্বাচন করুন",
+    "role_owner": "মালিক",
+    "role_editor": "লেখক",
+    "role_viewer": "দর্শক",
+    "add_button": "যোগ করুন",
+    "adding_button": "যোগ করা হচ্ছে...",
+    "success_message": "ইউজার সফলভাবে যোগ করা হয়েছে!",
+    "failure_message": "ইউজার যোগ করতে ব্যর্থ। অনুগ্রহ করে আবার চেষ্টা করুন।",
+    "no_user_selected": "কোন ইউজার নির্বাচিত হয়নি।",
+    "no_users_found": "কোন ইউজার পাওয়া যায়নি।"
+  },
+  "AccessRemoveDialog": {
+    "title": "আপনি কি পুরোপুরি নিশ্চিত?",
+    "description": "এটি এই ইনভেন্টরিতে ইউজারের অ্যাক্সেস মুছে ফেলবে। এই ক্রিয়াটি পূর্বাবস্থায় ফেরানো যাবে না।",
+    "cancel": "বাতিল করুন",
+    "remove": "মুছে ফেলুন",
+    "remove_success": "ইউজারের অ্যাক্সেস সফলভাবে মুছে ফেলা হয়েছে।",
+    "remove_error": "অ্যাক্সেস মুছে ফেলতে ব্যর্থ। অনুগ্রহ করে আবার চেষ্টা করুন।"
   },
   "StatisticsPage": {
     "no_data_message": "পরিসংখ্যান প্রদর্শনের জন্য পর্যাপ্ত ডেটা নেই।",

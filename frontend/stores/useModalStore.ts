@@ -8,7 +8,8 @@ export type ModalType =
   | "deleteItem"
   | "deleteCustomField"
   | "removeAccess"
-  | "addCollaborator";
+  | "addCollaborator"
+  | "deleteInventory";
 
 interface ModalData {
   inventoryId?: string;

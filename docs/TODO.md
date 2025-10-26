@@ -4,7 +4,7 @@ This document outlines all the places where toast notifications (for both succes
 
 ## Inventory Management
 
-### 1. Inventory Creation
+### 1. Inventory Creation - Done
 
 - **File**: `components/inventory/InventoryToolbar.tsx` (or the component handling new inventory creation)
 - **Action**: `CREATE`

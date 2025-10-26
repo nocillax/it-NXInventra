@@ -32,12 +32,14 @@ import { Button } from "@/components/ui/button";
 import { Role, User } from "@/types/shared";
 import { apiFetch } from "@/lib/apiClient";
 import { v4 as uuidv4 } from "uuid";
+import { useTranslations } from "next-intl";
 
 export function AccessInviteDialog() {
   const { isOpen, type, data, onClose } = useModalStore();
   const { inventoryId } = data;
   const { users } = useUsers();
   const { accessList, mutate: mutateAccess } = useAccess(inventoryId);
+  const t = useTranslations("AccessInviteDialog");
 
   const [selectedUser, setSelectedUser] = React.useState<User | null>(null);
   const [selectedRole, setSelectedRole] = React.useState<Role>("Viewer");
@@ -61,7 +63,7 @@ export function AccessInviteDialog() {
 
   const handleInvite = async () => {
     if (!selectedUser || !inventoryId) {
-      toast.error("Please select a user and role.");
+      toast.error(t("no_user_selected"));
       return;
     }
     setIsSubmitting(true);
@@ -75,11 +77,11 @@ export function AccessInviteDialog() {
           role: selectedRole,
         }),
       });
-      toast.success(`${selectedUser.name} has been added.`);
+      toast.success(t("success_message"));
       mutateAccess();
       onClose();
     } catch (error) {
-      toast.error("Failed to add user.");
+      toast.error(t("failure_message"));
     } finally {
       setIsSubmitting(false);
       setSelectedUser(null);
@@ -90,20 +92,18 @@ export function AccessInviteDialog() {
     <Dialog open={isModalOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Add Collaborator</DialogTitle>
-          <DialogDescription>
-            Search for a user to invite to this inventory.
-          </DialogDescription>
+          <DialogTitle>{t("title")}</DialogTitle>
+          <DialogDescription>{t("description")}</DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <Command>
             <CommandInput
-              placeholder="Search for a user..."
+              placeholder={t("search_placeholder")}
               value={searchQuery}
               onValueChange={setSearchQuery}
             />
             <CommandList>
-              <CommandEmpty>No users found.</CommandEmpty>
+              <CommandEmpty>{t("no_users_found")}</CommandEmpty>
               <CommandGroup>
                 {availableUsers?.map((user) => (
                   <CommandItem
@@ -129,9 +129,9 @@ export function AccessInviteDialog() {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="Owner">Owner</SelectItem>
-              <SelectItem value="Editor">Editor</SelectItem>
-              <SelectItem value="Viewer">Viewer</SelectItem>
+              <SelectItem value="Owner">{t("role_owner")}</SelectItem>
+              <SelectItem value="Editor">{t("role_editor")}</SelectItem>
+              <SelectItem value="Viewer">{t("role_viewer")}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -140,7 +140,7 @@ export function AccessInviteDialog() {
             onClick={handleInvite}
             disabled={!selectedUser || isSubmitting}
           >
-            {isSubmitting ? "Inviting..." : "Add"}
+            {isSubmitting ? t("adding_button") : t("add_button")}
           </Button>
         </DialogFooter>
       </DialogContent>

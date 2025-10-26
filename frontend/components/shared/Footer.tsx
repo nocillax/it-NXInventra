@@ -25,11 +25,11 @@ export function Footer() {
                   : "/logos/nocillax-logo-dark.png"
               }
               alt="NXInventra Logo"
-              width={42}
-              height={42}
+              width={32}
+              height={32}
             />
           ) : (
-            <div className="h-6 w-6" />
+            <div className="h-8 w-8" />
           )}
           <span className="font-bold">NXInventra</span>
         </Link>

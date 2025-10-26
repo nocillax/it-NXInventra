@@ -64,7 +64,7 @@ export function InventorySettingsForm({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-8 max-w-2xl"
+        className="space-y-6 sm:space-y-8 max-w-2xl"
       >
         <FormField
           control={form.control}
@@ -95,7 +95,11 @@ export function InventorySettingsForm({
             </FormItem>
           )}
         />
-        <Button type="submit" disabled={isSubmitting}>
+        <Button
+          type="submit"
+          disabled={isSubmitting}
+          className="w-full sm:w-auto"
+        >
           {isSubmitting ? t("saving_message") : t("save_button")}
         </Button>
       </form>

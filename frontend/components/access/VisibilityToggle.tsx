@@ -8,8 +8,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
+import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Lock, Unlock } from "lucide-react";
 import { Inventory } from "@/types/shared";
 import { apiFetch } from "@/lib/apiClient";
 import { useTranslations } from "next-intl";
@@ -51,15 +57,30 @@ export function VisibilityToggle({
             ? t("visibility_public_desc")
             : t("visibility_private_desc")}
         </p>
-        <div className="flex items-center space-x-2 shrink-0">
-          <Switch
-            id="visibility-toggle"
-            checked={inventory.public}
-            onCheckedChange={handleVisibilityChange}
-          />
-          <Label htmlFor="visibility-toggle">
+        <div className="flex items-center gap-3">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => handleVisibilityChange(!inventory.public)}
+                >
+                  {inventory.public ? (
+                    <Unlock className="h-5 w-5" />
+                  ) : (
+                    <Lock className="h-5 w-5" />
+                  )}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{inventory.public ? "Make Private" : "Make Public"}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <span className="w-16 text-sm font-medium">
             {inventory.public ? t("public") : t("private")}
-          </Label>
+          </span>
         </div>
       </CardContent>
     </Card>

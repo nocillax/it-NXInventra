@@ -48,13 +48,18 @@ export default function InventoryStatisticsPage() {
       .map((_, i) => {
         const d = new Date();
         d.setMonth(d.getMonth() - i);
-        return d.toLocaleString(locale, { month: "short" });
+        return {
+          name: d.toLocaleString(locale, { month: "short" }),
+          key: d.toLocaleString("en-US", { month: "short" }), // Stable English key for matching
+        };
       })
       .reverse();
 
-    return last12Months.map((month) => {
-      const existing = stats.monthlyAdditions.find((m) => m.month === month);
-      return { month, count: existing ? existing.count : 0 };
+    return last12Months.map((monthInfo) => {
+      const existing = stats.monthlyAdditions.find(
+        (m) => m.month === monthInfo.key
+      );
+      return { month: monthInfo.name, count: existing ? existing.count : 0 };
     });
   }, [stats, locale]);
 

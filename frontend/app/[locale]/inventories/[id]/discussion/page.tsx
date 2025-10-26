@@ -1,18 +1,22 @@
 "use client";
 
 import * as React from "react";
-import { useParams } from "next/navigation";
 import { useComments } from "@/hooks/useComments";
 import { useUsers } from "@/hooks/useUsers";
 import { CommentForm } from "@/components/discussion/CommentForm";
 import { CommentList } from "@/components/discussion/CommentList";
-import { CommentWithUser } from "@/types/shared";
+import { Comment, CommentWithUser } from "@/types/shared";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useParams } from "next/navigation";
+import { useRbac } from "@/hooks/useRbac";
+import { useInventory } from "@/hooks/useInventory";
 
 export default function InventoryDiscussionPage() {
   const params = useParams();
   const inventoryId = params.id as string;
+  const { inventory } = useInventory(inventoryId);
+  const { canEdit } = useRbac(inventory);
 
   const {
     comments,
@@ -30,7 +34,7 @@ export default function InventoryDiscussionPage() {
   const commentsWithUsers: CommentWithUser[] = React.useMemo(() => {
     if (!comments || !users) return [];
     const usersMap = new Map(users.map((user) => [user.id, user]));
-    return comments.flat().map((comment) => ({
+    return comments.flat().map((comment: Comment) => ({
       ...comment,
       user: usersMap.get(comment.userId),
     }));
@@ -84,7 +88,12 @@ export default function InventoryDiscussionPage() {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <CommentForm inventoryId={inventoryId} onCommentPosted={mutateComments} />
+      {canEdit && (
+        <CommentForm
+          inventoryId={inventoryId}
+          onCommentPosted={mutateComments}
+        />
+      )}
       <Separator className="my-6" />
       <CommentList
         comments={sortedComments}

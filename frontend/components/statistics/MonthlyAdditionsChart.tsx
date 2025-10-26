@@ -7,15 +7,17 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { MonthlyAddition } from "@/types/shared";
+import { useTranslations } from "next-intl";
 
 interface MonthlyAdditionsChartProps {
   data: MonthlyAddition[];
 }
 
 export function MonthlyAdditionsChart({ data }: MonthlyAdditionsChartProps) {
+  const t = useTranslations("StatisticsPage");
   const chartConfig = {
     count: {
-      label: "Items",
+      label: t("items"),
       color: "hsl(var(--primary))",
     },
   };

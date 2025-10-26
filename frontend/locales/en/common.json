@@ -1,6 +1,6 @@
 {
   "Header": {
-    "search_placeholder": "Search inventories or items...",
+    "search_placeholder": "Search...",
     "explore_link": "Explore",
     "home_link": "Home",
     "shared_link": "Shared",
@@ -8,7 +8,9 @@
     "profile_link": "My Profile",
     "log_out": "Log Out",
     "theme_toggle": "Theme",
-    "language_toggle": "Language"
+    "language_toggle": "Language",
+    "switch_to_dark": "Switch to Dark Mode",
+    "switch_to_light": "Switch to Light Mode"
   },
   "UserNav": {
     "log_out": "Log out",
@@ -299,5 +301,13 @@
   "Errors": {
     "server_error_title": "Something Went Wrong",
     "server_error_description": "We couldn't load the data. Please try refreshing the page."
+  },
+  "GlobalSearch": {
+    "search_placeholder": "Search inventories or items...",
+    "no_results": "No results found.",
+    "inventories": "Inventories",
+    "items": "Items",
+    "unknown_inventory": "Unknown Inventory",
+    "unknown_item": "Unknown Item"
   }
 }

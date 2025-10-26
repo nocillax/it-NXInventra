@@ -1,9 +1,9 @@
 import * as React from "react";
 import { getInventory } from "@/lib/api/inventories";
 import { notFound } from "next/navigation";
-import { PageContainer } from "@/components/shared/PageContainer";
 import { InventoryHeader } from "@/components/inventory/InventoryHeader";
 import { InventoryToolbar } from "@/components/inventory/InventoryToolbar";
+import { PageContainer } from "@/components/shared/PageContainer";
 
 export default async function InventoryDetailLayout({
   children,
@@ -12,18 +12,19 @@ export default async function InventoryDetailLayout({
   children: React.ReactNode;
   params: { id: string };
 }) {
-  const inventoryId = params.id;
-  const inventory = await getInventory(inventoryId);
+  const inventory = await getInventory(params.id);
 
   if (!inventory) {
     notFound();
   }
 
   return (
-    <PageContainer>
-      <InventoryHeader inventory={inventory} />
-      <InventoryToolbar inventoryId={inventory.id} />
-      <div className="mt-6">{children}</div>
-    </PageContainer>
+    <div className="container mx-auto p-4">
+      <div className="space-y-4">
+        <InventoryHeader inventory={inventory} />
+        <InventoryToolbar inventory={inventory} />
+        <div className="mt-6">{children}</div>
+      </div>
+    </div>
   );
 }

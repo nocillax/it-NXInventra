@@ -12,6 +12,7 @@ import { ItemBulkActions } from "./ItemBulkActions";
 import { DataTable } from "@/components/shared/DataTable";
 import { getItemTableColumns } from "./ItemTableColumns";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { useRbac } from "@/hooks/useRbac";
 import { getCoreRowModel } from "@tanstack/react-table";
 
 interface ItemsTableProps {
@@ -22,6 +23,7 @@ interface ItemsTableProps {
 
 export function ItemsTable({ items, inventory, isLoading }: ItemsTableProps) {
   const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
+  const { canEdit, isOwner } = useRbac(inventory);
   const itemSequenceMap = React.useMemo(() => {
     const map = new Map<string, number>();
     if (items) {
@@ -34,8 +36,8 @@ export function ItemsTable({ items, inventory, isLoading }: ItemsTableProps) {
   }, [items]);
 
   const columns: ColumnDef<Item>[] = React.useMemo(
-    () => getItemTableColumns(inventory, itemSequenceMap),
-    [inventory, itemSequenceMap]
+    () => getItemTableColumns(inventory, itemSequenceMap, canEdit),
+    [inventory, itemSequenceMap, canEdit]
   );
 
   const table = useReactTable({
@@ -50,7 +52,13 @@ export function ItemsTable({ items, inventory, isLoading }: ItemsTableProps) {
 
   return (
     <div className="space-y-4">
-      <ItemBulkActions table={table} inventoryId={inventory.id} />
+      {canEdit && (
+        <ItemBulkActions
+          table={table}
+          inventoryId={inventory.id}
+          isOwner={isOwner}
+        />
+      )}
       <ScrollArea className="w-full whitespace-nowrap rounded-md border">
         <DataTable
           table={table}

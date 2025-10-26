@@ -10,11 +10,13 @@ import { useTranslations } from "next-intl";
 interface ItemBulkActionsProps<TData> {
   table: Table<TData>;
   inventoryId: string;
+  isOwner: boolean;
 }
 
 export function ItemBulkActions<TData>({
   table,
   inventoryId,
+  isOwner,
 }: ItemBulkActionsProps<TData>) {
   const { onOpen } = useModalStore();
   const selectedRows = table.getFilteredSelectedRowModel().rows;
@@ -61,13 +63,15 @@ export function ItemBulkActions<TData>({
             >
               <Pencil className="mr-2 h-4 w-4" /> {t("edit_item_button")}
             </Button>
-            <Button
-              variant="destructive"
-              onClick={handleDelete}
-              disabled={numSelected === 0}
-            >
-              <Trash2 className="mr-2 h-4 w-4" /> {t("delete_item_button")}
-            </Button>
+            {isOwner && (
+              <Button
+                variant="destructive"
+                onClick={handleDelete}
+                disabled={numSelected === 0}
+              >
+                <Trash2 className="mr-2 h-4 w-4" /> {t("delete_item_button")}
+              </Button>
+            )}
           </>
         )}
       </div>

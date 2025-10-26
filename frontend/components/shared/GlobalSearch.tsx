@@ -15,6 +15,7 @@ import { useSearch } from "@/hooks/useSearch";
 import { FileText, Package } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useTranslations } from "next-intl";
 
 export function GlobalSearch({
   open,
@@ -26,6 +27,7 @@ export function GlobalSearch({
   const router = useRouter();
   const [query, setQuery] = React.useState("");
   const { data, isLoading } = useSearch(query);
+  const t = useTranslations("GlobalSearch");
 
   React.useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -52,7 +54,7 @@ export function GlobalSearch({
       <DialogContent className="overflow-hidden p-0 shadow-lg top-20 translate-y-0 sm:top-1/2 sm:-translate-y-1/2">
         <Command className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-group]]:px-2 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5">
           <CommandInput
-            placeholder="Search for inventories or items..."
+            placeholder={t("search_placeholder")}
             value={query}
             onValueChange={setQuery}
           />
@@ -65,10 +67,10 @@ export function GlobalSearch({
               </div>
             )}
             {!isLoading && !data?.inventories.length && !data?.items.length && (
-              <CommandEmpty>No results found.</CommandEmpty>
+              <CommandEmpty>{t("no_results")}</CommandEmpty>
             )}
             {data?.inventories && data.inventories.length > 0 && (
-              <CommandGroup heading="Inventories">
+              <CommandGroup heading={t("inventories")}>
                 {data.inventories.map((inv) => (
                   <CommandItem
                     key={inv.id}
@@ -84,13 +86,13 @@ export function GlobalSearch({
               </CommandGroup>
             )}
             {data?.items && data.items.length > 0 && (
-              <CommandGroup heading="Items">
+              <CommandGroup heading={t("items")}>
                 {data.items.map((item) => {
                   const inventory = data.inventories.find(
                     (inv) => inv.id === item.inventoryId
                   );
                   const inventoryTitle =
-                    inventory?.title || "Unknown Inventory";
+                    inventory?.title || t("unknown_inventory");
                   return (
                     <CommandItem
                       key={item.id}
@@ -105,7 +107,7 @@ export function GlobalSearch({
                       <div className="flex flex-col">
                         <span>{item.customId}</span>
                         <span className="text-xs text-muted-foreground">
-                          in {inventoryTitle}
+                          - {inventoryTitle}
                         </span>
                       </div>
                     </CommandItem>

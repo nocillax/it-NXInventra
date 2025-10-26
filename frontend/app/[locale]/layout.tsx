@@ -22,7 +22,7 @@ export default async function LocaleLayout({
     <html lang={locale} suppressHydrationWarning>
       <body className={inter.className}>
         <NextIntlClientProvider messages={messages}>
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
             <div className="flex min-h-screen flex-col">
               <Header />
               <main className="flex-1">{children}</main>

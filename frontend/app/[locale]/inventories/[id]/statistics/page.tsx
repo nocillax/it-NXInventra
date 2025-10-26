@@ -155,7 +155,7 @@ export default function InventoryStatisticsPage() {
           <CardHeader>
             <CardTitle>{t("monthly_additions")}</CardTitle>
           </CardHeader>
-          <CardContent className="pl-2 flex-grow">
+          <CardContent className="pl-2 flex-grow min-h-[350px]">
             <MonthlyAdditionsChart data={monthlyAdditionsData} />
           </CardContent>
         </Card>

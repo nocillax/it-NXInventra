@@ -12,6 +12,7 @@ import { ItemBulkActions } from "./ItemBulkActions";
 import { DataTable } from "@/components/shared/DataTable";
 import { getItemTableColumns } from "./ItemTableColumns";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { useTranslations } from "next-intl";
 import { useRbac } from "@/hooks/useRbac";
 import { getCoreRowModel } from "@tanstack/react-table";
 
@@ -24,6 +25,7 @@ interface ItemsTableProps {
 export function ItemsTable({ items, inventory, isLoading }: ItemsTableProps) {
   const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
   const { canEdit, isOwner } = useRbac(inventory);
+  const t = useTranslations("ItemsActions");
   const itemSequenceMap = React.useMemo(() => {
     const map = new Map<string, number>();
     if (items) {
@@ -50,6 +52,30 @@ export function ItemsTable({ items, inventory, isLoading }: ItemsTableProps) {
     },
   });
 
+  if (isLoading) {
+    return (
+      <div className="space-y-4">
+        <Skeleton className="h-10 w-full" />
+        <Skeleton className="h-48 w-full" />
+      </div>
+    );
+  }
+
+  if (!items || items.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center h-60 border border-dashed rounded-lg text-center p-4">
+        <p className="text-muted-foreground mb-4">{t("no_items_message")}</p>
+        {canEdit && (
+          <ItemBulkActions
+            table={table}
+            inventoryId={inventory.id}
+            isOwner={isOwner}
+          />
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       {canEdit && (
@@ -60,10 +86,7 @@ export function ItemsTable({ items, inventory, isLoading }: ItemsTableProps) {
         />
       )}
       <ScrollArea className="w-full whitespace-nowrap rounded-md border">
-        <DataTable
-          table={table}
-          noResultsMessage={isLoading ? "Loading..." : "No items found."}
-        />
+        <DataTable table={table} />
         <ScrollBar orientation="horizontal" />
       </ScrollArea>
     </div>

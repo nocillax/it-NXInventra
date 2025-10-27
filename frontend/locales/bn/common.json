@@ -20,7 +20,8 @@
     "dashboard": "ড্যাশবোর্ড",
     "create_inventory": "ইনভেন্টরি তৈরি করুন",
     "my_inventories": "আমার ইনভেন্টরিসমূহ",
-    "my_inventories_description": "আপনি যেগুলি মালিক এবং পরিচালনা করেন সেসব ইনভেন্টরিসমূহ।"
+    "my_inventories_description": "আপনি যেগুলি মালিক এবং পরিচালনা করেন সেসব ইনভেন্টরিসমূহ।",
+    "no_inventories": "দেখে মনে হচ্ছে এখানে কিছুই নেই। আপনার প্রথম ইনভেন্টরি তৈরি করে শুরু করুন।"
   },
   "InventoryTable": {
     "no_inventories": "দেখে মনে হচ্ছে এখানে কিছুই নেই। আপনার প্রথম ইনভেন্টরি তৈরি করে শুরু করুন।",
@@ -65,7 +66,8 @@
   "ItemsActions": {
     "add_item_button": "আইটেম যোগ করুন",
     "edit_item_button": "সম্পাদনা করুন",
-    "delete_item_button": "মুছে ফেলুন"
+    "delete_item_button": "মুছে ফেলুন",
+    "no_items_message": "এই ইনভেন্টরি খালি। শুরু করতে একটি আইটেম যোগ করুন।"
   },
   "ItemCreateDialog": {
     "title": "আইটেম যোগ করুন",

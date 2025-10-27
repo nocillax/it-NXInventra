@@ -94,22 +94,30 @@ export function MyInventories() {
       <p className="text-muted-foreground text-sm mb-4">
         {t("my_inventories_description")}
       </p>
-      <ScrollArea className="w-full whitespace-nowrap rounded-md border">
-        <InventoryTable
-          inventories={paginatedInventories}
-          users={users || []}
-          accessList={accessList || []}
-          isLoading={isLoading}
-          currentUserId={currentUserId}
-        />
-        <ScrollBar orientation="horizontal" />
-      </ScrollArea>
-      {totalPages > 1 && (
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={setCurrentPage}
-        />
+      {myInventories.length === 0 ? (
+        <div className="flex items-center justify-center h-40 border border-dashed rounded-lg">
+          <p className="text-muted-foreground">{t("no_inventories")}</p>
+        </div>
+      ) : (
+        <>
+          <ScrollArea className="w-full whitespace-nowrap rounded-md border">
+            <InventoryTable
+              inventories={paginatedInventories}
+              users={users || []}
+              accessList={accessList || []}
+              isLoading={isLoading}
+              currentUserId={currentUserId}
+            />
+            <ScrollBar orientation="horizontal" />
+          </ScrollArea>
+          {totalPages > 1 && (
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+            />
+          )}
+        </>
       )}
     </div>
   );

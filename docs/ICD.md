@@ -540,25 +540,44 @@ Use these for buttons, dialogs, forms, etc. — don’t reinvent.
 
 ---
 
-## 15 — Final checklist before coding (quick)
+🧩 Database Integrity & Concurrency Notes
 
-- [ ] Create project scaffold with Next.js, Tailwind, shadcn, SWR, Zustand, next-themes, next-i18next.
-- [ ] Add `/mock/*.json` from PRD #2.
-- [ ] Implement `apiClient.ts` and SWR fetcher.
-- [ ] Implement Zustand stores for user & inventory.
-- [ ] Build pages and components per mapping (start with Inventory list and Inventory page).
-- [ ] Wire up Discussion with Socket.io mock (or minimal polling) for early dev.
-- [ ] Toggle to real API by setting `USE_MOCK=0` and `NEXT_PUBLIC_API_BASE` to Render URL.
+1. Referential Integrity and Cascading
 
----
+To maintain data consistency while avoiding excessive manual logic, referential integrity is enforced directly at the database level using foreign key constraints with appropriate ON DELETE CASCADE and ON UPDATE CASCADE rules.
+For example:
 
-## 16 — If you want, next step I can generate:
+When an inventory is deleted, its related items, comments, and access records are automatically removed by the database.
 
-- A **scaffold generator script** (list of `mkdir` & `touch` commands and example `package.json` dependencies) so you can run it locally and get the exact folders/files created.
-- Or I can generate a **starter template** for `/frontend` with a handful of files (layout, Inventory page, InventoryTable, useInventories hook, mock files) ready to paste.
+When a user is deleted, their related records (e.g., comments, likes, access entries) are automatically cascaded unless they are the sole Owner of an inventory, in which case a higher-level check is performed before deletion.
 
-Tell me if you want the scaffold generator or starter template; either is quick and I’ll produce it immediately.
+This approach eliminates the need for explicit code-based deletions or multi-entity loops, ensuring atomic, consistent cleanup while minimizing the risk of partial data removal.
 
----
+2. Transaction Management and Concurrency Safety
 
-### End of ICD.md
+The system is designed to handle multiple concurrent operations without requiring complex multi-table transactions.
+Transactions should not be used for:
+
+Deleting related entities (handled by cascading)
+
+Performing mass updates across multiple inventories or items
+
+Synchronizing unrelated entity changes (e.g., updating user and inventory tables simultaneously)
+
+Instead:
+
+Use single-entity transactions only when necessary for integrity (e.g., creating an item and generating its unique custom ID atomically).
+
+Rely on database constraints and cascading for maintaining consistency.
+
+Avoid locking large tables or performing explicit multi-entity rollbacks to preserve concurrency and scalability.
+
+This aligns with the project guideline to let the database handle data integrity “automagically”, ensuring efficient, reliable operations under concurrent user activity.
+
+3. Practical Implications
+
+Service-layer deletion logic (e.g., UserService.deleteUser) should perform ownership validation and then delegate the actual record removal to the database.
+
+ID generation and sequencing should use atomic DB operations (e.g., PostgreSQL sequences or serials) to prevent duplicate conflicts during concurrent requests.
+
+Developers should not write “manual cascade” code or rely on application-level loops for cleanup.

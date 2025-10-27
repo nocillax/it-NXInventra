@@ -95,6 +95,94 @@ The system exposes a RESTful API consumed by the Next.js frontend.
 
 ## 4. Database Schema
 
+### Database Design
+
+````
+CASCADING DELETE RULES:
+
+✅ Case A — User is the only Owner of that inventory
+
+→ When the user is deleted, that inventory becomes orphaned.
+You have two safe options:
+
+Option 1 (recommended):
+
+Delete the inventories too (cascade delete).
+Because your guide explicitly said:
+“In our case, since there are no explicit requirements, you can choose the option that's easiest for you to implement. Cascade deletion in DB is simplest.”
+
+This is safe because no one else has ownership — deleting them leaves useless data behind anyway.
+
+✅ Case B — The inventory has multiple Owners (Conditional Logic)
+
+→ If any other Owner(s) exist in access.json with role = "Owner", don’t delete the inventory — only remove the deleted user’s access record.
+
+That’s why your ON DELETE CASCADE rule will cascade through Access (not through Inventories).
+Inventories should only cascade if no other owners remain.
+However, SQL can’t “auto-detect that logic” — so you’ll just handle it in the backend service:
+
+Pseudo logic:
+
+```typescript
+// In UserService.deleteUser()
+const inventoriesOwned = await this.inventoryRepository.find({ where: { ownerId: userId } });
+for (const inventory of inventoriesOwned) {
+  // Check if other owners exist in the Access table for this inventory
+  // If not, delete the inventory (which will cascade to items, comments, etc.)
+  // If others exist, only delete the user's access record.
+}
+````
+
+"When deleting a user, if they are the sole Owner of an inventory, the inventory and its related entities are cascade deleted. If multiple owners exist, only that user’s access record is deleted."
+
+CATEGORIES TABLE
+
+Categories are stored in a static lookup table (category_lookup).
+
+- Columns: id (PK), name (string)
+- Used only for reference; users cannot modify it. This table will be pre-populated with a seed script containing `["Electronics", "Furniture", "Office", "Miscellaneous"]`.
+- A NULL category value represents 'Other'.
+  Category = just a filterable label, not something users can manage.
+
+⚙️ Think of it like this:
+
+Your system comes with a few predefined categories:
+
+Electronics
+Furniture
+Office
+Miscellaneous (NULL = “Other”)
+
+These live in a simple categories table in DB (so it’s normalized and can be filtered efficiently).
+
+When a user creates an inventory, they pick one from that list.
+They can’t add a new category.
+
+You don’t need a new tab or a UI for it.
+You just fetch categories for a dropdown when someone creates/edits an inventory.
+
+🔍 And why have it as a lookup table?
+
+Because it gives you:
+
+Consistent naming (“Electronics”, not “Electronics” vs “electronics” vs “Elec.”)
+
+Easier filtering for admins or dashboards (e.g., “Show all Electronics inventories”)
+
+Extensibility later — new categories can be added directly via DB if needed
+
+🔥 Important difference:
+
+Global search ≠ Category lookup
+
+Global search → full-text or fuzzy search across inventories/items/comments.
+
+Category lookup → exact match filter on one field (category_id), no fuzzy logic.
+
+"Categories are static lookup values used for filtering inventories. Users can select, but not create or edit categories. Category data is used solely for filtering and organization; it is not part of the global full-text search."
+
+```
+
 ### Entity Relationship Diagram (Simplified Markdown View)
 
 ```
@@ -106,7 +194,7 @@ User ──< Inventory ──< Item
 │ ├──< CustomField
 │ └──< CustomIdFormat
 
-```
+````
 
 ---
 
@@ -120,6 +208,7 @@ User ──< Inventory ──< Item
 | avatar     | varchar(255) | nullable             |
 | provider   | varchar(50)  | 'google' or 'github' |
 | created_at | timestamp    | default now()        |
+| updated_at | timestamp    | auto-update.         |
 
 ---
 
@@ -144,6 +233,9 @@ Full-text index on `title, description, tags`.
 
 ### 4.3 CustomField
 
+Aggregations (e.g., averages, counts) are calculated dynamically based on numeric field types.
+No validation is enforced on field names or semantics; users may create arbitrary fields.
+
 | Field         | Type                                             | Notes          |
 | ------------- | ------------------------------------------------ | -------------- |
 | id            | UUID                                             | PK             |
@@ -166,7 +258,9 @@ Full-text index on `title, description, tags`.
 | likes        | int         | default 0                 |
 | created_by   | UUID        | FK → User                 |
 | created_at   | timestamp   |                           |
-| updated_at   | timestamp   |                           |
+| updated_at   | timestamp   | auto-update.              |
+
+**Note:** The `custom_id` is generated exclusively by the backend during item creation based on the inventory's `id_format` rules to ensure uniqueness and format consistency.
 
 Use `JSONB` for field values to keep flexible per-inventory schema.
 
@@ -205,7 +299,7 @@ TypeOrmModule.forRoot({
   synchronize: true, // only in dev
   logging: false,
 });
-```
+````
 
 ---
 
@@ -411,8 +505,7 @@ No fallbacks — only `.env` required.
 In migration or seed:
 
 ```sql
-CREATE INDEX inventory_search_idx
-ON inventory USING GIN (to_tsvector('english', title || ' ' || coalesce(description, '')));
+CREATE INDEX inventory_search_idx ON inventories USING gin(to_tsvector('english', title || ' ' || coalesce(description, '') || ' ' || array_to_string(tags, ' ')));
 ```
 
 Query:

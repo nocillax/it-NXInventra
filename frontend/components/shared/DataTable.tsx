@@ -69,16 +69,6 @@ export function DataTable<TData extends { id: string }>({
             ))}
           </TableRow>
         ))}
-        {table.getRowModel().rows.length === 0 && (
-          <TableRow>
-            <TableCell
-              colSpan={table.getAllColumns().length}
-              className="h-24 text-center"
-            >
-              {noResultsMessage}
-            </TableCell>
-          </TableRow>
-        )}
       </TableBody>
     </Table>
   );

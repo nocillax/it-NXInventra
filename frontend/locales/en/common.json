@@ -20,7 +20,8 @@
     "dashboard": "Dashboard",
     "create_inventory": "Create Inventory",
     "my_inventories": "My Inventories",
-    "my_inventories_description": "Inventories that you own and manage."
+    "my_inventories_description": "Inventories that you own and manage.",
+    "no_inventories": "It looks a bit empty here. Get started by creating your first inventory."
   },
   "InventoryTable": {
     "no_inventories": "It looks a bit empty here. Get started by creating your first inventory.",
@@ -65,7 +66,8 @@
   "ItemsActions": {
     "add_item_button": "Add Item",
     "edit_item_button": "Edit",
-    "delete_item_button": "Delete"
+    "delete_item_button": "Delete",
+    "no_items_message": "This inventory is empty. Add an item to get started."
   },
   "ItemCreateDialog": {
     "title": "Add Item",

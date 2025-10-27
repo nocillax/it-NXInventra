@@ -53,9 +53,5 @@ export function InventoryTable({
     );
   }
 
-  if (!inventories || inventories.length === 0) {
-    return <p className="text-muted-foreground">{t("no_inventories")}</p>;
-  }
-
   return <DataTable table={table} noResultsMessage={t("no_inventories")} />;
 }

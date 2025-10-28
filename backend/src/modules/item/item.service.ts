@@ -17,7 +17,7 @@ import {
   generateIdTemplate,
   getSegmentAtPosition,
   isValidEditableChar,
-} from './utils/id-generator.util';
+} from '../../common/utils/id-generator.util';
 import { CustomField } from 'src/database/entities/custom_field.entity';
 import { version } from 'os';
 import { ItemLike } from 'src/database/entities/item_like.entity';
@@ -529,6 +529,11 @@ export class ItemService {
       return this.getItemWithRelations(savedItem.id);
     } catch (error) {
       await queryRunner.rollbackTransaction();
+      if (error.code === '23505' && error.detail?.includes('custom_id')) {
+        throw new ConflictException(
+          'Custom ID already exists. Please try again or edit custom ID manually.',
+        );
+      }
       this.handleTransactionError(error);
       throw error; // ADD THIS LINE to ensure the function always returns or throws
     } finally {
@@ -622,6 +627,11 @@ export class ItemService {
       return finalItem;
     } catch (error) {
       await queryRunner.rollbackTransaction();
+      if (error.code === '23505' && error.detail?.includes('custom_id')) {
+        throw new ConflictException(
+          'Custom ID already exists within this inventory. Please edit manually.',
+        );
+      }
       throw error;
     } finally {
       await queryRunner.release();

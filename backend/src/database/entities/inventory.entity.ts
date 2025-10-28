@@ -11,7 +11,23 @@ import {
 import { User } from './user.entity';
 import { Item } from './item.entity';
 import { Comment } from './comment.entity';
-import { Access } from './access.entity';
+import { Access, AccessRole } from './access.entity';
+import { CustomField } from './custom_field.entity';
+
+export interface IdSegment {
+  id: string;
+  type:
+    | 'fixed'
+    | 'date'
+    | 'sequence'
+    | 'random_20bit'
+    | 'random_32bit'
+    | 'random_6digit'
+    | 'random_9digit'
+    | 'guid';
+  value?: string;
+  format?: string;
+}
 
 @Entity('inventories')
 export class Inventory {
@@ -37,10 +53,7 @@ export class Inventory {
   createdBy: string;
 
   @Column({ name: 'id_format', type: 'jsonb', nullable: true })
-  idFormat: object[];
-
-  @Column({ name: 'custom_fields', type: 'jsonb', nullable: true })
-  customFields: object[];
+  idFormat: IdSegment[];
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamp with time zone' })
   createdAt: Date;
@@ -71,4 +84,10 @@ export class Inventory {
     onDelete: 'CASCADE',
   })
   accessRecords: Access[];
+
+  @OneToMany(() => CustomField, (field) => field.inventory, {
+    cascade: true,
+    eager: true, // Automatically load custom fields when an inventory is loaded
+  })
+  customFields: CustomField[];
 }

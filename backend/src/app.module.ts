@@ -8,11 +8,14 @@ import { Inventory } from './database/entities/inventory.entity';
 import { Item } from './database/entities/item.entity';
 import { Comment } from './database/entities/comment.entity';
 import { Access } from './database/entities/access.entity';
+import { CustomField } from './database/entities/custom_field.entity';
+import { ItemFieldValue } from './database/entities/item_field_value.entity';
 import { CategoryLookup } from './database/entities/category_lookup.entity';
 import { UserModule } from './modules/user/user.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { InventoryModule } from './modules/inventory/inventory.module';
 import { ItemModule } from './modules/item/item.module';
+import { ItemLike } from './database/entities/item_like.entity';
 
 @Module({
   imports: [
@@ -22,7 +25,17 @@ import { ItemModule } from './modules/item/item.module';
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
         url: configService.get<string>('DATABASE_URL'),
-        entities: [User, Inventory, Item, Comment, Access, CategoryLookup],
+        entities: [
+          User,
+          Inventory,
+          Item,
+          Comment,
+          Access,
+          CategoryLookup,
+          CustomField,
+          ItemFieldValue,
+          ItemLike,
+        ],
         synchronize: true,
         logging: false,
       }),

@@ -1,7 +1,13 @@
-import { IsObject, IsNotEmpty } from 'class-validator';
+import { IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class UpdateItemDto {
-  @IsObject()
-  @IsNotEmpty()
-  fields: Record<string, any>;
+  @IsNumber()
+  version: number;
+
+  @IsOptional()
+  fields?: Record<string, any>;
+
+  @IsOptional()
+  @IsString()
+  customId?: string;
 }

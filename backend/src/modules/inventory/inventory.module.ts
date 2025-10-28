@@ -6,10 +6,14 @@ import { Inventory } from '../../database/entities/inventory.entity';
 import { Access } from '../../database/entities/access.entity';
 import { CustomField } from 'src/database/entities/custom_field.entity';
 import { Item } from 'src/database/entities/item.entity';
+import { Tag } from 'src/database/entities/tag.entity';
+import { TagService } from '../tag/tag.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Inventory, Access, CustomField, Item])],
+  imports: [
+    TypeOrmModule.forFeature([Inventory, Access, CustomField, Item, Tag]),
+  ],
   controllers: [InventoryController],
-  providers: [InventoryService],
+  providers: [InventoryService, TagService],
 })
 export class InventoryModule {}

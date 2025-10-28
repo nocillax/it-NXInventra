@@ -16,6 +16,8 @@ import { AuthModule } from './modules/auth/auth.module';
 import { InventoryModule } from './modules/inventory/inventory.module';
 import { ItemModule } from './modules/item/item.module';
 import { ItemLike } from './database/entities/item_like.entity';
+import { TagModule } from './modules/tag/tag.module';
+import { Tag } from './database/entities/tag.entity';
 
 @Module({
   imports: [
@@ -35,6 +37,7 @@ import { ItemLike } from './database/entities/item_like.entity';
           CustomField,
           ItemFieldValue,
           ItemLike,
+          Tag,
         ],
         synchronize: true,
         logging: false,
@@ -45,6 +48,7 @@ import { ItemLike } from './database/entities/item_like.entity';
     AuthModule,
     InventoryModule,
     ItemModule,
+    TagModule,
   ],
   controllers: [AppController],
   providers: [AppService],

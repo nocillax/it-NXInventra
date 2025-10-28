@@ -10,11 +10,13 @@ import {
   Req,
   ParseUUIDPipe,
   ValidationPipe,
+  Query,
 } from '@nestjs/common';
 import { InventoryService } from './inventory.service';
 import { CreateInventoryDto } from './dto/create-inventory.dto';
 import { UpdateInventoryDto } from './dto/update-inventory.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt.guard';
+import { InventoryQueryDto } from './dto/inventory-query.dto';
 
 @Controller('inventories')
 export class InventoryController {
@@ -32,6 +34,14 @@ export class InventoryController {
   @Get()
   findAll() {
     return this.inventoryService.findAllPublic();
+  }
+
+  @Get('search')
+  searchInventories(
+    @Query(new ValidationPipe({ transform: true }))
+    inventoryQueryDto: InventoryQueryDto,
+  ) {
+    return this.inventoryService.findWithPagination(inventoryQueryDto);
   }
 
   @UseGuards(JwtAuthGuard)

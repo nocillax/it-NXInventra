@@ -7,12 +7,15 @@ import {
   ManyToOne,
   JoinColumn,
   OneToMany,
+  ManyToMany,
+  JoinTable,
 } from 'typeorm';
 import { User } from './user.entity';
 import { Item } from './item.entity';
 import { Comment } from './comment.entity';
 import { Access, AccessRole } from './access.entity';
 import { CustomField } from './custom_field.entity';
+import { Tag } from './tag.entity';
 
 export interface IdSegment {
   id: string;
@@ -42,9 +45,6 @@ export class Inventory {
 
   @Column({ type: 'varchar', length: 100, nullable: true })
   category: string;
-
-  @Column({ type: 'text', array: true, default: () => "'{}'" })
-  tags: string[];
 
   @Column({ type: 'boolean', default: true })
   public: boolean;
@@ -90,4 +90,12 @@ export class Inventory {
     eager: true, // Automatically load custom fields when an inventory is loaded
   })
   customFields: CustomField[];
+
+  @ManyToMany(() => Tag, (tag) => tag.inventories)
+  @JoinTable({
+    name: 'inventory_tags',
+    joinColumn: { name: 'inventory_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'tag_id', referencedColumnName: 'id' }, // Changed from tag_name to tag_id
+  })
+  tags: Tag[];
 }

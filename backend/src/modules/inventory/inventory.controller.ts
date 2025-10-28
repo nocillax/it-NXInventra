@@ -15,8 +15,6 @@ import { InventoryService } from './inventory.service';
 import { CreateInventoryDto } from './dto/create-inventory.dto';
 import { UpdateInventoryDto } from './dto/update-inventory.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
-import { RolesGuard } from '../auth/guards/roles.guard';
 
 @Controller('inventories')
 export class InventoryController {
@@ -42,8 +40,7 @@ export class InventoryController {
     return this.inventoryService.findOne(id, req.user.id);
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('Owner')
+  @UseGuards(JwtAuthGuard)
   @Patch(':id')
   update(
     @Param('id', ParseUUIDPipe) id: string,
@@ -53,8 +50,7 @@ export class InventoryController {
     return this.inventoryService.update(id, updateInventoryDto, req.user.id);
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('Owner')
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   remove(@Param('id', ParseUUIDPipe) id: string, @Req() req) {
     return this.inventoryService.remove(id, req.user.id);

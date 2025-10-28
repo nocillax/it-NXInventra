@@ -17,6 +17,8 @@ import { CreateInventoryDto } from './dto/create-inventory.dto';
 import { UpdateInventoryDto } from './dto/update-inventory.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt.guard';
 import { InventoryQueryDto } from './dto/inventory-query.dto';
+import { UpdateAccessDto } from './dto/update-access.dto';
+import { AddAccessDto } from './dto/add-access.dto';
 
 @Controller('inventories')
 export class InventoryController {
@@ -64,5 +66,51 @@ export class InventoryController {
   @Delete(':id')
   remove(@Param('id', ParseUUIDPipe) id: string, @Req() req) {
     return this.inventoryService.remove(id, req.user.id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post(':id/access')
+  addAccess(
+    @Param('id', ParseUUIDPipe) inventoryId: string,
+    @Body(ValidationPipe) addAccessDto: AddAccessDto,
+    @Req() req,
+  ) {
+    return this.inventoryService.addAccess(
+      inventoryId,
+      addAccessDto,
+      req.user.id,
+    );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get(':id/access')
+  getAccessList(@Param('id', ParseUUIDPipe) inventoryId: string, @Req() req) {
+    return this.inventoryService.getAccessList(inventoryId, req.user.id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch(':id/access/:userId')
+  updateAccess(
+    @Param('id', ParseUUIDPipe) inventoryId: string,
+    @Param('userId', ParseUUIDPipe) userId: string,
+    @Body(ValidationPipe) updateAccessDto: UpdateAccessDto,
+    @Req() req,
+  ) {
+    return this.inventoryService.updateAccess(
+      inventoryId,
+      userId,
+      updateAccessDto,
+      req.user.id,
+    );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete(':id/access/:userId')
+  removeAccess(
+    @Param('id', ParseUUIDPipe) inventoryId: string,
+    @Param('userId', ParseUUIDPipe) userId: string,
+    @Req() req,
+  ) {
+    return this.inventoryService.removeAccess(inventoryId, userId, req.user.id);
   }
 }

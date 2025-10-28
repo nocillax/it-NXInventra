@@ -1,4 +1,5 @@
 import {
+  ConflictException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -16,6 +17,9 @@ import { Access } from '../../database/entities/access.entity';
 import { InventoryQueryDto } from './dto/inventory-query.dto';
 import { TagService } from '../tag/tag.service';
 import { Tag } from 'src/database/entities/tag.entity';
+import { UpdateAccessDto } from './dto/update-access.dto';
+import { AddAccessDto } from './dto/add-access.dto';
+import { User } from 'src/database/entities/user.entity';
 
 @Injectable()
 export class InventoryService {
@@ -32,6 +36,38 @@ export class InventoryService {
 
   // ========== TINY REUSABLE HELPER FUNCTIONS ==========
 
+  // Helper methods first
+  private async validateCurrentUserIsOwner(
+    inventoryId: string,
+    userId: string,
+  ): Promise<void> {
+    const access = await this.accessRepository.findOne({
+      where: { inventoryId, userId, role: 'Owner' },
+    });
+    if (!access) {
+      throw new ForbiddenException('Only owners can manage access');
+    }
+  }
+
+  private async getOwnerCount(inventoryId: string): Promise<number> {
+    return this.accessRepository.count({
+      where: { inventoryId, role: 'Owner' },
+    });
+  }
+
+  private async validateNotLastOwner(
+    inventoryId: string,
+    targetUserId: string,
+  ): Promise<void> {
+    const ownerCount = await this.getOwnerCount(inventoryId);
+    const targetUserAccess = await this.accessRepository.findOne({
+      where: { inventoryId, userId: targetUserId },
+    });
+
+    if (targetUserAccess?.role === 'Owner' && ownerCount <= 1) {
+      throw new ForbiddenException('Cannot remove or change the last owner');
+    }
+  }
   // Add this new helper method for transaction-safe tag syncing
   private async syncInventoryTagsInTransaction(
     queryRunner: QueryRunner,
@@ -375,5 +411,110 @@ export class InventoryService {
         totalPages: Math.ceil(total / limit),
       },
     };
+  }
+
+  // Main access management methods
+  async addAccess(
+    inventoryId: string,
+    addAccessDto: AddAccessDto,
+    currentUserId: string,
+  ): Promise<Access> {
+    await this.validateCurrentUserIsOwner(inventoryId, currentUserId);
+
+    // Check if user exists
+    const userExists = await this.dataSource.getRepository(User).findOne({
+      where: { id: addAccessDto.userId },
+    });
+    if (!userExists) {
+      throw new NotFoundException('User not found');
+    }
+
+    // Check if user already has access
+    const existingAccess = await this.accessRepository.findOne({
+      where: { inventoryId, userId: addAccessDto.userId },
+    });
+    if (existingAccess) {
+      throw new ConflictException('User already has access to this inventory');
+    }
+
+    const newAccess = this.accessRepository.create({
+      inventoryId,
+      userId: addAccessDto.userId,
+      role: addAccessDto.role,
+    });
+
+    return this.accessRepository.save(newAccess);
+  }
+
+  async getAccessList(
+    inventoryId: string,
+    currentUserId: string,
+  ): Promise<any[]> {
+    // Verify current user has access to this inventory
+    await this.findOne(inventoryId, currentUserId);
+
+    const accessList = await this.accessRepository.find({
+      where: { inventoryId },
+      relations: ['user'],
+    });
+
+    return accessList.map((access) => ({
+      userId: access.userId,
+      userName: access.user.name,
+      userEmail: access.user.email,
+      role: access.role,
+      createdAt: access.createdAt,
+    }));
+  }
+
+  async updateAccess(
+    inventoryId: string,
+    targetUserId: string,
+    updateAccessDto: UpdateAccessDto,
+    currentUserId: string,
+  ): Promise<Access> {
+    await this.validateCurrentUserIsOwner(inventoryId, currentUserId);
+    await this.validateNotLastOwner(inventoryId, targetUserId);
+
+    const access = await this.accessRepository.findOne({
+      where: { inventoryId, userId: targetUserId },
+    });
+
+    if (!access) {
+      throw new NotFoundException('Access record not found');
+    }
+
+    access.role = updateAccessDto.role;
+    return this.accessRepository.save(access);
+  }
+
+  async removeAccess(
+    inventoryId: string,
+    targetUserId: string,
+    currentUserId: string,
+  ): Promise<{ message: string }> {
+    await this.validateCurrentUserIsOwner(inventoryId, currentUserId);
+    await this.validateNotLastOwner(inventoryId, targetUserId);
+
+    // Prevent self-removal if you're the only owner
+    if (targetUserId === currentUserId) {
+      const ownerCount = await this.getOwnerCount(inventoryId);
+      if (ownerCount <= 1) {
+        throw new ForbiddenException(
+          'Cannot remove yourself as the last owner',
+        );
+      }
+    }
+
+    const result = await this.accessRepository.delete({
+      inventoryId,
+      userId: targetUserId,
+    });
+
+    if (result.affected === 0) {
+      throw new NotFoundException('Access record not found');
+    }
+
+    return { message: 'Access removed successfully' };
   }
 }

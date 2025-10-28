@@ -7,9 +7,12 @@ import {
   ManyToOne,
   JoinColumn,
   Index,
+  OneToMany,
+  VersionColumn,
 } from 'typeorm';
 import { Inventory } from './inventory.entity';
 import { User } from './user.entity';
+import { ItemFieldValue } from './item_field_value.entity';
 
 @Entity('items')
 @Index(['inventoryId', 'customId'], { unique: true })
@@ -20,11 +23,11 @@ export class Item {
   @Column({ name: 'custom_id', type: 'varchar', length: 50 })
   customId: string;
 
+  @Column({ name: 'sequence_number', type: 'integer', nullable: true })
+  sequenceNumber: number;
+
   @Column({ name: 'inventory_id', type: 'uuid' })
   inventoryId: string;
-
-  @Column({ type: 'jsonb' })
-  fields: Record<string, any>;
 
   @Column({ type: 'integer', default: 0 })
   likes: number;
@@ -37,6 +40,9 @@ export class Item {
 
   @UpdateDateColumn({ name: 'updated_at', type: 'timestamp with time zone' })
   updatedAt: Date;
+
+  @VersionColumn()
+  version: number;
 
   // --- Relationships ---
 
@@ -53,4 +59,9 @@ export class Item {
   })
   @JoinColumn({ name: 'created_by' })
   creator: User;
+
+  @OneToMany(() => ItemFieldValue, (fieldValue) => fieldValue.item, {
+    cascade: true,
+  })
+  fieldValues: ItemFieldValue[];
 }

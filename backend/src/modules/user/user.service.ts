@@ -32,4 +32,24 @@ export class UserService {
     const newUser = this.userRepository.create(profile);
     return this.userRepository.save(newUser);
   }
+
+  async searchUsers(
+    query: string,
+    limit: number = 10,
+  ): Promise<{ id: string; name: string; email: string }[]> {
+    const users = await this.userRepository
+      .createQueryBuilder('user')
+      .select(['user.id', 'user.name', 'user.email'])
+      .where('user.name ILIKE :query OR user.email ILIKE :query', {
+        query: `%${query}%`,
+      })
+      .limit(limit)
+      .getMany();
+
+    return users.map((user) => ({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+    }));
+  }
 }

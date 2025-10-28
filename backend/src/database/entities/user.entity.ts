@@ -11,6 +11,7 @@ import { Inventory } from './inventory.entity';
 import { Item } from './item.entity';
 import { Comment } from './comment.entity';
 import { Access } from './access.entity';
+import { ItemLike } from './item_like.entity';
 
 @Entity('users')
 export class User {
@@ -36,6 +37,9 @@ export class User {
   updatedAt: Date;
 
   // --- Relationships ---
+
+  @OneToMany(() => ItemLike, (itemLike) => itemLike.user)
+  itemLikes: ItemLike[];
 
   @OneToMany(() => Inventory, (inventory) => inventory.creator)
   inventories: Inventory[];

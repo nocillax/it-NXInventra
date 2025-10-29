@@ -18,6 +18,9 @@ import { ItemModule } from './modules/item/item.module';
 import { ItemLike } from './database/entities/item_like.entity';
 import { TagModule } from './modules/tag/tag.module';
 import { Tag } from './database/entities/tag.entity';
+import { CategoryService } from './modules/category/category.service';
+import { CategoryController } from './modules/category/category.controller';
+import { CategoryModule } from './modules/category/category.module';
 
 @Module({
   imports: [
@@ -49,6 +52,7 @@ import { Tag } from './database/entities/tag.entity';
     InventoryModule,
     ItemModule,
     TagModule,
+    CategoryModule,
   ],
   controllers: [AppController],
   providers: [AppService],

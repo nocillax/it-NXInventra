@@ -5,7 +5,6 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToMany,
-  PrimaryColumn,
 } from 'typeorm';
 import { Inventory } from './inventory.entity';
 import { Item } from './item.entity';
@@ -30,6 +29,18 @@ export class User {
   @Column({ name: 'provider_id', type: 'varchar', unique: true })
   providerId: string;
 
+  @Column({ type: 'boolean', default: false })
+  isAdmin: boolean;
+
+  @Column({ type: 'boolean', default: false })
+  blocked: boolean;
+
+  @Column({ type: 'varchar', length: 20, default: 'light' })
+  theme: string;
+
+  @Column({ type: 'varchar', length: 10, default: 'en' })
+  language: string;
+
   @CreateDateColumn({ name: 'created_at', type: 'timestamp with time zone' })
   createdAt: Date;
 
@@ -51,7 +62,6 @@ export class User {
   comments: Comment[];
 
   @OneToMany(() => Access, (access) => access.user, {
-    // When a user is deleted, their access records should be removed.
     cascade: true,
     onDelete: 'CASCADE',
   })

@@ -21,6 +21,7 @@ import { Tag } from './database/entities/tag.entity';
 import { CategoryService } from './modules/category/category.service';
 import { CategoryController } from './modules/category/category.controller';
 import { CategoryModule } from './modules/category/category.module';
+import { CommentModule } from './modules/comment/comment.module';
 
 @Module({
   imports: [
@@ -53,6 +54,7 @@ import { CategoryModule } from './modules/category/category.module';
     ItemModule,
     TagModule,
     CategoryModule,
+    CommentModule,
   ],
   controllers: [AppController],
   providers: [AppService],

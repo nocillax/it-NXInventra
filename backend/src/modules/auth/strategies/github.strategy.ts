@@ -16,7 +16,16 @@ export class GithubStrategy extends PassportStrategy(Strategy, 'github') {
       clientSecret: configService.get<string>('GITHUB_CLIENT_SECRET')!,
       callbackURL: `${configService.get<string>('API_BASE_URL')}/auth/github/callback`,
       scope: ['user:email'],
+      // Add this to always force account selection
+      passReqToCallback: false,
     });
+  }
+
+  // Override to always force fresh authentication
+  authorizationParams(): any {
+    return {
+      prompt: 'select_account', // This forces GitHub to always show account selection
+    };
   }
 
   async validate(accessToken: string, refreshToken: string, profile: Profile) {

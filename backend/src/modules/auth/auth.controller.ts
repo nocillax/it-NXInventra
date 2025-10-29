@@ -5,6 +5,7 @@ import { AuthService } from './auth.service';
 import { GoogleAuthGuard } from './guards/google.guard';
 import { GithubAuthGuard } from './guards/github.guard';
 import { JwtAuthGuard } from './guards/jwt.guard';
+import { Public } from './decorators/public.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -52,10 +53,30 @@ export class AuthController {
     return req.user;
   }
 
-  @UseGuards(JwtAuthGuard)
+  @Public()
   @Post('logout')
-  logout(@Res({ passthrough: true }) res: Response) {
-    res.clearCookie('access_token');
-    return { success: true };
+  logout(@Res() res: Response) {
+    res.clearCookie('access_token', {
+      httpOnly: true,
+      secure: this.configService.get<string>('NODE_ENV') === 'production',
+      sameSite: 'lax',
+    });
+    return res
+      .status(200)
+      .json({ success: true, message: 'Logged out successfully' });
+  }
+
+  // Optional: GET logout for browser testing
+  @Public()
+  @Get('logout')
+  logoutGet(@Res() res: Response) {
+    res.clearCookie('access_token', {
+      httpOnly: true,
+      secure: this.configService.get<string>('NODE_ENV') === 'production',
+      sameSite: 'lax',
+    });
+    return res
+      .status(200)
+      .json({ success: true, message: 'Logged out successfully' });
   }
 }

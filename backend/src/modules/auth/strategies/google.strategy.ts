@@ -16,7 +16,17 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
       clientSecret: configService.get<string>('GOOGLE_CLIENT_SECRET')!,
       callbackURL: `${configService.get<string>('API_BASE_URL')}/auth/google/callback`,
       scope: ['email', 'profile'],
+      // Add this to always force account selection
+      passReqToCallback: false,
     });
+  }
+
+  // Override to always force fresh authentication
+  authorizationParams(): any {
+    return {
+      prompt: 'select_account', // This forces Google to always show account selection
+      access_type: 'offline',
+    };
   }
 
   async validate(accessToken: string, refreshToken: string, profile: Profile) {

@@ -85,7 +85,11 @@ export function ItemsTable({ items, inventory, isLoading }: ItemsTableProps) {
         />
       )}
       <ScrollArea className="w-full whitespace-nowrap rounded-md border">
-        <DataTable table={table} onRowClick={handleRowClick} />
+        <DataTable
+          table={table}
+          noResultsMessage={t("no_items")}
+          entityType="item" // This will navigate to /items/:id
+        />
         <ScrollBar orientation="horizontal" />
       </ScrollArea>
     </div>

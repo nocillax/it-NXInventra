@@ -38,7 +38,7 @@ import { MarkdownEditor } from "./forms/inputs/markdown-editor";
 const fieldSchema = z.object({
   title: z.string().min(2, "Title must be at least 2 characters."),
   description: z.string().optional(),
-  type: z.enum(["text", "number", "boolean", "url", "longtext"]),
+  type: z.enum(["text", "number", "boolean", "link", "textarea"]),
   showInTable: z.boolean().default(false),
 });
 
@@ -303,11 +303,11 @@ export function CustomFieldsEditor({ inventory }: CustomFieldsEditorProps) {
                           <SelectItem value="boolean">
                             {t("field_type_boolean")}
                           </SelectItem>
-                          <SelectItem value="url">
-                            {t("field_type_url")}
+                          <SelectItem value="link">
+                            {t("field_type_link")}
                           </SelectItem>
-                          <SelectItem value="longtext">
-                            {t("field_type_longtext")}
+                          <SelectItem value="textarea">
+                            {t("field_type_textarea")}
                           </SelectItem>
                         </SelectContent>
                       </Select>

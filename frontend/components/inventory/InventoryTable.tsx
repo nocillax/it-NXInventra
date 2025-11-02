@@ -25,7 +25,7 @@ interface InventoryTableProps {
 export function InventoryTable({
   inventories,
   users,
-  accessList, // Destructure accessList
+  accessList,
   currentUserId,
 }: InventoryTableProps) {
   const t = useTranslations("InventoryTable");
@@ -55,5 +55,11 @@ export function InventoryTable({
     );
   }
 
-  return <DataTable table={table} noResultsMessage={t("no_inventories")} />;
+  return (
+    <DataTable
+      table={table}
+      noResultsMessage={t("no_inventories")}
+      entityType="inventory" // Add this line
+    />
+  );
 }

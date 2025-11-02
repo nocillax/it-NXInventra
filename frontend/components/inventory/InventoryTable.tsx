@@ -11,6 +11,7 @@ import {
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+import { useRouter } from "next/navigation";
 
 interface InventoryTableProps {
   inventories: Inventory[];
@@ -26,7 +27,6 @@ export function InventoryTable({
   users,
   accessList, // Destructure accessList
   currentUserId,
-  hideRoleColumn = false,
 }: InventoryTableProps) {
   const t = useTranslations("InventoryTable");
   const usersMap = React.useMemo(
@@ -35,15 +35,8 @@ export function InventoryTable({
   );
 
   const columns: ColumnDef<Inventory>[] = React.useMemo(
-    () =>
-      getInventoryTableColumns(
-        t,
-        usersMap,
-        accessList,
-        currentUserId,
-        hideRoleColumn
-      ),
-    [t, usersMap, accessList, currentUserId, hideRoleColumn]
+    () => getInventoryTableColumns(t, usersMap, accessList, currentUserId),
+    [t, usersMap, accessList, currentUserId]
   );
 
   const table = useReactTable({

@@ -17,15 +17,15 @@ export type CustomFieldType =
   | "text"
   | "number"
   | "boolean"
-  | "url"
-  | "longtext";
+  | "link"
+  | "textarea";
 
 export interface CustomField {
   id: number;
   inventoryId: string;
   title: string;
   description: string | null;
-  type: "text" | "number" | "boolean" | "url" | "longtext";
+  type: "text" | "number" | "boolean" | "link" | "textarea";
   showInTable: boolean;
   orderIndex: number;
   createdAt: string;

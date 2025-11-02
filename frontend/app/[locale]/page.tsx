@@ -12,7 +12,6 @@ import { DashboardTabs } from "@/components/dashboard/DashboardTabs";
 export default function HomePage() {
   const t = useTranslations("Dashboard");
   const { onOpen } = useModalStore();
-  const router = useRouter();
 
   return (
     <PageContainer>

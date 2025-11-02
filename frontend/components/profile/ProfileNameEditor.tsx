@@ -1,32 +1,46 @@
 "use client";
 
 import * as React from "react";
-import { useUserStore } from "@/stores/useUserStore";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Edit, Save, X } from "lucide-react";
+import { apiFetch } from "@/lib/apiClient";
+import { useAuth } from "@/hooks/useAuth";
+import { useEffect } from "react";
 
 export function ProfileNameEditor() {
   const t = useTranslations("Profile");
-  const { user, setUser } = useUserStore();
+  const { user, refreshUser } = useAuth();
   const [name, setName] = React.useState(user?.name || "");
   const [originalName, setOriginalName] = React.useState(user?.name || "");
   const [isSaving, setIsSaving] = React.useState(false);
   const [isEditing, setIsEditing] = React.useState(false);
 
+  useEffect(() => {
+    if (user?.name) {
+      setName(user.name);
+      setOriginalName(user.name);
+    }
+  }, [user?.name]);
+
   const handleSave = async () => {
     if (!user) return;
     setIsSaving(true);
-    setIsEditing(false);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate network delay
-      setUser({ ...user, name });
+      // Real API call instead of mock delay
+      const updatedUser = await apiFetch("/user/me", {
+        method: "PATCH",
+        body: JSON.stringify({ name }),
+      });
+
+      refreshUser();
       toast.success(t("success_message"));
       setOriginalName(name);
+      setIsEditing(false);
     } catch (error) {
       toast.error(t("failure_message"));
     } finally {

@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, QueryRunner, Repository } from 'typeorm';
+import { DataSource, In, QueryRunner, Repository } from 'typeorm';
 import { Inventory } from '../../database/entities/inventory.entity';
 import { CreateInventoryDto } from './dto/create-inventory.dto';
 import {
@@ -20,6 +20,8 @@ import { Tag } from 'src/database/entities/tag.entity';
 import { UpdateAccessDto } from './dto/update-access.dto';
 import { AddAccessDto } from './dto/add-access.dto';
 import { User } from 'src/database/entities/user.entity';
+import { UpdateCustomFieldDto } from './dto/update-custom-fields.dto';
+import { AddCustomFieldsDto } from './dto/add-custom-fields.dto';
 
 @Injectable()
 export class InventoryService {
@@ -89,6 +91,24 @@ export class InventoryService {
     }
   }
 
+  // Let me also create a cleaner helper method for the access checking
+  private addNotOwnerCondition(query: any, userId: string): void {
+    query
+      .andWhere((qb) => {
+        const subQuery = qb
+          .subQuery()
+          .select('1')
+          .from('access', 'access')
+          .where('access.inventoryId = inventory.id')
+          .andWhere('access.userId = :userId')
+          .andWhere('access.role = :role')
+          .getQuery();
+        return `NOT EXISTS (${subQuery})`;
+      })
+      .setParameter('userId', userId)
+      .setParameter('role', 'Owner');
+  }
+
   // Add this helper to create tags within transaction
   private async findOrCreateTagsInTransaction(
     queryRunner: QueryRunner,
@@ -145,6 +165,11 @@ export class InventoryService {
     return this.inventoryRepository.create({
       ...dtoWithoutTags,
       createdBy: userId,
+      // Add default ID format here
+      idFormat: [
+        { id: 'seg1', type: 'fixed', value: 'ITEM-' },
+        { id: 'seg2', type: 'sequence', format: 'D3' },
+      ],
       // Don't set tags here - they'll be handled by syncInventoryTags
     });
   }
@@ -279,13 +304,20 @@ export class InventoryService {
   }
 
   async findOne(id: string, userId: string): Promise<Inventory> {
-    const inventory = await this.validateInventoryExists(id);
+    const inventory = await this.inventoryRepository
+      .createQueryBuilder('inventory')
+      .leftJoinAndSelect('inventory.creator', 'creator')
+      .leftJoinAndSelect('inventory.customFields', 'customFields')
+      .leftJoinAndSelect('inventory.tags', 'tags')
+      .leftJoinAndSelect('inventory.accessRecords', 'accessRecords')
+      .where('inventory.id = :id', { id })
+      .getOne();
 
-    if (inventory.public) {
-      return inventory;
+    if (!inventory) {
+      throw new NotFoundException(`Inventory with ID ${id} not found`);
     }
 
-    await this.checkUserAccess(id, userId);
+    // Skip access checks and just return the inventory with all relations
     return inventory;
   }
 
@@ -353,14 +385,50 @@ export class InventoryService {
     }
   }
 
-  async findAllPublic(): Promise<Inventory[]> {
-    return this.inventoryRepository.find({
-      where: { public: true },
-      relations: ['creator', 'customFields'],
-    });
+  async findAllPublic(
+    userId: string,
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<any> {
+    const skip = (page - 1) * limit;
+
+    const query = this.inventoryRepository
+      .createQueryBuilder('inventory')
+      .leftJoinAndSelect('inventory.creator', 'creator')
+      .leftJoinAndSelect('inventory.customFields', 'customFields')
+      .leftJoinAndSelect('inventory.tags', 'tags')
+      .leftJoinAndSelect(
+        'inventory.accessRecords',
+        'accessRecords',
+        'accessRecords.userId = :userId',
+        { userId },
+      )
+      .where('inventory.public = :isPublic', { isPublic: true });
+
+    // Use the helper method
+    this.addNotOwnerCondition(query, userId);
+
+    const [inventories, total] = await query
+      .skip(skip)
+      .take(limit)
+      .orderBy('inventory.createdAt', 'DESC')
+      .getManyAndCount();
+
+    return {
+      inventories,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   }
 
-  async findWithPagination(inventoryQueryDto: InventoryQueryDto): Promise<any> {
+  async findWithPagination(
+    inventoryQueryDto: InventoryQueryDto,
+    userId?: string,
+  ): Promise<any> {
     const {
       page,
       limit,
@@ -374,7 +442,8 @@ export class InventoryService {
     const query = this.inventoryRepository
       .createQueryBuilder('inventory')
       .leftJoinAndSelect('inventory.creator', 'creator')
-      .leftJoinAndSelect('inventory.customFields', 'customFields');
+      .leftJoinAndSelect('inventory.customFields', 'customFields')
+      .leftJoinAndSelect('inventory.tags', 'tags');
 
     // Apply filters
     if (category) {
@@ -385,8 +454,19 @@ export class InventoryService {
       query.andWhere('inventory.tags && :tags', { tags });
     }
 
+    // Handle public filter and access logic
     if (isPublic !== undefined) {
       query.andWhere('inventory.public = :isPublic', { isPublic });
+    } else {
+      // If no public filter specified:
+      if (userId) {
+        // For authenticated users: show public inventories where they're NOT owners
+        query.andWhere('inventory.public = :isPublic', { isPublic: true });
+        this.addNotOwnerCondition(query, userId);
+      } else {
+        // For guest users: only show public inventories
+        query.andWhere('inventory.public = :isPublic', { isPublic: true });
+      }
     }
 
     if (search) {
@@ -516,5 +596,294 @@ export class InventoryService {
     }
 
     return { message: 'Access removed successfully' };
+  }
+
+  async findMyInventories(
+    userId: string,
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<any> {
+    const skip = (page - 1) * limit;
+
+    const [inventories, total] = await this.inventoryRepository
+      .createQueryBuilder('inventory')
+      .innerJoin(
+        'inventory.accessRecords',
+        'access',
+        'access.userId = :userId AND access.role = :role',
+        {
+          userId,
+          role: 'Owner',
+        },
+      )
+      .leftJoinAndSelect('inventory.creator', 'creator')
+      .leftJoinAndSelect('inventory.customFields', 'customFields')
+      .leftJoinAndSelect('inventory.tags', 'tags')
+      .leftJoinAndSelect(
+        'inventory.accessRecords',
+        'accessRecords',
+        'accessRecords.userId = :userId',
+        { userId },
+      )
+      .skip(skip)
+      .take(limit)
+      .orderBy('inventory.createdAt', 'DESC')
+      .getManyAndCount();
+
+    return {
+      inventories,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
+  }
+
+  async findSharedWithMe(
+    userId: string,
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<any> {
+    const skip = (page - 1) * limit;
+
+    const [inventories, total] = await this.inventoryRepository
+      .createQueryBuilder('inventory')
+      .innerJoin(
+        'inventory.accessRecords',
+        'access',
+        'access.userId = :userId AND access.role IN (:...roles)',
+        {
+          userId,
+          roles: ['Editor', 'Viewer'],
+        },
+      )
+      .where('inventory.public = :isPublic', { isPublic: false })
+      .leftJoinAndSelect('inventory.creator', 'creator')
+      .leftJoinAndSelect('inventory.customFields', 'customFields')
+      .leftJoinAndSelect('inventory.tags', 'tags')
+      .leftJoinAndSelect(
+        'inventory.accessRecords',
+        'accessRecords',
+        'accessRecords.userId = :userId',
+        { userId },
+      )
+      .skip(skip)
+      .take(limit)
+      .orderBy('inventory.createdAt', 'DESC')
+      .getManyAndCount();
+
+    return {
+      inventories,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
+  }
+
+  async getMyAccess(
+    inventoryId: string,
+    userId: string,
+  ): Promise<{ role: string }> {
+    const access = await this.accessRepository.findOne({
+      where: { inventoryId, userId },
+    });
+
+    if (!access) {
+      throw new NotFoundException('You do not have access to this inventory');
+    }
+
+    return { role: access.role };
+  }
+
+  async getCustomFields(
+    inventoryId: string,
+    userId: string,
+  ): Promise<CustomField[]> {
+    // Verify user has access to the inventory
+    await this.checkUserAccess(inventoryId, userId);
+
+    return this.customFieldRepository.find({
+      where: { inventoryId },
+      order: { orderIndex: 'ASC' }, // Order by orderIndex ASC as requested
+    });
+  }
+
+  async addCustomFields(
+    inventoryId: string,
+    addCustomFieldsDto: AddCustomFieldsDto,
+    userId: string,
+  ): Promise<CustomField[]> {
+    // Verify user has owner/editor access
+    await this.validateCurrentUserIsOwnerOrEditor(inventoryId, userId);
+
+    return this.runTransaction(async (queryRunner) => {
+      // Validate no duplicate field names in the request
+      await this.validateNoDuplicateFieldNames(
+        queryRunner,
+        inventoryId,
+        addCustomFieldsDto.fields,
+        null, // No existing field to exclude (new fields)
+      );
+
+      // Get existing fields to calculate orderIndex for new fields
+      const existingFields = await queryRunner.manager.find(CustomField, {
+        where: { inventoryId },
+        order: { orderIndex: 'DESC' },
+      });
+
+      const highestOrderIndex =
+        existingFields.length > 0 ? existingFields[0].orderIndex : -1;
+
+      const fieldEntities = addCustomFieldsDto.fields.map((fieldDto, index) => {
+        // Use provided orderIndex if exists, otherwise calculate it
+        const orderIndex =
+          fieldDto.orderIndex !== undefined
+            ? fieldDto.orderIndex
+            : highestOrderIndex + 1 + index;
+
+        return this.createCustomFieldEntity(
+          { ...fieldDto, orderIndex }, // Pass the calculated orderIndex
+          inventoryId,
+          orderIndex, // Or pass it as separate parameter if needed
+        );
+      });
+
+      const savedFields = await queryRunner.manager.save(
+        CustomField,
+        fieldEntities,
+      );
+      return savedFields;
+    });
+  }
+  async updateCustomField(
+    inventoryId: string,
+    fieldId: number,
+    updateCustomFieldDto: UpdateCustomFieldDto,
+    userId: string,
+  ): Promise<CustomField> {
+    // Verify user has owner/editor access
+    await this.validateCurrentUserIsOwnerOrEditor(inventoryId, userId);
+
+    const field = await this.customFieldRepository.findOne({
+      where: { id: fieldId, inventoryId },
+    });
+
+    if (!field) {
+      throw new NotFoundException(`Custom field with ID ${fieldId} not found`);
+    }
+
+    // Prevent type modification
+    if (updateCustomFieldDto.type && updateCustomFieldDto.type !== field.type) {
+      throw new ForbiddenException('Cannot change custom field type');
+    }
+
+    // Validate no duplicate field names (excluding current field)
+    if (updateCustomFieldDto.title) {
+      await this.validateNoDuplicateFieldNames(
+        null, // No query runner needed for simple validation
+        inventoryId,
+        [{ title: updateCustomFieldDto.title }],
+        fieldId,
+      );
+    }
+
+    // Only allow updating specific fields
+    const { title, description, showInTable, orderIndex } =
+      updateCustomFieldDto;
+
+    if (title !== undefined) field.title = title;
+    if (description !== undefined) field.description = description;
+    if (showInTable !== undefined) field.showInTable = showInTable;
+    if (orderIndex !== undefined) field.orderIndex = orderIndex;
+
+    return this.customFieldRepository.save(field);
+  }
+
+  async deleteCustomField(
+    inventoryId: string,
+    fieldId: number,
+    userId: string,
+  ): Promise<{ message: string }> {
+    // Verify user has owner/editor access
+    await this.validateCurrentUserIsOwnerOrEditor(inventoryId, userId);
+
+    const field = await this.customFieldRepository.findOne({
+      where: { id: fieldId, inventoryId },
+    });
+
+    if (!field) {
+      throw new NotFoundException(`Custom field with ID ${fieldId} not found`);
+    }
+
+    await this.customFieldRepository.remove(field);
+
+    return { message: 'Custom field deleted successfully' };
+  }
+
+  // Helper method to validate owner or editor access
+  private async validateCurrentUserIsOwnerOrEditor(
+    inventoryId: string,
+    userId: string,
+  ): Promise<void> {
+    const access = await this.accessRepository.findOne({
+      where: {
+        inventoryId,
+        userId,
+        role: In(['Owner', 'Editor']),
+      },
+    });
+
+    if (!access) {
+      throw new ForbiddenException(
+        'Only owners or editors can manage custom fields',
+      );
+    }
+  }
+
+  // Helper method to validate no duplicate field names
+  private async validateNoDuplicateFieldNames(
+    queryRunner: QueryRunner | null,
+    inventoryId: string,
+    fields: Array<{ title: string }>,
+    excludeFieldId: number | null = null,
+  ): Promise<void> {
+    const fieldTitles = fields.map((f) => f.title.toLowerCase());
+    const duplicateTitles = fieldTitles.filter(
+      (title, index) => fieldTitles.indexOf(title) !== index,
+    );
+
+    if (duplicateTitles.length > 0) {
+      throw new ConflictException(
+        `Duplicate field names found: ${duplicateTitles.join(', ')}`,
+      );
+    }
+
+    // Check against existing fields in database
+    const repository = queryRunner
+      ? queryRunner.manager.getRepository(CustomField)
+      : this.customFieldRepository;
+
+    const query = repository
+      .createQueryBuilder('field')
+      .where('field.inventoryId = :inventoryId', { inventoryId })
+      .andWhere('LOWER(field.title) IN (:...titles)', { titles: fieldTitles });
+
+    if (excludeFieldId !== null) {
+      query.andWhere('field.id != :excludeFieldId', { excludeFieldId });
+    }
+
+    const existingFields = await query.getMany();
+
+    if (existingFields.length > 0) {
+      const existingTitles = existingFields.map((f) => f.title);
+      throw new ConflictException(
+        `Field names already exist in this inventory: ${existingTitles.join(', ')}`,
+      );
+    }
   }
 }

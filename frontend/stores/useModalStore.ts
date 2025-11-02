@@ -17,6 +17,7 @@ interface ModalData {
   items?: Item[];
   field?: CustomField;
   access?: Access;
+  userId?: string;
   onSuccess?: () => void;
 }
 

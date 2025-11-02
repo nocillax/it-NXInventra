@@ -16,6 +16,7 @@ import { useTranslations } from "next-intl";
 import { useRbac } from "@/hooks/useRbac";
 import { getCoreRowModel } from "@tanstack/react-table";
 
+// components/item/ItemsTable.tsx - FIXED
 interface ItemsTableProps {
   items: Item[];
   inventory: Inventory;
@@ -26,20 +27,10 @@ export function ItemsTable({ items, inventory, isLoading }: ItemsTableProps) {
   const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
   const { canEdit, isOwner } = useRbac(inventory);
   const t = useTranslations("ItemsActions");
-  const itemSequenceMap = React.useMemo(() => {
-    const map = new Map<string, number>();
-    if (items) {
-      items
-        .slice()
-        .reverse()
-        .forEach((item, index) => map.set(item.id, index + 1));
-    }
-    return map;
-  }, [items]);
 
   const columns: ColumnDef<Item>[] = React.useMemo(
-    () => getItemTableColumns(inventory, itemSequenceMap, canEdit),
-    [inventory, itemSequenceMap, canEdit]
+    () => getItemTableColumns(inventory, new Map(), canEdit), // Pass empty map
+    [inventory, canEdit]
   );
 
   const table = useReactTable({

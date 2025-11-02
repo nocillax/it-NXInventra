@@ -18,6 +18,7 @@ interface InventoryTableProps {
   accessList: Access[]; // To determine current user's role for each inventory
   isLoading: boolean;
   currentUserId: string; // To display "You" as owner
+  hideRoleColumn?: boolean;
 }
 
 export function InventoryTable({
@@ -25,6 +26,7 @@ export function InventoryTable({
   users,
   accessList, // Destructure accessList
   currentUserId,
+  hideRoleColumn = false,
 }: InventoryTableProps) {
   const t = useTranslations("InventoryTable");
   const usersMap = React.useMemo(
@@ -33,8 +35,15 @@ export function InventoryTable({
   );
 
   const columns: ColumnDef<Inventory>[] = React.useMemo(
-    () => getInventoryTableColumns(t, usersMap, accessList, currentUserId),
-    [t, usersMap, accessList, currentUserId]
+    () =>
+      getInventoryTableColumns(
+        t,
+        usersMap,
+        accessList,
+        currentUserId,
+        hideRoleColumn
+      ),
+    [t, usersMap, accessList, currentUserId, hideRoleColumn]
   );
 
   const table = useReactTable({

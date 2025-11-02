@@ -18,4 +18,7 @@
 
 ## there seems to be a limit=20 in tagService - this might mean not all tags are going to be used in autocomplete! remove this limit!
 
+## duplicate fieldname inside one inventory cannot happen
+
 7. access page works properly!!
+8. discussion page works perfectly with markdown as well!

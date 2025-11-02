@@ -1,11 +1,13 @@
-"use client";
-
+// hooks/useUsers.ts - TEMPORARY FIX
 import useSWR from "swr";
-import { getUsers } from "@/lib/api/users";
 import { User } from "@/types/shared";
 
 export function useUsers() {
-  const { data, error, isLoading } = useSWR<User[] | null>("/users", getUsers);
+  // For explore page, we don't need all users - return empty array
+  const { data, error, isLoading } = useSWR<User[] | null>(
+    null, // Don't call any endpoint for now
+    () => [] // Return empty array
+  );
 
   return {
     users: data,

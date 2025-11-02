@@ -14,14 +14,18 @@
   },
   "UserNav": {
     "log_out": "Log out",
-    "profile_link": "Profile"
+    "profile_link": "Profile",
+    "login": "Log In"
   },
   "Dashboard": {
     "dashboard": "Dashboard",
     "create_inventory": "Create Inventory",
     "my_inventories": "My Inventories",
     "my_inventories_description": "Inventories that you own and manage.",
-    "no_inventories": "It looks a bit empty here. Get started by creating your first inventory."
+    "no_inventories": "It looks a bit empty here. Get started by creating your first inventory.",
+    "shared_with_me": "Shared With Me",
+    "no_shared_inventories": "It looks a bit empty here. When someone shares an inventory with you, it will show up here.",
+    "no_my_inventories": "It looks a bit empty here. Get started by creating your first inventory."
   },
   "InventoryTable": {
     "no_inventories": "It looks a bit empty here. Get started by creating your first inventory.",
@@ -57,7 +61,20 @@
     "create_button": "Create",
     "creating_button": "Creating...",
     "success_message": "Inventory created successfully!",
-    "failure_message": "Failed to create inventory."
+    "failure_message": "Failed to create inventory.",
+    "description_label": "Description",
+    "description_placeholder": "Enter a description for your inventory...",
+    "category_label": "Category",
+    "category_placeholder": "Select a category...",
+    "tags_label": "Tags",
+    "tags_placeholder": "Enter a tag...",
+    "add_tag": "Add",
+    "visibility_label": "Public Inventory",
+    "visibility_description": "Allow all users to view and contribute to this inventory",
+    "category_search_placeholder": "Search categories...",
+    "no_categories_found": "No categories found.",
+    "tags_search_placeholder": "Search tags...",
+    "no_tags_found": "No tags found."
   },
   "LanguageToggle": {
     "english": "English",
@@ -93,22 +110,29 @@
     "success_message": "Item(s) deleted successfully!",
     "failure_message": "Failed to delete item(s). Please try again.",
     "cancel": "Cancel",
-    "delete": "Delete"
+    "delete": "Delete",
+    "no_access_message": "You don't have permission to delete this inventory"
   },
-  "CommentForm": {
-    "cmt_placeholder": "Write a comment...",
+  "DiscussionForm": {
+    "discussion_placeholder": "Write a comment...",
     "post": "Post",
     "posting_message": "Posting...",
-    "comment_posted_success": "Comment posted.",
-    "comment_posted_error": "Failed to post comment."
+    "discussion_posted_success": "Comment posted.",
+    "discussion_posted_error": "Failed to post comment."
   },
-  "CommentItem": {
+  "DiscussionItem": {
     "unknown_user": "Unknown User"
   },
+  "DiscussionList": {
+    "delete_selected": "Delete Selected",
+    "no_discussions_yet": "No comments here yet. Post a comment to get started.",
+    "no_more_comments": "No more comments to load.",
+    "load_more": "Load More",
+    "loading_more": "Loading...",
+    "selected_count": "{count} selected"
+  },
   "InventorySettingsForm": {
-    "title": "Title",
     "title_placeholder": "e.g. Office Laptops",
-    "description": "Description",
     "description_placeholder": "A short description of this inventory.",
     "save_button": "Save Changes",
     "saving_message": "Saving...",
@@ -116,7 +140,17 @@
     "failure_message": "Failed to update settings.",
     "danger_zone_title": "Delete Inventory",
     "danger_zone_description": "Permanently delete this inventory and all of its items.",
-    "delete_inventory_button": "Delete"
+    "delete_inventory_button": "Delete",
+
+    "title_label": "Title",
+    "description_label": "Description",
+    "category_label": "Category",
+    "category_placeholder": "Select a category",
+    "tags_label": "Tags",
+    "tags_placeholder": "Enter a tag",
+    "add_tag": "Add",
+    "visibility_label": "Public Inventory",
+    "visibility_description": "Allow all users to view and contribute to this inventory"
   },
   "InventoryDeleteDialog": {
     "title": "Are you absolutely sure?",
@@ -158,13 +192,20 @@
     "number": "Number",
     "date": "Date",
     "boolean": "Boolean",
-    "showInTable": "Show in table"
+    "textarea": "Long Text",
+    "link": "Link",
+    "showInTable": "Show in table",
+    "visible_in_table": "Visible in table",
+    "hidden_from_table": "Hidden from table"
   },
   "FieldTypes": {
     "text": "Text",
     "number": "Number",
     "date": "Date",
-    "boolean": "Boolean"
+    "boolean": "Boolean",
+    "textarea": "Long Text",
+    "link": "Link",
+    "URL": "URL"
   },
   "FieldDeleteDialog": {
     "title": "Are you sure?",
@@ -177,8 +218,11 @@
   "CustomFieldsEditor": {
     "title": "Existing Fields",
     "add_field": "Add Field",
-    "field_name": "Field Name",
-    "field_name_placeholder": "e.g. Name",
+    "edit_field": "Edit Field",
+    "field_title": "Field Name",
+    "field_title_placeholder": "e.g. Name",
+    "field_description": "Field Description",
+    "field_description_placeholder": "Enter a description for this field...",
     "field_type": "Field Type",
     "field_type_placeholder": "Select a field type",
     "field_type_text": "Text",
@@ -186,12 +230,23 @@
     "field_type_boolean": "Boolean (Yes/No)",
     "field_type_url": "URL",
     "field_type_longtext": "Long Text",
+    "field_type_link": "Link",
+    "field_type_textarea": "Long Text",
     "show_in_table": "Show in Table",
     "show_in_table_description": "Display this field as a column in the items table.",
     "add_field_button": "Add Field",
     "saving_message": "Adding...",
     "add_field_success": "Field added successfully!",
-    "add_field_error": "Failed to add field."
+    "add_field_error": "Failed to add field.",
+    "update_field_button": "Update Field",
+    "cancel_edit": "Cancel",
+    "update_field_success": "Field updated successfully!",
+    "update_field_error": "Failed to update field.",
+    "field_type_edit_disabled": "Field type cannot be changed after creation.",
+    "delete_selected": "Delete Selected",
+    "delete_field_success": "Field(s) deleted successfully!",
+    "delete_field_error": "Failed to delete field(s).",
+    "field_description_help": "Provide additional context about this field for users."
   },
   "AccessList": {
     "success_message": "User role updated.",

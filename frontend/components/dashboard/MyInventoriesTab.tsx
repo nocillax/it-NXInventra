@@ -1,0 +1,75 @@
+// components/dashboard/MyInventoriesTab.tsx
+"use client";
+
+import * as React from "react";
+import { useMyInventories } from "@/hooks/useMyInventories";
+import { useAuth } from "@/hooks/useAuth";
+import { InventoryTable } from "@/components/inventory/InventoryTable";
+import { useTranslations } from "next-intl";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { Pagination } from "@/components/shared/Pagination";
+import { GenericError } from "@/components/shared/GenericError";
+
+const ITEMS_PER_PAGE = 10;
+
+export function MyInventoriesTab() {
+  const t = useTranslations("Dashboard");
+  const { user } = useAuth();
+  const { inventories, isLoading, error } = useMyInventories();
+
+  const [currentPage, setCurrentPage] = React.useState(1);
+
+  const paginatedInventories = React.useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const endIndex = startIndex + ITEMS_PER_PAGE;
+    return inventories.slice(startIndex, endIndex);
+  }, [inventories, currentPage]);
+
+  const totalPages = Math.ceil(inventories.length / ITEMS_PER_PAGE);
+
+  if (isLoading) {
+    return (
+      <div className="mt-4 space-y-3">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <Skeleton key={i} className="h-12 w-full" />
+        ))}
+      </div>
+    );
+  }
+
+  if (error) {
+    return <GenericError />;
+  }
+
+  return (
+    <div className="mt-4">
+      {inventories.length === 0 ? (
+        <div className="flex items-center justify-center h-40 border border-dashed rounded-lg">
+          <p className="text-muted-foreground">{t("no_my_inventories")}</p>
+        </div>
+      ) : (
+        <>
+          <ScrollArea className="w-full whitespace-nowrap rounded-md border">
+            <InventoryTable
+              inventories={paginatedInventories}
+              users={[]}
+              accessList={[]}
+              isLoading={isLoading}
+              currentUserId={user?.id || ""}
+              hideRoleColumn={false} // Show role column
+            />
+            <ScrollBar orientation="horizontal" />
+          </ScrollArea>
+          {totalPages > 1 && (
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+            />
+          )}
+        </>
+      )}
+    </div>
+  );
+}

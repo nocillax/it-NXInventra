@@ -10,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   Select,
   SelectContent,
@@ -20,37 +20,26 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
-import { Access, Role, User } from "@/types/shared";
+import { Access, Role } from "@/types/shared";
 import { useModalStore } from "@/stores/useModalStore";
-import { apiFetch } from "@/lib/apiClient";
+import { accessService } from "@/services/accessService";
 import { useAccess } from "@/hooks/useAccess";
 import { useTranslations } from "next-intl";
 
 interface AccessListProps {
   accessList: Access[];
-  users: User[];
   inventoryId: string;
-  createdBy: string;
 }
 
-export function AccessList({
-  accessList,
-  users,
-  inventoryId,
-  createdBy,
-}: AccessListProps) {
-  const usersMap = new Map(users.map((user) => [user.id, user]));
+export function AccessList({ accessList, inventoryId }: AccessListProps) {
   const { onOpen } = useModalStore();
   const { mutate } = useAccess(inventoryId);
   const ownerCount = accessList.filter((a) => a.role === "Owner").length;
   const t = useTranslations("AccessList");
 
-  const handleRoleChange = async (accessId: string, role: Role) => {
+  const handleRoleChange = async (userId: string, role: Role) => {
     try {
-      await apiFetch(`/access/${accessId}`, {
-        method: "PUT",
-        body: JSON.stringify({ role }),
-      });
+      await accessService.updateRole(inventoryId, userId, role);
       toast.success(t("success_message"));
       mutate();
     } catch (error) {
@@ -72,24 +61,21 @@ export function AccessList({
           </TableHeader>
           <TableBody>
             {accessList.map((access) => {
-              const user = usersMap.get(access.userId);
-              if (!user) return null;
               const isOwner = access.role === "Owner";
               const isLastOwner = isOwner && ownerCount === 1;
               return (
-                <TableRow key={access.id}>
+                <TableRow key={access.userId}>
                   <TableCell>
                     <div className="flex items-center gap-3">
                       <Avatar>
-                        <AvatarImage src={user?.avatar} alt={user?.name} />
                         <AvatarFallback>
-                          {user?.name?.charAt(0).toUpperCase()}
+                          {access.userName?.charAt(0).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
                       <div>
-                        <p className="font-medium">{user?.name}</p>
+                        <p className="font-medium">{access.userName}</p>
                         <p className="text-sm text-muted-foreground">
-                          {user?.email}
+                          {access.userEmail}
                         </p>
                       </div>
                     </div>
@@ -98,7 +84,7 @@ export function AccessList({
                     <Select
                       value={access.role}
                       onValueChange={(value: Role) =>
-                        handleRoleChange(access.id, value)
+                        handleRoleChange(access.userId, value)
                       }
                       disabled={isLastOwner}
                     >
@@ -122,7 +108,10 @@ export function AccessList({
                         variant="ghost"
                         size="icon"
                         onClick={() =>
-                          onOpen("removeAccess", { access, inventoryId })
+                          onOpen("removeAccess", {
+                            userId: access.userId,
+                            inventoryId,
+                          })
                         }
                       >
                         <Trash2 className="h-4 w-4 text-destructive" />
@@ -139,28 +128,25 @@ export function AccessList({
       {/* Mobile View: List of Cards */}
       <div className="grid gap-4 sm:hidden">
         {accessList.map((access) => {
-          const user = usersMap.get(access.userId);
-          if (!user) return null;
           const isOwner = access.role === "Owner";
           const isLastOwner = isOwner && ownerCount === 1;
 
           return (
             <div
-              key={access.id}
+              key={access.userId}
               className="flex flex-col gap-4 rounded-lg border bg-card p-4 text-card-foreground"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <Avatar>
-                    <AvatarImage src={user?.avatar} alt={user?.name} />
                     <AvatarFallback>
-                      {user?.name?.charAt(0).toUpperCase()}
+                      {access.userName?.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <p className="font-medium">{user?.name}</p>
+                    <p className="font-medium">{access.userName}</p>
                     <p className="text-sm text-muted-foreground">
-                      {user?.email}
+                      {access.userEmail}
                     </p>
                   </div>
                 </div>
@@ -169,7 +155,10 @@ export function AccessList({
                     variant="ghost"
                     size="icon"
                     onClick={() =>
-                      onOpen("removeAccess", { access, inventoryId })
+                      onOpen("removeAccess", {
+                        userId: access.userId,
+                        inventoryId,
+                      })
                     }
                   >
                     <Trash2 className="h-4 w-4 text-destructive" />
@@ -180,7 +169,7 @@ export function AccessList({
                 <Select
                   value={access.role}
                   onValueChange={(value: Role) =>
-                    handleRoleChange(access.id, value)
+                    handleRoleChange(access.userId, value)
                   }
                   disabled={isLastOwner}
                 >

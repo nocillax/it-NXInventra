@@ -215,4 +215,26 @@ export class UserService {
       throw new ForbiddenException('Admin access required');
     }
   }
+
+  // Add this method to the UserService class
+  async getUserById(userId: string): Promise<any> {
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      isAdmin: user.isAdmin,
+      theme: user.theme,
+      language: user.language,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    };
+  }
 }

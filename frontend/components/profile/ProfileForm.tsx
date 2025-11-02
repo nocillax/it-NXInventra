@@ -16,10 +16,11 @@ import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ProfileNameEditor } from "./ProfileNameEditor";
 import { ProfileDeleteAction } from "./ProfileDeleteAction";
+import { useAuth } from "@/hooks/useAuth";
 
 export function ProfileForm() {
   const t = useTranslations("Profile");
-  const { user } = useUserStore();
+  const { user } = useAuth();
 
   const getInitials = (name: string) => {
     if (!name) return "?";

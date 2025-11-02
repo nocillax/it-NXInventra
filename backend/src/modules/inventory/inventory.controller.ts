@@ -11,6 +11,7 @@ import {
   ParseUUIDPipe,
   ValidationPipe,
   Query,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { InventoryService } from './inventory.service';
 import { CreateInventoryDto } from './dto/create-inventory.dto';
@@ -19,6 +20,8 @@ import { JwtAuthGuard } from '../auth/guards/jwt.guard';
 import { InventoryQueryDto } from './dto/inventory-query.dto';
 import { UpdateAccessDto } from './dto/update-access.dto';
 import { AddAccessDto } from './dto/add-access.dto';
+import { UpdateCustomFieldDto } from './dto/update-custom-fields.dto';
+import { AddCustomFieldsDto } from './dto/add-custom-fields.dto';
 
 @Controller('inventories')
 export class InventoryController {
@@ -33,17 +36,54 @@ export class InventoryController {
     return this.inventoryService.create(createInventoryDto, req.user.id);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get()
-  findAll() {
-    return this.inventoryService.findAllPublic();
+  async findAll(
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+    @Req() req,
+  ) {
+    return this.inventoryService.findAllPublic(req.user.id, page, limit);
+  }
+
+  // Add these new endpoints to the InventoryController class
+  @UseGuards(JwtAuthGuard)
+  @Get('me')
+  async findMyInventories(
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+    @Req() req,
+  ) {
+    return this.inventoryService.findMyInventories(req.user.id, page, limit);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('shared-with-me')
+  async findSharedWithMe(
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+    @Req() req,
+  ) {
+    return this.inventoryService.findSharedWithMe(req.user.id, page, limit);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get(':id/access/me')
+  async getMyAccess(
+    @Param('id', ParseUUIDPipe) inventoryId: string,
+    @Req() req,
+  ) {
+    return this.inventoryService.getMyAccess(inventoryId, req.user.id);
   }
 
   @Get('search')
   searchInventories(
     @Query(new ValidationPipe({ transform: true }))
     inventoryQueryDto: InventoryQueryDto,
+    @Req() req,
   ) {
-    return this.inventoryService.findWithPagination(inventoryQueryDto);
+    const userId = req.user?.id;
+    return this.inventoryService.findWithPagination(inventoryQueryDto, userId);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -112,5 +152,58 @@ export class InventoryController {
     @Req() req,
   ) {
     return this.inventoryService.removeAccess(inventoryId, userId, req.user.id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get(':id/custom-fields')
+  async getCustomFields(
+    @Param('id', ParseUUIDPipe) inventoryId: string,
+    @Req() req,
+  ) {
+    return this.inventoryService.getCustomFields(inventoryId, req.user.id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post(':id/custom-fields')
+  async addCustomFields(
+    @Param('id', ParseUUIDPipe) inventoryId: string,
+    @Body(ValidationPipe) addCustomFieldsDto: AddCustomFieldsDto,
+    @Req() req,
+  ) {
+    return this.inventoryService.addCustomFields(
+      inventoryId,
+      addCustomFieldsDto,
+      req.user.id,
+    );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch(':id/custom-fields/:fieldId')
+  async updateCustomField(
+    @Param('id', ParseUUIDPipe) inventoryId: string,
+    @Param('fieldId', ParseIntPipe) fieldId: number,
+    @Body(ValidationPipe) updateCustomFieldDto: UpdateCustomFieldDto,
+    @Req() req,
+  ) {
+    return this.inventoryService.updateCustomField(
+      inventoryId,
+      fieldId,
+      updateCustomFieldDto,
+      req.user.id,
+    );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete(':id/custom-fields/:fieldId')
+  async deleteCustomField(
+    @Param('id', ParseUUIDPipe) inventoryId: string,
+    @Param('fieldId', ParseIntPipe) fieldId: number,
+    @Req() req,
+  ) {
+    return this.inventoryService.deleteCustomField(
+      inventoryId,
+      fieldId,
+      req.user.id,
+    );
   }
 }

@@ -14,14 +14,18 @@
   },
   "UserNav": {
     "log_out": "লগ আউট",
-    "profile_link": "প্রোফাইল"
+    "profile_link": "প্রোফাইল",
+    "login": "লগ ইন"
   },
   "Dashboard": {
     "dashboard": "ড্যাশবোর্ড",
     "create_inventory": "ইনভেন্টরি তৈরি করুন",
     "my_inventories": "আমার ইনভেন্টরিসমূহ",
     "my_inventories_description": "আপনি যেগুলি মালিক এবং পরিচালনা করেন সেসব ইনভেন্টরিসমূহ।",
-    "no_inventories": "দেখে মনে হচ্ছে এখানে কিছুই নেই। আপনার প্রথম ইনভেন্টরি তৈরি করে শুরু করুন।"
+    "no_inventories": "দেখে মনে হচ্ছে এখানে কিছুই নেই। আপনার প্রথম ইনভেন্টরি তৈরি করে শুরু করুন।",
+    "shared_with_me": "আমার সাথে শেয়ার করা হয়েছে",
+    "no_shared_inventories": "দেখে মনে হচ্ছে এখানে কিছুই নেই। যখন কেউ আপনার সাথে একটি ইনভেন্টরি শেয়ার করবে তখন এটি এখানে প্রদর্শিত হবে।",
+    "no_my_inventories": "দেখে মনে হচ্ছে এখানে কিছুই নেই। আপনার প্রথম ইনভেন্টরি তৈরি করে শুরু করুন।"
   },
   "InventoryTable": {
     "no_inventories": "দেখে মনে হচ্ছে এখানে কিছুই নেই। আপনার প্রথম ইনভেন্টরি তৈরি করে শুরু করুন।",
@@ -57,8 +61,22 @@
     "create_button": "তৈরি করুন",
     "creating_button": "তৈরি হচ্ছে...",
     "success_message": "ইনভেন্টরি সফলভাবে তৈরি হয়েছে!",
-    "failure_message": "ইনভেন্টরি তৈরি করতে ব্যর্থ। অনুগ্রহ করে আবার চেষ্টা করুন।"
+    "failure_message": "ইনভেন্টরি তৈরি করতে ব্যর্থ। অনুগ্রহ করে আবার চেষ্টা করুন।",
+    "description_label": "বর্ণনা",
+    "description_placeholder": "এই ইনভেন্টরির একটি সংক্ষিপ্ত বিবরণ দিন... ",
+    "category_label": "ক্যাটাগরি",
+    "category_placeholder": "ক্যাটাগরি নির্বাচন করুন...",
+    "tags_label": "ট্যাগসমূহ",
+    "tags_placeholder": "ট্যাগ যোগ করুন...",
+    "add_tag": "যোগ করুন",
+    "visibility_label": "পাবলিক ইনভেন্টরি",
+    "visibility_description": "যদি আপনি এটি পাবলিক করেন, তবে যেকেউ এটি দেখতে পারবে এবং এডিট করতে পারবে।",
+    "category_search_placeholder": "ক্যাটাগরি অনুসন্ধান করুন...",
+    "no_categories_found": "কোন ক্যাটাগরি পাওয়া যায়নি।",
+    "tags_search_placeholder": "ট্যাগ অনুসন্ধান করুন...",
+    "no_tags_found": "কোন ট্যাগ পাওয়া যায়নি।"
   },
+
   "LanguageToggle": {
     "english": "English",
     "bengali": "বাংলা (Bengali)"
@@ -95,20 +113,29 @@
     "cancel": "বাতিল করুন",
     "delete": "মুছে ফেলুন"
   },
-  "CommentForm": {
-    "cmt_placeholder": "একটি মন্তব্য লিখুন...",
+
+  "DiscussionForm": {
+    "discussion_placeholder": "একটি মন্তব্য লিখুন...",
     "post": "পোস্ট করুন",
     "posting_message": "পোস্ট হচ্ছে...",
-    "comment_posted_success": "মন্তব্য সফলভাবে পোস্ট হয়েছে।",
-    "comment_posted_error": "মন্তব্য পোস্ট করতে ব্যর্থ।"
+    "discussion_posted_success": "মন্তব্য সফলভাবে পোস্ট হয়েছে।",
+    "discussion_posted_error": "মন্তব্য পোস্ট করতে ব্যর্থ।"
   },
-  "CommentItem": {
+  "DiscussionItem": {
     "unknown_user": "অজ্ঞাত ইউজার"
   },
+  "DiscussionList": {
+    "delete_selected": "নির্বাচিত মুছে ফেলুন",
+    "no_discussions_yet": "এখানে কোন আলোচনা নেই। শুরু করতে একটি মন্তব্য পোস্ট করুন।",
+    "no_more_comments": "আর কোন মন্তব্য লোড করার নেই।",
+    "load_more": "আরো লোড করুন",
+    "loading_more": "লোড হচ্ছে...",
+    "selected_count": "{count}টি নির্বাচিত"
+  },
+
   "InventorySettingsForm": {
-    "title": "শিরোনাম",
     "title_placeholder": "যেমন: অফিস ল্যাপটপ",
-    "description": "বর্ণনা",
+
     "description_placeholder": "এই ইনভেন্টরির একটি সংক্ষিপ্ত বিবরণ।",
     "success_message": "ইনভেন্টরি সেটিংস সফলভাবে আপডেট হয়েছে!",
     "failure_message": "সেটিংস আপডেট করতে ব্যর্থ। অনুগ্রহ করে আবার চেষ্টা করুন।",
@@ -116,7 +143,17 @@
     "save_button": "সংরক্ষণ করুন",
     "danger_zone_title": "ইনভেন্টরি মুছে ফেলুন",
     "danger_zone_description": "এই ইনভেন্টরি এবং এর সমস্ত আইটেম স্থায়ীভাবে মুছে ফেলুন।",
-    "delete_inventory_button": "মুছে ফেলুন"
+    "delete_inventory_button": "মুছে ফেলুন",
+
+    "title_label": "শিরোনাম",
+    "description_label": "বর্ণনা",
+    "category_label": "ক্যাটাগরি",
+    "category_placeholder": "ক্যাটাগরি নির্বাচন করুন",
+    "tags_label": "ট্যাগসমূহ",
+    "tags_placeholder": "ট্যাগ লিখুন",
+    "add_tag": "যোগ করুন",
+    "visibility_label": "পাবলিক ইনভেন্টরি",
+    "visibility_description": "যদি আপনি এটি পাবলিক করেন, তবে যেকেউ এটি দেখতে পারবে এবং এডিট করতে পারবে।"
   },
   "InventoryDeleteDialog": {
     "title": "আপনি কি পুরোপুরি নিশ্চিত?",
@@ -125,7 +162,8 @@
     "deleting_button": "মুছে ফেলা হচ্ছে...",
     "cancel_button": "বাতিল করুন",
     "success_message": "ইনভেন্টরি সফলভাবে মুছে ফেলা হয়েছে।",
-    "failure_message": "ইনভেন্টরি মুছে ফেলতে ব্যর্থ।"
+    "failure_message": "ইনভেন্টরি মুছে ফেলতে ব্যর্থ।",
+    "no_access_message": "আপনার এই ইনভেন্টরি মুছে ফেলার অনুমতি নেই।"
   },
   "IDBuilder": {
     "success_message": "আইডি ফরম্যাট সফলভাবে আপডেট হয়েছে।",
@@ -158,7 +196,12 @@
     "number": "সংখ্যা",
     "date": "তারিখ",
     "boolean": "বুলিয়ান",
-    "showInTable": "টেবিলে দেখান"
+    "textarea": "লং টেক্সট",
+    "link": "লিঙ্ক",
+    "URL": "ইউআরএল",
+    "showInTable": "টেবিলে দেখান",
+    "visible_in_table": "টেবিলে দেখানো হয়েছে",
+    "hidden_from_table": "টেবিল থেকে লুকানো হয়েছে"
   },
   "FieldDeleteDialog": {
     "title": "আপনি কি নিশ্চিত?",
@@ -171,21 +214,39 @@
   "CustomFieldsEditor": {
     "title": "বিদ্যমান ফিল্ডসমূহ",
     "add_field": "ফিল্ড যোগ করুন",
+    "edit_field": "ফিল্ড সম্পাদনা করুন",
     "field_name": "ফিল্ডের নাম",
-    "field_name_placeholder": "যেমন: নাম",
+
     "field_type": "ফিল্ডের ধরন",
     "field_type_placeholder": "ফিল্ডের ধরন নির্বাচন করুন",
     "field_type_text": "টেক্সট",
     "field_type_number": "সংখ্যা",
     "field_type_boolean": "বুলিয়ান (হ্যাঁ/না)",
     "field_type_url": "ইউআরএল",
+    "field_type_link": "লিঙ্ক",
+    "field_type_textarea": "লং টেক্সট",
     "field_type_longtext": "লং টেক্সট",
     "show_in_table": "টেবিলে দেখান",
     "show_in_table_description": "এই ফিল্ডটিকে আইটেম টেবিলের একটি কলাম হিসেবে প্রদর্শন করুন।",
     "add_field_button": "ফিল্ড যোগ করুন",
     "saving_message": "সংরক্ষণ হচ্ছে...",
     "add_field_success": "ফিল্ড সফলভাবে যোগ করা হয়েছে!",
-    "add_field_error": "ফিল্ড যোগ করতে ব্যর্থ। অনুগ্রহ করে আবার চেষ্টা করুন।"
+    "add_field_error": "ফিল্ড যোগ করতে ব্যর্থ। অনুগ্রহ করে আবার চেষ্টা করুন।",
+
+    "field_title": "বিদ্যমান ফিল্ডসমূহ",
+    "field_title_placeholder": "যেমন: নাম",
+    "field_description": "ফিল্ডের বর্ণনা",
+    "field_description_placeholder": "এই ফিল্ডের একটি বর্ণনা লিখুন...",
+
+    "update_field_button": "ফিল্ড আপডেট করুন",
+    "cancel_edit": "বাতিল করুন",
+    "update_field_success": "ফিল্ড সফলভাবে আপডেট হয়েছে!",
+    "update_field_error": "ফিল্ড আপডেট করতে ব্যর্থ। অনুগ্রহ করে আবার চেষ্টা করুন।",
+    "field_type_edit_disabled": "ফিল্ডের ধরন তৈরি হওয়ার পরে পরিবর্তন করা যাবে না।",
+    "delete_selected": "নির্বাচিত মুছে ফেলুন",
+    "delete_field_success": "ফিল্ড(গুলি) সফলভাবে মুছে ফেলা হয়েছে!",
+    "delete_field_error": "ফিল্ড(গুলি) মুছে ফেলতে ব্যর্থ। অনুগ্রহ করে আবার চেষ্টা করুন।",
+    "field_description_help": "এই ফিল্ড সম্পর্কে ব্যবহারকারীদের অতিরিক্ত প্রেক্ষাপট প্রদান করুন।"
   },
   "AccessList": {
     "success_message": "ইউজার রোল সফলভাবে আপডেট হয়েছে।",

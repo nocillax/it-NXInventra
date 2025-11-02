@@ -15,23 +15,44 @@ export class CommentService {
     private readonly commentRepository: Repository<Comment>,
   ) {}
 
-  async getComments(inventoryId: string): Promise<any[]> {
-    const comments = await this.commentRepository.find({
+  async getComments(
+    inventoryId: string,
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<{ comments: any[]; pagination: any }> {
+    const skip = (page - 1) * limit;
+
+    const [comments, total] = await this.commentRepository.findAndCount({
       where: { inventoryId },
       relations: ['user'],
-      order: { timestamp: 'ASC' }, // Linear order, oldest first
+      order: { timestamp: 'DESC' }, // Linear order, oldest first
+      skip,
+      take: limit,
     });
 
-    return comments.map((comment) => ({
-      id: comment.id,
-      message: comment.message,
-      timestamp: comment.timestamp,
-      user: {
-        id: comment.user.id,
-        name: comment.user.name,
-        email: comment.user.email,
+    const totalPages = Math.ceil(total / limit);
+    const hasNext = page < totalPages;
+
+    return {
+      comments: comments.map((comment) => ({
+        id: comment.id,
+        message: comment.message,
+        timestamp: comment.timestamp,
+        user: {
+          id: comment.user.id,
+          name: comment.user.name,
+          email: comment.user.email,
+        },
+      })),
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages,
+        hasNext,
+        hasPrev: page > 1,
       },
-    }));
+    };
   }
 
   async createComment(

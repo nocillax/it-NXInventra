@@ -1,39 +1,59 @@
+// hooks/useRbac.ts - WITH BETTER LOADING STATES
 "use client";
 
 import { useMemo } from "react";
+import useSWR from "swr";
 import { Inventory, Role } from "@/types/shared";
-import { useUserStore } from "@/stores/useUserStore";
-import { useAccessList } from "./useAccessList";
+import { useAuth } from "./useAuth";
+import { apiFetch } from "@/lib/apiClient";
+
+interface AccessResponse {
+  role: Role;
+}
 
 export function useRbac(inventory: Inventory | null | undefined) {
-  const { user } = useUserStore();
-  const { accessList, isLoading: isLoadingAccess } = useAccessList();
+  const { user } = useAuth();
 
-  const effectiveRole: Role | "PublicViewer" | "None" = useMemo(() => {
-    if (!inventory) return "None";
-
-    // Find the user's explicit role for this inventory
-    const userAccess = accessList?.find(
-      (a) => a.inventoryId === inventory.id && a.userId === user?.id
-    );
-
-    if (userAccess) {
-      return userAccess.role;
+  const {
+    data: userAccess,
+    isLoading: isLoadingAccess,
+    error,
+  } = useSWR<AccessResponse>(
+    inventory && user ? `/inventories/${inventory.id}/access/me` : null,
+    () => apiFetch(`/inventories/${inventory!.id}/access/me`),
+    {
+      revalidateOnFocus: true,
+      dedupingInterval: 30000,
+      shouldRetryOnError: false, // Don't retry on 404 (no access)
     }
+  );
 
-    // If no explicit role, check if the inventory is public
-    if (inventory.public) {
-      return "PublicViewer";
-    }
+  const effectiveRole: Role | "PublicViewer" | "None" | "Loading" =
+    useMemo(() => {
+      if (!inventory) return "None";
 
-    // If private and no role, no access
-    return "None";
-  }, [inventory, accessList, user]);
+      // Still loading
+      if (isLoadingAccess) return "Loading";
+
+      // Use the role from the API response
+      if (userAccess?.role) {
+        return userAccess.role;
+      }
+
+      // If no explicit role, check if the inventory is public
+      if (inventory.public) {
+        return "PublicViewer";
+      }
+
+      // If private and no role, no access
+      return "None";
+    }, [inventory, userAccess, isLoadingAccess]);
 
   const isOwner = effectiveRole === "Owner";
   const isEditor = effectiveRole === "Editor";
   const isViewer =
     effectiveRole === "Viewer" || effectiveRole === "PublicViewer";
+  const isLoading = effectiveRole === "Loading";
 
   const canView = isOwner || isEditor || isViewer;
   const canEdit = isOwner || isEditor;
@@ -45,6 +65,7 @@ export function useRbac(inventory: Inventory | null | undefined) {
     isViewer,
     canView,
     canEdit,
-    isLoading: isLoadingAccess,
+    isLoading,
+    error,
   };
 }

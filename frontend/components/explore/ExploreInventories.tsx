@@ -25,49 +25,35 @@ const filterPublicInventories = (inventories: Inventory[]) => {
 
 // --- Main Component ---
 
+// ExploreInventories.tsx - SIMPLIFIED
 export function ExploreInventories() {
-  const { user } = useUserStore();
   const {
     inventories,
     isLoading: isLoadingInventories,
     error: inventoriesError,
   } = useInventories();
-  const {
-    accessList,
-    isLoading: isLoadingAccess,
-    error: accessListError,
-  } = useAccessList();
-  const { users, isLoading: isLoadingUsers, error: usersError } = useUsers();
+
   const [currentPage, setCurrentPage] = React.useState(1);
 
-  const currentUserId = user?.id || "";
-  const isLoading = isLoadingInventories || isLoadingAccess || isLoadingUsers;
-  const error = inventoriesError || accessListError || usersError;
-
-  const publicInventories = React.useMemo(
-    () => filterPublicInventories(inventories || []),
-    [inventories]
-  );
+  // No need to filter - backend already returns only public inventories
+  const displayedInventories = inventories || [];
 
   const paginatedInventories = React.useMemo(() => {
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
     const endIndex = startIndex + ITEMS_PER_PAGE;
-    return publicInventories.slice(startIndex, endIndex);
-  }, [publicInventories, currentPage]);
+    return displayedInventories.slice(startIndex, endIndex);
+  }, [displayedInventories, currentPage]);
 
-  const totalPages = Math.ceil(publicInventories.length / ITEMS_PER_PAGE);
+  const totalPages = Math.ceil(displayedInventories.length / ITEMS_PER_PAGE);
 
-  if (isLoading) {
-    return (
-      <div className="mt-4 space-y-3">
-        {Array.from({ length: 3 }).map((_, i) => (
-          <Skeleton key={i} className="h-12 w-full" />
-        ))}
-      </div>
-    );
+  console.log("🔍 Displayed inventories:", displayedInventories);
+  console.log("🔍 Paginated inventories:", paginatedInventories);
+
+  if (isLoadingInventories) {
+    return <div>Loading inventories...</div>;
   }
 
-  if (error) {
+  if (inventoriesError) {
     return <GenericError />;
   }
 
@@ -76,10 +62,11 @@ export function ExploreInventories() {
       <ScrollArea className="w-full whitespace-nowrap rounded-md border">
         <InventoryTable
           inventories={paginatedInventories}
-          users={users || []}
-          accessList={accessList || []}
-          isLoading={isLoading}
-          currentUserId={currentUserId}
+          users={[]}
+          accessList={[]}
+          isLoading={isLoadingInventories}
+          currentUserId={""}
+          hideRoleColumn={true}
         />
         <ScrollBar orientation="horizontal" />
       </ScrollArea>

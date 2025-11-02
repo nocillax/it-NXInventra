@@ -1,3 +1,4 @@
+// components/fields/FieldDeleteDialog.tsx - UPDATED
 "use client";
 
 import {
@@ -11,7 +12,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useModalStore } from "@/stores/useModalStore";
-import { apiFetch } from "@/lib/apiClient";
+import { customFieldService } from "@/services/customFieldService";
 import { toast } from "sonner";
 import { useInventory } from "@/hooks/useInventory";
 import { useTranslations } from "next-intl";
@@ -27,13 +28,7 @@ export function FieldDeleteDialog() {
   const handleDelete = async () => {
     if (!field || !inventory) return;
     try {
-      const updatedFields = inventory.customFields.filter(
-        (f) => f.id !== field.id
-      );
-      await apiFetch(`/inventories/${inventory.id}`, {
-        method: "PUT",
-        body: JSON.stringify({ customFields: updatedFields }),
-      });
+      await customFieldService.deleteCustomField(inventory.id, field.id);
       toast.success(t("success_message"));
       mutate();
       onClose();

@@ -9,5 +9,5 @@ export const AppDataSource = new DataSource({
   url: process.env.DATABASE_URL,
   entities: ['dist/database/entities/*.entity.js'],
   migrations: ['dist/migrations/*.js'],
-  synchronize: false,
+  synchronize: true,
 });

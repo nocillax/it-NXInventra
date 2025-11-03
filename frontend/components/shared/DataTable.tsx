@@ -16,14 +16,16 @@ interface DataTableProps<TData> {
   table: TanstackTable<TData>;
   onRowClick?: (row: TData) => void;
   noResultsMessage?: string;
-  entityType?: "inventory" | "item"; // Add this prop
+  entityType?: "inventory" | "item";
+  inventoryId?: string;
 }
 
 export function DataTable<TData extends { id: string }>({
   table,
   onRowClick,
   noResultsMessage = "No results.",
-  entityType, // Add entityType
+  entityType,
+  inventoryId,
 }: DataTableProps<TData>) {
   const router = useRouter();
 
@@ -77,7 +79,10 @@ export function DataTable<TData extends { id: string }>({
                 if (entityType === "inventory") {
                   router.push(`/inventories/${row.original.id}`);
                 } else if (entityType === "item") {
-                  router.push(`/items/${row.original.id}`);
+                  // router.push(`/items/${row.original.id}`);
+                  router.push(
+                    `/inventories/${inventoryId}/items/${row.original.id}`
+                  );
                 }
               }}
             >

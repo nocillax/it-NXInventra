@@ -91,6 +91,7 @@ export interface Item {
   inventoryId: string;
   fields: Record<string, any>;
   likes?: number;
+  version: number;
   createdBy?: UUID;
   createdAt?: string;
 }
@@ -98,6 +99,12 @@ export interface Item {
 export interface NewItem {
   inventoryId: string;
   fields: { [key: string]: any };
+}
+
+export interface UpdateItemData {
+  version: number;
+  fields?: Record<string, any>; // string keys like "32", "33" etc.
+  customId?: string;
 }
 
 export type Role = "Owner" | "Editor" | "Viewer";

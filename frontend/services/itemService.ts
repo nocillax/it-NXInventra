@@ -1,6 +1,6 @@
 // services/itemService.ts
 import { apiFetch } from "@/lib/apiClient";
-import { Item, NewItem } from "@/types/shared";
+import { Item, NewItem, UpdateItemData } from "@/types/shared";
 
 export const itemService = {
   async getItems(
@@ -23,9 +23,9 @@ export const itemService = {
     });
   },
 
-  async updateItem(itemId: string, itemData: Partial<Item>): Promise<Item> {
+  async updateItem(itemId: string, itemData: UpdateItemData): Promise<Item> {
     return apiFetch(`/items/${itemId}`, {
-      method: "PUT",
+      method: "PATCH", // Changed from PUT to PATCH
       body: JSON.stringify(itemData),
     });
   },

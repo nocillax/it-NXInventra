@@ -206,4 +206,17 @@ export class InventoryController {
       req.user.id,
     );
   }
+
+  @Get(':id/id-format')
+  @UseGuards(JwtAuthGuard) // Generic JWT guard
+  async getIdFormat(
+    @Param('id') inventoryId: string,
+    @Req() req,
+  ): Promise<{ format: string }> {
+    const format = await this.inventoryService.getInventoryIdFormat(
+      inventoryId,
+      req.user.id,
+    );
+    return { format };
+  }
 }

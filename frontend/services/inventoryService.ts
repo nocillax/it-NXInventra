@@ -27,4 +27,8 @@ export const inventoryService = {
   }> {
     return apiFetch("/inventories/shared-with-me");
   },
+
+  async getIdFormat(inventoryId: string): Promise<{ format: string }> {
+    return apiFetch(`/inventories/${inventoryId}/id-format`);
+  },
 };

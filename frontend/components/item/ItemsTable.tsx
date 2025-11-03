@@ -88,6 +88,7 @@ export function ItemsTable({ items, inventory, isLoading }: ItemsTableProps) {
         <DataTable
           table={table}
           noResultsMessage={t("no_items")}
+          inventoryId={inventory.id}
           entityType="item" // This will navigate to /items/:id
         />
         <ScrollBar orientation="horizontal" />

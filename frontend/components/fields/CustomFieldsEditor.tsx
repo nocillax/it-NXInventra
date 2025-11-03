@@ -33,7 +33,7 @@ import { useInventories } from "@/hooks/useInventories";
 import { customFieldService } from "@/services/customFieldService";
 import { FieldList } from "./FieldList";
 import { useTranslations } from "next-intl";
-import { MarkdownEditor } from "./forms/inputs/markdown-editor";
+import { MarkdownEditor } from "@/components/ui/markdown-editor";
 
 const fieldSchema = z.object({
   title: z.string().min(2, "Title must be at least 2 characters."),

@@ -886,4 +886,43 @@ export class InventoryService {
       );
     }
   }
+
+  async getInventoryIdFormat(
+    inventoryId: string,
+    userId: string,
+  ): Promise<string> {
+    // Verify inventory exists and user has access
+    await this.checkUserAccess(inventoryId, userId);
+
+    const inventory = await this.inventoryRepository.findOne({
+      where: { id: inventoryId },
+    });
+
+    if (!inventory) {
+      throw new NotFoundException(
+        `Inventory with ID "${inventoryId}" not found`,
+      );
+    }
+
+    if (!inventory.idFormat || inventory.idFormat.length === 0) {
+      return ''; // Return empty string if no format defined
+    }
+
+    // Convert idFormat array to concatenated string pattern
+    const formatParts = inventory.idFormat.map((segment) => {
+      if (segment.type === 'fixed') {
+        return segment.value || '';
+      } else if (segment.type === 'random_6digit') {
+        return 'rand6';
+      } else if (segment.type === 'random_9digit') {
+        return 'rand9';
+      } else {
+        // For all other types (date, sequence, random_20bit, random_32bit, guid)
+        // Just use the format field if present, otherwise use type as fallback
+        return segment.format || segment.type;
+      }
+    });
+
+    return formatParts.join('');
+  }
 }

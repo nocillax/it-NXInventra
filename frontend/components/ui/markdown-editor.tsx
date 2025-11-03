@@ -43,7 +43,7 @@ export function MarkdownEditor({
         onChange={onChange}
         height={height}
         preview="edit"
-        hideToolbar={true}
+        hideToolbar={false}
       />
 
       {/* Simulated placeholder */}

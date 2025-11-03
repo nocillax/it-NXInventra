@@ -5,13 +5,13 @@ import { PassportModule } from '@nestjs/passport';
 import { UserModule } from '../user/user.module';
 import { AuthController } from './auth.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Item } from 'src/database/entities/item.entity';
-import { Inventory } from 'src/database/entities/inventory.entity';
+import { Item } from '../../database/entities/item.entity';
+import { Inventory } from '../../database/entities/inventory.entity';
 import { AuthService } from './auth.service';
 import { GoogleStrategy } from './strategies/google.strategy';
 import { GithubStrategy } from './strategies/github.strategy';
 import { JwtStrategy } from './strategies/jwt.strategy';
-import { Access } from 'src/database/entities/access.entity';
+import { Access } from '../../database/entities/access.entity';
 
 @Module({
   imports: [

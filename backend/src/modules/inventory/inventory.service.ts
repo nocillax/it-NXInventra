@@ -16,10 +16,10 @@ import { UpdateInventoryDto } from './dto/update-inventory.dto';
 import { Access } from '../../database/entities/access.entity';
 import { InventoryQueryDto } from './dto/inventory-query.dto';
 import { TagService } from '../tag/tag.service';
-import { Tag } from 'src/database/entities/tag.entity';
+import { Tag } from '../../database/entities/tag.entity';
 import { UpdateAccessDto } from './dto/update-access.dto';
 import { AddAccessDto } from './dto/add-access.dto';
-import { User } from 'src/database/entities/user.entity';
+import { User } from '../../database/entities/user.entity';
 import { UpdateCustomFieldDto } from './dto/update-custom-fields.dto';
 import { AddCustomFieldsDto } from './dto/add-custom-fields.dto';
 

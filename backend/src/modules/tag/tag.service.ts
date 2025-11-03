@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Tag } from 'src/database/entities/tag.entity';
+import { Tag } from '../../database/entities/tag.entity';
 import { Repository } from 'typeorm';
 @Injectable()
 export class TagService {

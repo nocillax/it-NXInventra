@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CategoryLookup } from 'src/database/entities/category_lookup.entity';
+import { CategoryLookup } from '../../database/entities/category_lookup.entity';
 import { NotFoundException } from '@nestjs/common';
 
 @Injectable()

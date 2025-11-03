@@ -4,10 +4,10 @@ import { Item } from '../../database/entities/item.entity';
 import { Inventory } from '../../database/entities/inventory.entity';
 import { ItemController } from './item.controller';
 import { ItemService } from './item.service';
-import { Access } from 'src/database/entities/access.entity';
-import { ItemFieldValue } from 'src/database/entities/item_field_value.entity';
+import { Access } from '../../database/entities/access.entity';
+import { ItemFieldValue } from '../../database/entities/item_field_value.entity';
 import { AuthModule } from '../auth/auth.module';
-import { ItemLike } from 'src/database/entities/item_like.entity';
+import { ItemLike } from '../../database/entities/item_like.entity';
 
 @Module({
   imports: [

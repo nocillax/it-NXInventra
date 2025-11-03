@@ -6,8 +6,8 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { User } from '../../database/entities/user.entity';
-import { Access } from 'src/database/entities/access.entity';
-import { Inventory } from 'src/database/entities/inventory.entity';
+import { Access } from '../../database/entities/access.entity';
+import { Inventory } from '../../database/entities/inventory.entity';
 import { UpdatePreferencesDto } from './dto/update-preferences.dto';
 
 export interface UserProfile {

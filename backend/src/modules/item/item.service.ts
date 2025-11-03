@@ -18,9 +18,9 @@ import {
   getSegmentAtPosition,
   isValidEditableChar,
 } from '../../common/utils/id-generator.util';
-import { CustomField } from 'src/database/entities/custom_field.entity';
+import { CustomField } from '../../database/entities/custom_field.entity';
 import { version } from 'os';
-import { ItemLike } from 'src/database/entities/item_like.entity';
+import { ItemLike } from '../../database/entities/item_like.entity';
 import { PaginationDto } from './dto/pagination.dto';
 
 @Injectable()

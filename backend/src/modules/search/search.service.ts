@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Inventory } from 'src/database/entities/inventory.entity';
-import { Item } from 'src/database/entities/item.entity';
+import { Inventory } from '../../database/entities/inventory.entity';
+import { Item } from '../../database/entities/item.entity';
 import { DataSource, Repository } from 'typeorm';
 
 // search.service.ts

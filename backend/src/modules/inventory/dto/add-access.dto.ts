@@ -1,5 +1,5 @@
 import { IsEnum, IsUUID } from 'class-validator';
-import type { AccessRole } from '../../database/entities/access.entity';
+import type { AccessRole } from '../../../database/entities/access.entity';
 
 export class AddAccessDto {
   @IsUUID()

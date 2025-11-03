@@ -1,4 +1,3 @@
-// app/[locale]/inventories/[id]/items/[itemId]/page.tsx
 "use client";
 
 import { useParams } from "next/navigation";

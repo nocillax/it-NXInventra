@@ -163,14 +163,14 @@ export function BooleanField({
 
   return (
     <div className="flex items-center space-x-2">
+      <Label htmlFor={`field-${field.id}`} className="cursor-pointer">
+        {field.title}
+      </Label>
       <Checkbox
         id={`field-${field.id}`}
         checked={!!value}
         onCheckedChange={(checked) => onChange(checked)}
       />
-      <Label htmlFor={`field-${field.id}`} className="cursor-pointer">
-        {field.title}
-      </Label>
     </div>
   );
 }
@@ -217,7 +217,6 @@ export function TextareaField({
       <MarkdownEditor
         value={value || ""}
         onChange={onChange}
-        placeholder={`Enter ${field.title.toLowerCase()}`}
         className="min-h-[100px]"
       />
     </div>

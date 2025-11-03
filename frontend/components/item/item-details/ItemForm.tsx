@@ -58,6 +58,7 @@ export function ItemForm({
           onEdit={onEdit}
           onSave={onSave}
           onCancel={onCancel}
+          mode={mode}
         />
       </CardHeader>
       <CardContent className="space-y-6">
@@ -68,6 +69,7 @@ export function ItemForm({
           customId={editedCustomId}
           onCustomIdChange={onCustomIdChange}
           onFieldChange={onFieldChange}
+          mode={mode}
         />
       </CardContent>
     </Card>

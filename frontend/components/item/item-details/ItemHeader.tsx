@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Pencil, Save, X, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { Inventory } from "@/types/shared";
+import { useRouter } from "@/navigation";
 
 interface ItemHeaderProps {
   customId: string;
@@ -15,6 +16,7 @@ interface ItemHeaderProps {
   onSave: () => void;
   onCancel: () => void;
   isSaving?: boolean;
+  mode?: "create" | "edit";
 }
 
 export function ItemHeader({
@@ -26,32 +28,46 @@ export function ItemHeader({
   onSave,
   onCancel,
   isSaving = false,
+  mode,
 }: ItemHeaderProps) {
+  const router = useRouter();
+
+  const handleBack = () => {
+    router.push(`/inventories/${inventoryId}`);
+  };
+
   return (
-    <div className="flex items-center justify-between">
-      <Link href={`/inventories/${inventoryId}`}>
-        <Button variant="ghost" size="icon">
+    <div className="relative flex items-center justify-between w-full">
+      {/* Left (Back Button) */}
+      <div className="flex-shrink-0">
+        <Button variant="ghost" size="icon" onClick={handleBack}>
           <ArrowLeft className="h-4 w-4" />
         </Button>
-      </Link>
-
-      {/* Centered title - always visible and stable */}
-      <div className="text-center">
-        <h1 className="text-3xl font-bold">{customId}</h1>
       </div>
 
-      {/* Edit/Save buttons - always on the right */}
-      <div className="flex items-center space-x-2">
+      {/* Center (Title - absolutely centered, independent of sides) */}
+      <div className="absolute left-1/2 transform -translate-x-1/2 text-center">
+        <h1 className="text-2xl font-bold">{customId}</h1>
+      </div>
+
+      {/* Right (Edit / Save buttons) */}
+      <div className="flex items-center justify-end space-x-2 flex-shrink-0">
         {isEditing ? (
           <>
             <Button onClick={onSave} disabled={isSaving}>
               <Save className="h-4 w-4" />
               {isSaving ? "Saving..." : "Save"}
             </Button>
-            <Button variant="outline" onClick={onCancel} disabled={isSaving}>
+            {mode !== "create" && (
+              <Button variant="outline" onClick={onCancel} disabled={isSaving}>
+                <X className="h-4 w-4" />
+                Cancel
+              </Button>
+            )}
+            {/* <Button variant="outline" onClick={onCancel} disabled={isSaving}>
               <X className="h-4 w-4" />
               Cancel
-            </Button>
+            </Button> */}
           </>
         ) : (
           <Button onClick={onEdit}>

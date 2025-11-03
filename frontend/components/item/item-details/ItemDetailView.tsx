@@ -40,7 +40,7 @@ export function ItemDetailView({
   onFieldChange,
 }: ItemDetailViewProps) {
   return (
-    <Card className="max-w-4xl mx-auto">
+    <Card className="max-w-3xl mx-auto">
       <CardHeader>
         <ItemHeader
           customId={isEditing ? editedCustomId : item.customId}
@@ -51,6 +51,7 @@ export function ItemDetailView({
           onEdit={onEdit}
           onSave={onSave}
           onCancel={onCancel}
+          mode="edit"
           // Remove onCustomIdChange from here
         />
       </CardHeader>
@@ -62,6 +63,7 @@ export function ItemDetailView({
           customId={isEditing ? editedCustomId : item.customId}
           onCustomIdChange={onCustomIdChange}
           onFieldChange={onFieldChange}
+          mode="edit"
         />
       </CardContent>
     </Card>

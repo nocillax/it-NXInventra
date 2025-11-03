@@ -15,6 +15,7 @@ interface ItemHeaderProps {
   onEdit: () => void;
   onSave: () => void;
   onCancel: () => void;
+  onCreate?: () => void;
   isSaving?: boolean;
   mode?: "create" | "edit";
 }
@@ -27,6 +28,7 @@ export function ItemHeader({
   onEdit,
   onSave,
   onCancel,
+  onCreate,
   isSaving = false,
   mode,
 }: ItemHeaderProps) {
@@ -54,10 +56,18 @@ export function ItemHeader({
       <div className="flex items-center justify-end space-x-2 flex-shrink-0">
         {isEditing ? (
           <>
-            <Button onClick={onSave} disabled={isSaving}>
-              <Save className="h-4 w-4" />
-              {isSaving ? "Saving..." : "Save"}
-            </Button>
+            {mode === "create" && (
+              <Button onClick={onCreate} disabled={isSaving}>
+                <Save className="h-4 w-4" />
+                {isSaving ? "Creating..." : "Create"}
+              </Button>
+            )}
+            {mode !== "create" && (
+              <Button onClick={onSave} disabled={isSaving}>
+                <Save className="h-4 w-4" />
+                {isSaving ? "Saving..." : "Save"}
+              </Button>
+            )}
             {mode !== "create" && (
               <Button variant="outline" onClick={onCancel} disabled={isSaving}>
                 <X className="h-4 w-4" />

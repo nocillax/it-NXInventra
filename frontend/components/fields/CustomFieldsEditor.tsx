@@ -263,7 +263,6 @@ export function CustomFieldsEditor({ inventory }: CustomFieldsEditorProps) {
                         <MarkdownEditor
                           value={field.value || ""}
                           onChange={field.onChange}
-                          placeholder={t("field_description_placeholder")}
                           className="min-h-[100px]"
                         />
                       </FormControl>
@@ -342,7 +341,7 @@ export function CustomFieldsEditor({ inventory }: CustomFieldsEditorProps) {
                   )}
                 />
 
-                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
+                <div className="flex flex-row justify-between sm:flex-row sm:justify-between sm:items-center gap-2">
                   <div className="flex gap-2">
                     <Button
                       type="submit"

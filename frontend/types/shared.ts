@@ -97,8 +97,11 @@ export interface Item {
 }
 
 export interface NewItem {
-  inventoryId: string;
   fields: { [key: string]: any };
+}
+
+export interface CreateItemData {
+  fields: Record<string, any>; // string keys like "32", "33" etc.
 }
 
 export interface UpdateItemData {

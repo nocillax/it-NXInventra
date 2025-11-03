@@ -10,11 +10,14 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { itemService } from "@/services/itemService";
 import { UpdateItemData } from "@/types/shared";
+import { CreateItemData } from "@/types/shared";
+import { useRouter } from "@/navigation";
 
 export default function ItemDetailPage() {
   const params = useParams();
   const inventoryId = params.id as string;
   const itemId = params.itemId as string;
+  const router = useRouter();
 
   const t = useTranslations("ItemDetailPage");
 

@@ -16,8 +16,8 @@ export const itemService = {
     return apiFetch(`/items/${itemId}`);
   },
 
-  async createItem(itemData: NewItem): Promise<Item> {
-    return apiFetch("/items", {
+  async createItem(inventoryId: string, itemData: NewItem): Promise<Item> {
+    return apiFetch(`/inventories/${inventoryId}/items`, {
       method: "POST",
       body: JSON.stringify(itemData),
     });

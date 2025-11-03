@@ -22,6 +22,7 @@ interface ItemFormProps {
   onEdit: () => void;
   onSave: () => void;
   onCancel: () => void;
+  onCreate?: () => void;
   onCustomIdChange: (value: string) => void;
   onFieldChange: (fieldTitle: string, value: any) => void;
 }
@@ -38,6 +39,7 @@ export function ItemForm({
   onEdit,
   onSave,
   onCancel,
+  onCreate,
   onCustomIdChange,
   onFieldChange,
 }: ItemFormProps) {
@@ -57,6 +59,7 @@ export function ItemForm({
           isSaving={isSaving}
           onEdit={onEdit}
           onSave={onSave}
+          onCreate={onCreate}
           onCancel={onCancel}
           mode={mode}
         />

@@ -1,7 +1,7 @@
 // app/[locale]/inventories/[id]/items/create/page.tsx
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useInventory } from "@/hooks/useInventory";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTranslations } from "next-intl";
@@ -9,15 +9,22 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { itemService } from "@/services/itemService";
 import { ItemForm } from "@/components/item/item-details/ItemForm";
+import { CreateItemData, NewItem } from "@/types/shared";
+import { useRouter } from "@/navigation";
 
 export default function CreateItemPage() {
   const params = useParams();
   const router = useRouter();
   const inventoryId = params.id as string;
-  const { inventory, isLoading: inventoryLoading } = useInventory(inventoryId);
+  const {
+    inventory,
+    isLoading: inventoryLoading,
+    mutate,
+  } = useInventory(inventoryId);
   const t = useTranslations("ItemDetailPage");
-
+  const [editedFields, setEditedFields] = useState<Record<string, any>>({});
   const [isSaving, setIsSaving] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const [customId, setCustomId] = useState("");
   const [fields, setFields] = useState<Record<string, any>>({});
 
@@ -34,7 +41,7 @@ export default function CreateItemPage() {
         fields: mapFieldTitlesToIds(fields, inventory),
       };
 
-      await itemService.createItem(createData);
+      await itemService.createItem(inventoryId, createData);
 
       toast.success("Item created successfully");
       router.push(`/inventories/${inventoryId}/items`);
@@ -59,6 +66,60 @@ export default function CreateItemPage() {
       ...prev,
       [fieldTitle]: value,
     }));
+  };
+
+  const handleCreate = async () => {
+    // Validate that all required fields have values - use FIELDS not editedFields
+    const missingFields: string[] = [];
+
+    inventory?.customFields?.forEach((field) => {
+      const fieldValue = fields[field.title]; // Use fields, not editedFields
+      if (
+        fieldValue === undefined ||
+        fieldValue === null ||
+        fieldValue === ""
+      ) {
+        missingFields.push(field.title);
+      }
+    });
+
+    if (missingFields.length > 0) {
+      toast.error(
+        `Please fill all required fields: ${missingFields.join(", ")}`
+      );
+      return;
+    }
+
+    setIsSaving(true);
+
+    try {
+      // Map ALL field titles to field IDs for creation - use FIELDS
+      const fieldValues: Record<string, any> = {};
+
+      inventory?.customFields?.forEach((field) => {
+        const fieldValue = fields[field.title]; // Use fields, not editedFields
+        fieldValues[field.id.toString()] = fieldValue;
+      });
+
+      // Prepare create data
+      const createData: NewItem = {
+        fields: fieldValues,
+      } as NewItem;
+
+      // Use the create service
+      await itemService.createItem(inventoryId, createData);
+
+      toast.success("Item created successfully");
+
+      // Reset form and navigate back
+      setFields({});
+      router.push(`/inventories/${inventoryId}`);
+    } catch (error: any) {
+      console.error("Create item error:", error);
+      toast.error("Failed to create item");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   // Helper function to map field titles to field IDs
@@ -98,13 +159,14 @@ export default function CreateItemPage() {
         mode="create"
         inventory={inventory}
         inventoryId={inventoryId}
-        isEditing={true} // Always in editing mode for create
+        isEditing={true}
         editedCustomId={customId}
-        editedFields={fields}
+        editedFields={fields} // Pass fields, not editedFields
         isSaving={isSaving}
-        onEdit={() => {}} // No-op for create mode
+        onEdit={() => {}}
         onSave={handleSave}
         onCancel={handleCancel}
+        onCreate={handleCreate} // Make sure this is handleCreate
         onCustomIdChange={handleCustomIdChange}
         onFieldChange={handleFieldChange}
       />

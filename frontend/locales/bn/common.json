@@ -238,12 +238,12 @@
     "field_description": "ফিল্ডের বর্ণনা",
     "field_description_placeholder": "এই ফিল্ডের একটি বর্ণনা লিখুন...",
 
-    "update_field_button": "ফিল্ড আপডেট করুন",
+    "update_field_button": "আপডেট করুন",
     "cancel_edit": "বাতিল করুন",
     "update_field_success": "ফিল্ড সফলভাবে আপডেট হয়েছে!",
     "update_field_error": "ফিল্ড আপডেট করতে ব্যর্থ। অনুগ্রহ করে আবার চেষ্টা করুন।",
     "field_type_edit_disabled": "ফিল্ডের ধরন তৈরি হওয়ার পরে পরিবর্তন করা যাবে না।",
-    "delete_selected": "নির্বাচিত মুছে ফেলুন",
+    "delete_selected": "মুছে ফেলুন",
     "delete_field_success": "ফিল্ড(গুলি) সফলভাবে মুছে ফেলা হয়েছে!",
     "delete_field_error": "ফিল্ড(গুলি) মুছে ফেলতে ব্যর্থ। অনুগ্রহ করে আবার চেষ্টা করুন।",
     "field_description_help": "এই ফিল্ড সম্পর্কে ব্যবহারকারীদের অতিরিক্ত প্রেক্ষাপট প্রদান করুন।"

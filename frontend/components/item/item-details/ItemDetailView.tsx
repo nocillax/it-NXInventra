@@ -19,6 +19,7 @@ interface ItemDetailViewProps {
   editedFields: Record<string, any>;
   isSaving: boolean;
   onEdit: () => void;
+  onCreate?: () => void;
   onSave: () => void;
   onCancel: () => void;
   onCustomIdChange: (value: string) => void;
@@ -34,6 +35,7 @@ export function ItemDetailView({
   editedFields,
   isSaving,
   onEdit,
+  onCreate,
   onSave,
   onCancel,
   onCustomIdChange,
@@ -49,6 +51,7 @@ export function ItemDetailView({
           isEditing={isEditing}
           isSaving={isSaving}
           onEdit={onEdit}
+          onCreate={onCreate}
           onSave={onSave}
           onCancel={onCancel}
           mode="edit"

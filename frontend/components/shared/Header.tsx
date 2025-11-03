@@ -149,14 +149,6 @@ export function Header() {
                   asChild
                   onClick={() => setSheetOpen(false)}
                 >
-                  <Link href="/shared-with-me">{t("shared_link")}</Link>
-                </Button>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start"
-                  asChild
-                  onClick={() => setSheetOpen(false)}
-                >
                   <Link href="/explore">{t("explore_link")}</Link>
                 </Button>
                 <Button

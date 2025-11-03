@@ -1,11 +1,10 @@
+// components/fields/SortableFieldEditorRow.tsx - UPDATED
 "use client";
 
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { FieldEditorRow } from "@/components/fields/FieldEditorRow";
 import { CustomField, Inventory } from "@/types/shared";
-import { useModalStore } from "@/stores/useModalStore";
-import { useTranslations } from "next-intl";
 
 interface SortableFieldEditorRowProps {
   field: CustomField;
@@ -14,14 +13,19 @@ interface SortableFieldEditorRowProps {
     updatedFields: CustomField[],
     successMessage: string
   ) => void;
+  isSelected: boolean;
+  onFieldSelect: (field: CustomField) => void;
+  onCheckboxChange: (fieldId: number, checked: boolean) => void;
 }
 
 export function SortableFieldEditorRow({
   field,
   inventory,
   onUpdateFields,
+  isSelected,
+  onFieldSelect,
+  onCheckboxChange,
 }: SortableFieldEditorRowProps) {
-  const { onOpen } = useModalStore();
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: field.id });
 
@@ -29,22 +33,21 @@ export function SortableFieldEditorRow({
     transform: CSS.Transform.toString(transform),
     transition,
   };
-  const t = useTranslations("FieldList");
+
+  const handleCheckboxChange = (checked: boolean) => {
+    onCheckboxChange(field.id, checked);
+    if (checked) {
+      onFieldSelect(field);
+    }
+  };
 
   return (
     <FieldEditorRow
       ref={setNodeRef}
       style={style}
       field={field}
-      onDelete={() =>
-        onOpen("deleteCustomField", { inventoryId: inventory.id, field })
-      }
-      onToggleShowInTable={(checked) => {
-        const updatedFields = inventory.customFields.map((f) =>
-          f.id === field.id ? { ...f, showInTable: checked } : f
-        );
-        onUpdateFields(updatedFields, t("visibilityUpdateSuccessMessage"));
-      }}
+      isSelected={isSelected}
+      onCheckboxChange={handleCheckboxChange}
       dragAttributes={attributes}
       dragListeners={listeners}
     />

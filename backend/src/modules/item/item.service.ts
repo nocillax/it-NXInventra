@@ -164,6 +164,7 @@ export class ItemService {
 
     return {
       id: item.id,
+      inventoryId: item.inventoryId,
       customId: item.customId,
       likes: item.likes,
       version: item.version,
@@ -190,7 +191,9 @@ export class ItemService {
     if (!item)
       throw new NotFoundException(`Item with ID "${itemId}" not found.`);
     if (item.version !== version)
-      throw new ConflictException('This item was modified by another user.');
+      throw new ConflictException(
+        'This item was modified by another user. Please refresh and try again.',
+      );
 
     return item;
   }

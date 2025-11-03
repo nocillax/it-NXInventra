@@ -7,11 +7,11 @@ import { Button } from "@/components/ui/button";
 import { useTranslations } from "next-intl";
 import { MyInventories } from "@/components/dashboard/MyInventories";
 import { PageContainer } from "@/components/shared/PageContainer";
+import { DashboardTabs } from "@/components/dashboard/DashboardTabs";
 
 export default function HomePage() {
   const t = useTranslations("Dashboard");
   const { onOpen } = useModalStore();
-  const router = useRouter();
 
   return (
     <PageContainer>
@@ -22,7 +22,7 @@ export default function HomePage() {
         </Button>
       </div>
 
-      <MyInventories />
+      <DashboardTabs />
     </PageContainer>
   );
 }

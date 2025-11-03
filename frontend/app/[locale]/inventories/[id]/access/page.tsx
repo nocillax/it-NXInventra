@@ -3,7 +3,6 @@
 import { useParams } from "next/navigation";
 import { useInventory } from "@/hooks/useInventory";
 import { useAccess } from "@/hooks/useAccess";
-import { useUsers } from "@/hooks/useUsers";
 import { AccessList } from "@/components/access/AccessList";
 import { AccessInvite } from "@/components/access/AccessInvite";
 import { VisibilityToggle } from "@/components/access/VisibilityToggle";
@@ -20,13 +19,13 @@ export default function InventoryAccessPage() {
     mutate: mutateInventory,
   } = useInventory(inventoryId);
   const { accessList, isLoading: isLoadingAccess } = useAccess(inventoryId);
-  const { users, isLoading: isLoadingUsers } = useUsers();
 
-  const isLoading = isLoadingInventory || isLoadingAccess || isLoadingUsers;
+  const isLoading = isLoadingInventory || isLoadingAccess;
   const t = useTranslations("AccessPages");
+
   return (
     <>
-      {isLoading || !inventory || !accessList || !users ? (
+      {isLoading || !inventory || !accessList ? (
         <div className="space-y-2">
           {/* Skeleton for VisibilityToggle */}
           <Skeleton className="h-24 w-full" />
@@ -39,17 +38,10 @@ export default function InventoryAccessPage() {
         </div>
       ) : (
         <div className="space-y-6">
-          <VisibilityToggle inventory={inventory} onUpdate={mutateInventory} />
           <div className="space-y-2">
-            <h3 className="text-lg font-medium">{t("title")}</h3>
             <AccessInvite inventoryId={inventory.id} />
           </div>
-          <AccessList
-            accessList={accessList}
-            users={users}
-            inventoryId={inventory.id}
-            createdBy={inventory.createdBy}
-          />
+          <AccessList accessList={accessList} inventoryId={inventory.id} />
         </div>
       )}
     </>

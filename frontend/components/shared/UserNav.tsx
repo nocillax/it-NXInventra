@@ -1,6 +1,7 @@
+// components/shared/UserNav.tsx
 "use client";
 
-import { useUserStore } from "@/stores/useUserStore";
+import { useAuth } from "@/hooks/useAuth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useTranslations } from "next-intl";
@@ -17,11 +18,30 @@ import { Link } from "@/navigation";
 
 export function UserNav() {
   const t = useTranslations("UserNav");
-  const { user, logout } = useUserStore();
+  const { user, logout, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <Button
+        variant="ghost"
+        className="relative h-8 w-8 rounded-full"
+        disabled
+      >
+        <Avatar className="h-8 w-8">
+          <AvatarFallback>...</AvatarFallback>
+        </Avatar>
+      </Button>
+    );
+  }
 
   if (!user) {
-    // Or render a login button
-    return null;
+    return (
+      <div className="flex items-center gap-2">
+        <Button variant="outline" size="sm" asChild>
+          <Link href="/login">{t("login")}</Link>
+        </Button>
+      </div>
+    ); // Or render login button
   }
 
   return (
@@ -29,9 +49,6 @@ export function UserNav() {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-8 w-8">
-            {user.avatar && (
-              <AvatarImage src={user.avatar} alt={`@${user.name}`} />
-            )}
             <AvatarFallback>{user.name.charAt(0).toUpperCase()}</AvatarFallback>
           </Avatar>
         </Button>

@@ -37,6 +37,12 @@ export class UserController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Get(':id')
+  async getUserById(@Param('id', ParseUUIDPipe) userId: string) {
+    return this.userService.getUserById(userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Patch('me')
   updatePreferences(
     @Body(ValidationPipe) updatePreferencesDto: UpdatePreferencesDto,

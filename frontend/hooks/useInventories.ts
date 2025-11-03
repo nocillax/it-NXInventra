@@ -1,15 +1,25 @@
+// hooks/useInventories.ts - UPDATED FOR NEW ENDPOINT
 "use client";
 
 import useSWR from "swr";
-
 import { Inventory } from "@/types/shared";
-import { getInventories } from "@/lib/api/inventories";
+import { apiFetch } from "@/lib/apiClient";
 
 export function useInventories() {
-  const { data, error, isLoading, mutate } = useSWR<Inventory[]>(
-    "/inventories",
-    getInventories
+  const { data, error, isLoading, mutate } = useSWR<{
+    inventories: Inventory[];
+    pagination: any;
+  }>(
+    "/inventories", // This now returns { inventories: [], pagination: {} }
+    apiFetch
   );
 
-  return { inventories: data, error, isLoading, mutate };
+  console.log("🔍 useInventories - API response:", data);
+
+  return {
+    inventories: data?.inventories || [],
+    error,
+    isLoading,
+    mutate,
+  };
 }

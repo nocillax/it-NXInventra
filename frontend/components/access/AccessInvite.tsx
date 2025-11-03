@@ -9,7 +9,7 @@ export function AccessInvite({ inventoryId }: { inventoryId: string }) {
   const t = useTranslations("AccessPages");
 
   return (
-    <div className="flex justify-end">
+    <div className="flex justify-start">
       <Button onClick={() => onOpen("addCollaborator", { inventoryId })}>
         {t("add_collab_btn")}
       </Button>

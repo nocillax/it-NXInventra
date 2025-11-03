@@ -6,6 +6,7 @@ import { useModalStore } from "@/stores/useModalStore";
 import { Item } from "@/types/shared";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useRouter } from "@/navigation";
 
 interface ItemBulkActionsProps<TData> {
   table: Table<TData>;
@@ -22,15 +23,7 @@ export function ItemBulkActions<TData>({
   const selectedRows = table.getFilteredSelectedRowModel().rows;
   const numSelected = selectedRows.length;
   const t = useTranslations("ItemsActions");
-
-  const handleEdit = () => {
-    const itemToEdit = selectedRows[0].original as Item;
-    onOpen("editItem", {
-      item: itemToEdit,
-      inventoryId,
-      onSuccess: () => table.resetRowSelection(),
-    });
-  };
+  const router = useRouter();
 
   const handleDelete = () => {
     const itemsToDelete = selectedRows.map((row) => row.original as Item);
@@ -46,23 +39,13 @@ export function ItemBulkActions<TData>({
       <div className="flex flex-1 items-center space-x-2">
         <Button
           onClick={() =>
-            onOpen("createItem", {
-              inventoryId,
-              onSuccess: () => table.resetRowSelection(),
-            })
+            router.push(`/inventories/${inventoryId}/items/create`)
           }
         >
           <Plus className="mr-2 h-4 w-4" /> {t("add_item_button")}
         </Button>
         {numSelected > 0 && (
           <>
-            <Button
-              variant="outline"
-              onClick={handleEdit}
-              disabled={numSelected !== 1}
-            >
-              <Pencil className="mr-2 h-4 w-4" /> {t("edit_item_button")}
-            </Button>
             {isOwner && (
               <Button
                 variant="destructive"

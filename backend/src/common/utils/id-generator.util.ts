@@ -1,112 +1,3 @@
-// import { randomBytes, randomUUID } from 'crypto';
-// import { IdSegment } from '../../../database/entities/inventory.entity';
-
-// /**
-//  * Generates a custom ID based on the provided format segments and the last sequence number.
-//  */
-
-// function applySuffix(value: string, format?: string): string {
-//   if (!format) return value;
-
-//   // Find the first non-alphanumeric character to determine where the suffix begins
-//   const match = format.match(/[^a-zA-Z0-9]/);
-//   if (match && match.index !== undefined) {
-//     const suffix = format.substring(match.index);
-//     return `${value}${suffix}`;
-//   }
-
-//   return value;
-// }
-
-// export function generateCustomId(
-//   idFormat: IdSegment[],
-//   nextSequence: number,
-// ): string {
-//   if (!idFormat || idFormat.length === 0) {
-//     // Fallback for inventories without a format defined.
-//     return `ITEM-${Date.now()}`;
-//   }
-
-//   return idFormat
-//     .map((segment) => {
-//       switch (segment.type) {
-//         case 'fixed':
-//           return segment.value || '';
-
-//         case 'date':
-//           const now = new Date();
-//           let dateStr = segment.format || 'yyyy-MM-dd';
-//           dateStr = dateStr.replace(/yyyy/g, now.getUTCFullYear().toString());
-//           dateStr = dateStr.replace(
-//             /mm/g,
-//             String(now.getUTCMonth() + 1).padStart(2, '0'),
-//           );
-//           dateStr = dateStr.replace(
-//             /dd/g,
-//             String(now.getUTCDate()).padStart(2, '0'),
-//           );
-//           dateStr = dateStr.replace(
-//             /ddd/g,
-//             ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][now.getUTCDay()],
-//           );
-//           return dateStr;
-
-//         case 'sequence':
-//           const seqFormat = segment.format || 'D';
-//           const seqPadding = parseInt(seqFormat.substring(1), 10) || 0;
-//           const seqValue = String(nextSequence).padStart(seqPadding, '0');
-//           return applySuffix(seqValue, seqFormat);
-
-//         case 'guid':
-//           return applySuffix(randomUUID(), segment.format);
-
-//         case 'random_6digit':
-//           const r6 = String(Math.floor(100000 + Math.random() * 900000));
-//           return applySuffix(r6, segment.format);
-
-//         case 'random_9digit':
-//           const r9 = String(Math.floor(100000000 + Math.random() * 900000000));
-//           return applySuffix(r9, segment.format);
-
-//         case 'random_20bit':
-//           const r20 = randomBytes(3).readUIntBE(0, 3) & 0xfffff;
-//           if (segment.format?.startsWith('X')) {
-//             const padding = parseInt(segment.format.substring(1), 10) || 5;
-//             return applySuffix(
-//               r20.toString(16).toUpperCase().padStart(padding, '0'),
-//               segment.format,
-//             );
-//           }
-//           const padding =
-//             parseInt(segment.format?.substring(1) || '0', 10) || 6;
-//           return applySuffix(
-//             r20.toString().padStart(padding, '0'),
-//             segment.format,
-//           );
-
-//         case 'random_32bit':
-//           const r32 = randomBytes(4).readUInt32BE(0);
-//           if (segment.format?.startsWith('X')) {
-//             const padding = parseInt(segment.format.substring(1), 10) || 8;
-//             return applySuffix(
-//               r32.toString(16).toUpperCase().padStart(padding, '0'),
-//               segment.format,
-//             );
-//           }
-//           const padding32 =
-//             parseInt(segment.format?.substring(1) || '0', 10) || 10;
-//           return applySuffix(
-//             r32.toString().padStart(padding32, '0'),
-//             segment.format,
-//           );
-
-//         default:
-//           return '';
-//       }
-//     })
-//     .join('');
-// }
-
 //--------------------------------------------------------------------------------------------------------------
 import { randomBytes, randomUUID } from 'crypto';
 import { IdSegment } from 'src/database/entities/inventory.entity';
@@ -182,12 +73,12 @@ function generateValuesForTemplate(
           String(now.getUTCMonth() + 1).padStart(2, '0'),
         );
         dateStr = dateStr.replace(
-          /dd/g,
-          String(now.getUTCDate()).padStart(2, '0'),
-        );
-        dateStr = dateStr.replace(
           /ddd/g,
           ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][now.getUTCDay()],
+        );
+        dateStr = dateStr.replace(
+          /dd/g,
+          String(now.getUTCDate()).padStart(2, '0'),
         );
         values.push(...dateStr.split(''));
         break;

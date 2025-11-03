@@ -1,20 +1,22 @@
-"use client";
-
 import useSWR from "swr";
 import { Access } from "@/types/shared";
-import { useAccessList } from "./useAccessList";
-import { useMemo } from "react";
+import { accessService } from "@/services/accessService";
+import { apiFetch } from "@/lib/apiClient";
 
-export function useAccess(inventoryId: string | undefined) {
-  const { accessList: allAccess, ...rest } = useAccessList();
-
-  const filteredAccessList = useMemo(
-    () =>
-      inventoryId && allAccess
-        ? allAccess.filter((a) => a.inventoryId === inventoryId)
-        : undefined,
-    [inventoryId, allAccess]
+export function useAccess(inventoryId: string) {
+  const { data, error, isLoading, mutate } = useSWR(
+    inventoryId ? `/inventories/${inventoryId}/access` : null,
+    () => accessService.getAccessList(inventoryId),
+    {
+      refreshInterval: 5000, // Auto-refresh every 5 seconds
+      revalidateOnFocus: true,
+    }
   );
 
-  return { accessList: filteredAccessList, ...rest };
+  return {
+    accessList: data,
+    isLoading,
+    error,
+    mutate,
+  };
 }

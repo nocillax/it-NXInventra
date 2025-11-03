@@ -36,29 +36,26 @@ export function InventoryDeleteDialog() {
 
     setIsDeleting(true);
     try {
-      // Optimistically update the UI to remove the inventory
-      mutate(
-        "/api/inventories",
-        (currentData: Inventory[] = []) =>
-          currentData.filter((inv) => inv.id !== inventoryId),
-        { revalidate: false }
-      );
+      // Check access first
+      const access = await apiFetch(`/inventories/${inventoryId}/access/me`);
+      if (access.role !== "Owner") {
+        toast.error(t("no_access_message"));
+        onClose();
+        return;
+      }
 
-      // Simulate API call
-      await apiFetch(`/inventories/${inventoryId}`, { method: "DELETE" });
+      // Delete the inventory - apiFetch now handles empty responses
+      await apiFetch(`/inventories/${inventoryId}`, {
+        method: "DELETE",
+      });
 
       toast.success(t("success_message"));
-
-      // Redirect to homepage after a short delay to allow the toast to be seen
-      setTimeout(() => {
-        router.push("/");
-      }, 1000);
-
+      mutate("/inventories/me"); // Refresh the inventories list
+      router.push("/");
       onClose();
     } catch (error) {
+      console.error("Delete error:", error);
       toast.error(t("failure_message"));
-      // Re-fetch the inventories to revert the optimistic update
-      mutate("/api/inventories");
     } finally {
       setIsDeleting(false);
     }

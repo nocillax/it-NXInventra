@@ -26,16 +26,21 @@ export function ItemDeleteDialog() {
   const handleDelete = async () => {
     if (!items || items.length === 0 || !inventoryId) return;
     try {
+      // Delete items
       await Promise.all(
         items.map((item) => apiFetch(`/items/${item.id}`, { method: "DELETE" }))
       );
 
       toast.success(t("success_message"));
-      globalMutate(`/inventories/${inventoryId}/items`);
+
+      // Force SWR to re-fetch the data immediately
+      await globalMutate(`/inventories/${inventoryId}/items`);
+
       data.onSuccess?.();
       onClose();
     } catch (error) {
       toast.error(t("failure_message"));
+      // No need to revert - SWR will keep the old data on error
     }
   };
 

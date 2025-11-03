@@ -2,30 +2,44 @@ import { ReactNode } from "react";
 
 export type UUID = string;
 
+// types/shared.ts
 export interface User {
-  id: UUID;
+  id: string;
   name: string;
   email: string;
-  avatar?: string;
-  provider?: "google" | "github";
+  isAdmin?: boolean; // Optional since your response doesn't always include it
+  theme?: string;
+  language?: string;
+  createdAt?: string;
 }
 
 export type CustomFieldType =
   | "text"
   | "number"
   | "boolean"
-  | "url"
-  | "longtext";
+  | "link"
+  | "textarea";
 
 export interface CustomField {
-  id: UUID; // Unique ID for the field definition itself
-  name: string;
-  type: CustomFieldType;
-  showInTable?: boolean;
-  validation?: string | null;
+  id: number;
+  inventoryId: string;
+  title: string;
+  description: string | null;
+  type: "text" | "number" | "boolean" | "link" | "textarea";
+  showInTable: boolean;
+  orderIndex: number;
+  createdAt: string;
 }
 
-export type IdSegmentType = "fixed" | "date" | "sequence" | "random" | "guid";
+export type IdSegmentType =
+  | "fixed"
+  | "date"
+  | "sequence"
+  | "random_6digit"
+  | "random_9digit"
+  | "random_20bit"
+  | "random_32bit"
+  | "guid";
 
 export interface IdSegment {
   id: UUID;
@@ -35,15 +49,40 @@ export interface IdSegment {
 }
 
 export interface Inventory {
-  id: string; // e.g., "inv_computers"
+  id: string;
   title: string;
   description?: string;
   category?: string;
-  tags: string[];
   public: boolean;
-  createdBy: UUID;
+  createdBy: string;
   idFormat: IdSegment[];
   customFields: CustomField[];
+  createdAt: string;
+  updatedAt: string;
+  creator?: {
+    id: string;
+    name: string;
+    email: string;
+  };
+  tags:
+    | Array<{
+        id: number;
+        name: string;
+        createdAt: string;
+      }>
+    | string[]; // Handle both object and string formats
+}
+
+export interface Category {
+  id: number;
+  name: string;
+}
+
+export interface Tag {
+  id: number;
+  name: string;
+  createdAt: string;
+  inventoryCount?: number;
 }
 
 export interface Item {
@@ -52,6 +91,7 @@ export interface Item {
   inventoryId: string;
   fields: Record<string, any>;
   likes?: number;
+  version: number;
   createdBy?: UUID;
   createdAt?: string;
 }
@@ -61,25 +101,31 @@ export interface NewItem {
   fields: { [key: string]: any };
 }
 
+export interface UpdateItemData {
+  version: number;
+  fields?: Record<string, any>; // string keys like "32", "33" etc.
+  customId?: string;
+}
+
 export type Role = "Owner" | "Editor" | "Viewer";
 
 export interface Access {
-  id: UUID;
-  inventoryId: string;
   userId: UUID;
+  userName: string;
+  userEmail: string;
   role: Role;
+  createdAt: string;
 }
 
-export interface Comment {
-  id: UUID;
-  inventoryId: string;
-  userId: UUID;
+export interface Discussion {
+  id: string;
   message: string;
   timestamp: string;
-}
-
-export interface CommentWithUser extends Comment {
-  user?: User;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+  };
 }
 
 export interface StatSummary {

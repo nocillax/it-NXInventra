@@ -10,7 +10,7 @@ import LanguageToggle from "@/components/shared/LanguageToggle";
 import { useTranslations } from "next-intl";
 import { GlobalSearch } from "./GlobalSearch";
 import { useTheme } from "next-themes";
-import { useUserStore } from "@/stores/useUserStore";
+
 import {
   Sheet,
   SheetContent,
@@ -20,13 +20,14 @@ import {
 } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Image from "next/image";
+import { useAuth } from "@/hooks/useAuth";
 
 export function Header() {
   const t = useTranslations("Header");
   const [searchOpen, setSearchOpen] = React.useState(false);
   const [sheetOpen, setSheetOpen] = React.useState(false);
   const { theme } = useTheme();
-  const { user } = useUserStore();
+  const { user, isLoading, logout } = useAuth();
   const [mounted, setMounted] = React.useState(false);
 
   React.useEffect(() => setMounted(true), []);
@@ -125,7 +126,6 @@ export function Header() {
                 {user && (
                   <div className="flex items-center gap-3">
                     <Avatar>
-                      <AvatarImage src={user.avatar} alt={user.name} />
                       <AvatarFallback>
                         {user.name.charAt(0).toUpperCase()}
                       </AvatarFallback>
@@ -194,7 +194,7 @@ export function Header() {
                   variant="outline"
                   className="w-full"
                   onClick={() => {
-                    useUserStore.getState().logout();
+                    logout(); // Use the logout from useAuth
                     setSheetOpen(false);
                   }}
                 >

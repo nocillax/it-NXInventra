@@ -1,3 +1,4 @@
+// components/fields/CustomFieldsEditor.tsx - UPDATED
 "use client";
 
 import * as z from "zod";
@@ -5,7 +6,7 @@ import { mutate } from "swr";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { v4 as uuidv4 } from "uuid";
+import { useState } from "react";
 import {
   Form,
   FormControl,
@@ -26,16 +27,18 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
 import { CustomField, Inventory } from "@/types/shared";
 import { useInventories } from "@/hooks/useInventories";
-import { apiFetch } from "@/lib/apiClient";
+import { customFieldService } from "@/services/customFieldService";
 import { FieldList } from "./FieldList";
-import { useModalStore } from "@/stores/useModalStore";
 import { useTranslations } from "next-intl";
+import { MarkdownEditor } from "@/components/ui/markdown-editor";
 
 const fieldSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters."),
-  type: z.enum(["text", "number", "boolean", "url", "longtext"]),
+  title: z.string().min(2, "Title must be at least 2 characters."),
+  description: z.string().optional(),
+  type: z.enum(["text", "number", "boolean", "link", "textarea"]),
   showInTable: z.boolean().default(false),
 });
 
@@ -44,12 +47,15 @@ interface CustomFieldsEditorProps {
 }
 
 export function CustomFieldsEditor({ inventory }: CustomFieldsEditorProps) {
-  const { onOpen } = useModalStore();
   const { inventories } = useInventories();
+  const [editingField, setEditingField] = useState<CustomField | null>(null);
+  const [selectedFields, setSelectedFields] = useState<number[]>([]);
+
   const form = useForm<z.infer<typeof fieldSchema>>({
     resolver: zodResolver(fieldSchema),
     defaultValues: {
-      name: "",
+      title: "",
+      description: "",
       type: "text",
       showInTable: false,
     },
@@ -57,97 +63,172 @@ export function CustomFieldsEditor({ inventory }: CustomFieldsEditorProps) {
   const t = useTranslations("CustomFieldsEditor");
 
   const isSubmitting = form.formState.isSubmitting;
+  const isEditing = !!editingField;
 
-  async function onSubmit(values: z.infer<typeof fieldSchema>) {
-    const newField: CustomField = {
-      id: uuidv4(),
-      ...values,
-    };
-
-    const updatedFields = [...inventory.customFields, newField];
-
-    const newInventoryState = { ...inventory, customFields: updatedFields };
-
-    // Optimistic UI Update
-    mutate(`/inventories/${inventory.id}`, newInventoryState, {
-      revalidate: false,
+  // Reset form when switching between add/edit modes
+  const resetForm = () => {
+    setEditingField(null);
+    setSelectedFields([]);
+    form.reset({
+      title: "",
+      description: "",
+      type: "text",
+      showInTable: false,
     });
-    if (inventories) {
-      const newInventories = inventories.map((inv) =>
-        inv.id === inventory.id ? newInventoryState : inv
-      );
-      mutate("/inventories", newInventories, { revalidate: false });
-    }
+  };
 
+  // Handle field selection for editing
+  const handleFieldSelect = (field: CustomField) => {
+    setEditingField(field);
+    setSelectedFields([field.id]);
+    form.reset({
+      title: field.title,
+      description: field.description || "",
+      type: field.type,
+      showInTable: field.showInTable,
+    });
+  };
+
+  // Handle field selection for bulk operations (if needed later)
+  const handleCheckboxChange = (fieldId: number, checked: boolean) => {
+    if (checked) {
+      setSelectedFields((prev) => [...prev, fieldId]);
+    } else {
+      setSelectedFields((prev) => prev.filter((id) => id !== fieldId));
+      // If we're unchecking the currently edited field, reset form
+      if (editingField?.id === fieldId) {
+        resetForm();
+      }
+    }
+  };
+
+  // In CustomFieldsEditor.tsx - Add debug logs
+  async function onSubmit(values: z.infer<typeof fieldSchema>) {
     try {
-      await apiFetch(`/inventories/${inventory.id}`, {
-        method: "PUT",
-        body: JSON.stringify({ customFields: updatedFields }),
-      });
-      toast.success(t("add_field_success"));
-      mutate(`/inventories/${inventory.id}`);
-      mutate("/inventories");
-      form.reset();
+      if (isEditing && editingField) {
+        // Update existing field
+        await customFieldService.updateCustomField(
+          inventory.id,
+          editingField.id,
+          {
+            title: values.title,
+            description: values.description || null,
+            showInTable: values.showInTable,
+            orderIndex: editingField.orderIndex,
+          }
+        );
+        toast.success(t("update_field_success"));
+      } else {
+        // Create new field
+        const orderIndex = await customFieldService.getNextOrderIndex(
+          inventory.id
+        );
+
+        const newFieldData = {
+          title: values.title,
+          description: values.description || null,
+          type: values.type,
+          showInTable: values.showInTable,
+          orderIndex,
+        };
+
+        await customFieldService.addCustomFields(inventory.id, [newFieldData]);
+        toast.success(t("add_field_success"));
+      }
+
+      // Refresh data and reset form
+      mutate(`/inventories/${inventory.id}`, undefined, { revalidate: true });
+      mutate("/inventories", undefined, { revalidate: true });
+      resetForm();
     } catch (error) {
-      toast.error(t("add_field_error"));
+      toast.error(isEditing ? t("update_field_error") : t("add_field_error"));
     }
   }
 
+  // In CustomFieldsEditor.tsx - update the updateCustomFields function
   async function updateCustomFields(
     updatedFields: CustomField[],
     successMessage: string
   ) {
-    const newInventoryState = { ...inventory, customFields: updatedFields };
-
-    // Optimistic UI update
-    mutate(`/inventories/${inventory.id}`, newInventoryState, {
-      revalidate: false,
-    });
-    if (inventories) {
-      const newInventories = inventories.map((inv) =>
-        inv.id === inventory.id ? newInventoryState : inv
-      );
-      mutate("/inventories", newInventories, { revalidate: false });
-    }
-
     try {
-      await apiFetch(`/inventories/${inventory.id}`, {
-        method: "PUT",
-        body: JSON.stringify({ customFields: updatedFields }),
-      });
+      // Ensure fields have correct orderIndex before sending to API
+      const fieldsWithUpdatedOrder = updatedFields.map((field, index) => ({
+        ...field,
+        orderIndex: index,
+      }));
+
+      const updatePromises = fieldsWithUpdatedOrder.map((field) =>
+        customFieldService.updateCustomField(inventory.id, field.id, {
+          orderIndex: field.orderIndex,
+          title: field.title,
+          description: field.description,
+          showInTable: field.showInTable,
+        })
+      );
+
+      await Promise.all(updatePromises);
       toast.success(successMessage);
-      mutate(`/inventories/${inventory.id}`);
-      mutate("/inventories");
+
+      // Force immediate refresh instead of waiting for auto-refresh
+      mutate(`/inventories/${inventory.id}`, undefined, { revalidate: true });
+      mutate("/inventories", undefined, { revalidate: true });
     } catch (error) {
       toast.error("Failed to update fields.");
-      // Revert on error
-      mutate(`/inventories/${inventory.id}`, inventory, { revalidate: false });
-      if (inventories) {
-        mutate("/inventories", inventories, { revalidate: false });
-      }
+      // Revert optimistic update on error
+      mutate(`/inventories/${inventory.id}`);
+      mutate("/inventories");
     }
   }
 
+  // Handle bulk delete
+  const handleBulkDelete = async () => {
+    if (selectedFields.length === 0) return;
+
+    try {
+      const deletePromises = selectedFields.map((fieldId) =>
+        customFieldService.deleteCustomField(inventory.id, fieldId)
+      );
+
+      await Promise.all(deletePromises);
+      toast.success(
+        t("delete_fields_success", { count: selectedFields.length })
+      );
+
+      mutate(`/inventories/${inventory.id}`);
+      mutate("/inventories");
+      resetForm();
+    } catch (error) {
+      toast.error(t("delete_fields_error"));
+    }
+  };
+
   return (
-    <div className="grid gap-6 md:grid-cols-3">
+    <div className="grid gap-6 md:grid-cols-5">
       <div className="md:col-span-2">
         <Card>
           <CardHeader>
-            <CardTitle>{t("title")}</CardTitle>
+            <CardTitle className="flex justify-between items-center">
+              <span>{t("title")}</span>
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <FieldList
               inventory={inventory}
               onUpdateFields={updateCustomFields}
+              selectedFields={selectedFields}
+              onFieldSelect={handleFieldSelect}
+              onCheckboxChange={handleCheckboxChange}
             />
           </CardContent>
         </Card>
       </div>
 
-      <div className="md:col-span-1">
+      <div className="md:col-span-3">
         <Card>
           <CardHeader>
-            <CardTitle>{t("add_field")}</CardTitle>
+            <CardTitle>
+              {isEditing ? t("edit_field") : t("add_field")}
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <Form {...form}>
@@ -157,13 +238,13 @@ export function CustomFieldsEditor({ inventory }: CustomFieldsEditorProps) {
               >
                 <FormField
                   control={form.control}
-                  name="name"
+                  name="title"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t("field_name")}</FormLabel>
+                      <FormLabel>{t("field_title")}</FormLabel>
                       <FormControl>
                         <Input
-                          placeholder={t("field_name_placeholder")}
+                          placeholder={t("field_title_placeholder")}
                           {...field}
                         />
                       </FormControl>
@@ -171,6 +252,29 @@ export function CustomFieldsEditor({ inventory }: CustomFieldsEditorProps) {
                     </FormItem>
                   )}
                 />
+
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t("field_description")}</FormLabel>
+                      <FormControl>
+                        <MarkdownEditor
+                          value={field.value || ""}
+                          onChange={field.onChange}
+                          placeholder={t("field_description_placeholder")}
+                          className="min-h-[100px]"
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        {t("field_description_help")}
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
                 <FormField
                   control={form.control}
                   name="type"
@@ -180,6 +284,7 @@ export function CustomFieldsEditor({ inventory }: CustomFieldsEditorProps) {
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
+                        disabled={isEditing} // Disable type editing for existing fields
                       >
                         <FormControl>
                           <SelectTrigger>
@@ -198,18 +303,24 @@ export function CustomFieldsEditor({ inventory }: CustomFieldsEditorProps) {
                           <SelectItem value="boolean">
                             {t("field_type_boolean")}
                           </SelectItem>
-                          <SelectItem value="url">
-                            {t("field_type_url")}
+                          <SelectItem value="link">
+                            {t("field_type_link")}
                           </SelectItem>
-                          <SelectItem value="longtext">
-                            {t("field_type_longtext")}
+                          <SelectItem value="textarea">
+                            {t("field_type_textarea")}
                           </SelectItem>
                         </SelectContent>
                       </Select>
+                      {isEditing && (
+                        <FormDescription>
+                          {t("field_type_edit_disabled")}
+                        </FormDescription>
+                      )}
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+
                 <FormField
                   control={form.control}
                   name="showInTable"
@@ -230,9 +341,49 @@ export function CustomFieldsEditor({ inventory }: CustomFieldsEditorProps) {
                     </FormItem>
                   )}
                 />
-                <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? t("saving_message") : t("add_field_button")}
-                </Button>
+
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
+                  <div className="flex gap-2">
+                    <Button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="text-sm sm:text-sm"
+                    >
+                      {isSubmitting
+                        ? t("saving_message")
+                        : isEditing
+                        ? t("update_field_button")
+                        : t("add_field_button")}
+                    </Button>
+
+                    {isEditing && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={resetForm}
+                        disabled={isSubmitting}
+                        className="text-sm sm:text-sm"
+                      >
+                        {t("cancel_edit")}
+                      </Button>
+                    )}
+                  </div>
+
+                  {/* DELETE BUTTON on the right - only when editing */}
+                  {isEditing && (
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      onClick={() => {
+                        handleBulkDelete();
+                      }}
+                      disabled={isSubmitting}
+                      className="text-sm sm:text-sm"
+                    >
+                      {t("delete_selected")}
+                    </Button>
+                  )}
+                </div>
               </form>
             </Form>
           </CardContent>

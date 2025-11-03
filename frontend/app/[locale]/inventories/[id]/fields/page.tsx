@@ -42,3 +42,5 @@ export default function InventoryFieldsPage() {
 
   return <CustomFieldsEditor inventory={inventory} />;
 }
+
+//

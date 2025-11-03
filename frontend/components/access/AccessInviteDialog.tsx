@@ -33,12 +33,14 @@ import { Role, User } from "@/types/shared";
 import { apiFetch } from "@/lib/apiClient";
 import { v4 as uuidv4 } from "uuid";
 import { useTranslations } from "next-intl";
+import { accessService } from "@/services/accessService";
+import { useUserSearch } from "@/hooks/useUserSearch";
 
 export function AccessInviteDialog() {
   const { isOpen, type, data, onClose } = useModalStore();
   const { inventoryId } = data;
-  const { users } = useUsers();
-  const { accessList, mutate: mutateAccess } = useAccess(inventoryId);
+
+  const { accessList, mutate: mutateAccess } = useAccess(inventoryId || "");
   const t = useTranslations("AccessInviteDialog");
 
   const [selectedUser, setSelectedUser] = React.useState<User | null>(null);
@@ -49,17 +51,14 @@ export function AccessInviteDialog() {
   const isModalOpen = isOpen && type === "addCollaborator";
 
   const existingUserIds = new Set(accessList?.map((a) => a.userId));
-  const availableUsers =
-    searchQuery.length > 0
-      ? users
-          ?.filter((user) => !existingUserIds.has(user.id))
-          .filter(
-            (user) =>
-              user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-              user.email.toLowerCase().includes(searchQuery.toLowerCase())
-          )
-          .slice(0, 5) // Limit to 5 results
-      : [];
+
+  const { users: availableUsers, isLoading: isSearching } =
+    useUserSearch(searchQuery);
+
+  // Filter out users who already have access
+  const filteredUsers = availableUsers?.filter(
+    (user) => !existingUserIds.has(user.id)
+  );
 
   const handleInvite = async () => {
     if (!selectedUser || !inventoryId) {
@@ -68,15 +67,7 @@ export function AccessInviteDialog() {
     }
     setIsSubmitting(true);
     try {
-      await apiFetch("/access", {
-        method: "POST",
-        body: JSON.stringify({
-          id: uuidv4(),
-          inventoryId,
-          userId: selectedUser.id,
-          role: selectedRole,
-        }),
-      });
+      await accessService.addAccess(inventoryId, selectedUser.id, selectedRole);
       toast.success(t("success_message"));
       mutateAccess();
       onClose();
@@ -105,10 +96,12 @@ export function AccessInviteDialog() {
             <CommandList>
               <CommandEmpty>{t("no_users_found")}</CommandEmpty>
               <CommandGroup>
-                {availableUsers?.map((user) => (
+                {filteredUsers?.map((user) => (
                   <CommandItem
                     key={user.id}
+                    value={`${user.name} ${user.email}`} // ADD THIS LINE - it's required!
                     onSelect={() => setSelectedUser(user)}
+                    className="cursor-pointer text-muted-foreground"
                   >
                     {user.name} ({user.email})
                   </CommandItem>
@@ -117,8 +110,9 @@ export function AccessInviteDialog() {
             </CommandList>
           </Command>
           {selectedUser && (
-            <p className="text-sm">
-              Selected: <span className="font-medium">{selectedUser.name}</span>
+            <p className="text-sm font-medium text-muted-foreground">
+              Selected:{" "}
+              <span className="text-foreground">{selectedUser.name}</span>
             </p>
           )}
           <Select

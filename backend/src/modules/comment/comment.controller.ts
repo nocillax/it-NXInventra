@@ -9,6 +9,7 @@ import {
   Req,
   ParseUUIDPipe,
   ValidationPipe,
+  Query,
 } from '@nestjs/common';
 import { CommentService } from './comment.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
@@ -20,8 +21,12 @@ export class CommentController {
 
   @UseGuards(JwtAuthGuard)
   @Get('inventories/:id/comments')
-  getComments(@Param('id', ParseUUIDPipe) inventoryId: string) {
-    return this.commentService.getComments(inventoryId);
+  getComments(
+    @Param('id', ParseUUIDPipe) inventoryId: string,
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+  ) {
+    return this.commentService.getComments(inventoryId, page, limit);
   }
 
   @UseGuards(JwtAuthGuard)

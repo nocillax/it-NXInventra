@@ -11,6 +11,7 @@ import {
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+import { useRouter } from "next/navigation";
 
 interface InventoryTableProps {
   inventories: Inventory[];
@@ -18,12 +19,13 @@ interface InventoryTableProps {
   accessList: Access[]; // To determine current user's role for each inventory
   isLoading: boolean;
   currentUserId: string; // To display "You" as owner
+  hideRoleColumn?: boolean;
 }
 
 export function InventoryTable({
   inventories,
   users,
-  accessList, // Destructure accessList
+  accessList,
   currentUserId,
 }: InventoryTableProps) {
   const t = useTranslations("InventoryTable");
@@ -53,5 +55,11 @@ export function InventoryTable({
     );
   }
 
-  return <DataTable table={table} noResultsMessage={t("no_inventories")} />;
+  return (
+    <DataTable
+      table={table}
+      noResultsMessage={t("no_inventories")}
+      entityType="inventory" // Add this line
+    />
+  );
 }

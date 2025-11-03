@@ -45,28 +45,43 @@ export const getItemTableColumns = (
   }
 
   columns.push({
-    id: "customId",
-    header: "ID",
-    cell: ({ row }) => {
-      const sequence = itemSequenceMap.get(row.original.id) || 0;
-      const generatedId = generateItemId(inventory.idFormat, sequence);
-      return <div className="font-mono text-xs">{generatedId}</div>;
-    },
+    id: "customId", // ✅ Has id
+    header: "Custom ID",
+    accessorKey: "customId", // Use the customId from API response
+    cell: ({ row }) => (
+      <div className="font-mono text-xs">{row.original.customId}</div>
+    ),
   });
 
   const fieldColumns =
     inventory?.customFields
-      .filter((field) => field.showInTable)
+      ?.filter((field) => field.showInTable)
       .map(
         (field): ColumnDef<Item> => ({
-          id: field.name,
-          header: field.name,
-          accessorFn: (row) => row.fields[field.name],
-          cell: ({ getValue }) => <div>{String(getValue() ?? "")}</div>,
+          id: field.id.toString(), // ✅ Use field id as unique identifier
+          header: field.title, // API uses 'title', mock might use 'name'
+          accessorFn: (row) => {
+            // Handle both field.name and field.title for compatibility
+            const fieldName = field.title;
+            return row.fields?.[fieldName] ?? "";
+          },
+          cell: ({ getValue }) => {
+            const value = getValue();
+            return <div>{value ? String(value) : "-"}</div>;
+          },
         })
       ) || [];
 
   columns.push(...fieldColumns);
+
+  columns.push({
+    id: "likes", // ✅ Has id
+    header: "Likes",
+    accessorKey: "likes",
+    cell: ({ row }) => (
+      <div className="font-mono text-xs">{row.original.likes}</div>
+    ),
+  });
 
   return columns;
 };

@@ -17,20 +17,29 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useRouter } from "@/navigation";
+import { useAuth } from "@/hooks/useAuth";
+import { apiFetch } from "@/lib/apiClient";
 
 export function ProfileDeleteAction() {
   const t = useTranslations("Profile");
-  const { logout } = useUserStore();
+  const { logout } = useAuth();
   const router = useRouter();
   const [isDeleting, setIsDeleting] = React.useState(false);
 
   const handleDeleteAccount = async () => {
     setIsDeleting(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1500)); // Simulate network delay
+      // Get current user ID first
+      const currentUser = await apiFetch("/user/me");
+
+      // Call delete API with user ID
+      await apiFetch(`/user/${currentUser.id}`, {
+        method: "DELETE",
+      });
+
       toast.success(t("delete_success_message"));
       logout();
-      router.push("/"); // Redirect to home page
+      router.push("/");
     } catch (error) {
       toast.error(t("delete_failure_message"));
       setIsDeleting(false);

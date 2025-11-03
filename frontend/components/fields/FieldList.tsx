@@ -1,3 +1,4 @@
+// components/fields/FieldList.tsx - UPDATED
 "use client";
 
 import {
@@ -16,31 +17,44 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CustomField, Inventory } from "@/types/shared";
-import { useModalStore } from "@/stores/useModalStore";
 import { SortableFieldEditorRow } from "./SortableFieldEditorRow";
 import { useTranslations } from "next-intl";
+import { useMemo } from "react";
 
 interface FieldListProps {
-  inventory: Inventory; // The whole inventory is needed to construct updated field arrays
+  inventory: Inventory;
   onUpdateFields: (
     updatedFields: CustomField[],
     successMessage: string
   ) => void;
+  selectedFields: number[];
+  onFieldSelect: (field: CustomField) => void;
+  onCheckboxChange: (fieldId: number, checked: boolean) => void;
 }
 
-export function FieldList({ inventory, onUpdateFields }: FieldListProps) {
-  const { onOpen } = useModalStore();
-  const { customFields } = inventory;
+export function FieldList({
+  inventory,
+  onUpdateFields,
+  selectedFields,
+  onFieldSelect,
+  onCheckboxChange,
+}: FieldListProps) {
   const t = useTranslations("FieldList");
 
-  if (customFields.length === 0) {
-    return (
-      <p className="text-sm text-muted-foreground">{t("noFieldsMessage")}</p>
+  // Sort fields by orderIndex to ensure consistent display
+  const sortedFields = useMemo(() => {
+    return [...inventory.customFields].sort(
+      (a, b) => a.orderIndex - b.orderIndex
     );
-  }
+  }, [inventory.customFields]);
 
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, {
+      // Optional: Add some delay to distinguish from clicks
+      activationConstraint: {
+        distance: 10,
+      },
+    }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
@@ -50,11 +64,27 @@ export function FieldList({ inventory, onUpdateFields }: FieldListProps) {
     const { active, over } = event;
 
     if (over && active.id !== over.id) {
-      const oldIndex = customFields.findIndex((f) => f.id === active.id);
-      const newIndex = customFields.findIndex((f) => f.id === over.id);
-      const reorderedFields = arrayMove(customFields, oldIndex, newIndex);
-      onUpdateFields(reorderedFields, t("orderUpdateSuccessMessage"));
+      const oldIndex = sortedFields.findIndex((f) => f.id === active.id);
+      const newIndex = sortedFields.findIndex((f) => f.id === over.id);
+
+      if (oldIndex !== -1 && newIndex !== -1) {
+        const reorderedFields = arrayMove(sortedFields, oldIndex, newIndex);
+
+        // Update orderIndex for all reordered fields
+        const updatedFieldsWithOrder = reorderedFields.map((field, index) => ({
+          ...field,
+          orderIndex: index,
+        }));
+
+        onUpdateFields(updatedFieldsWithOrder, t("orderUpdateSuccessMessage"));
+      }
     }
+  }
+
+  if (sortedFields.length === 0) {
+    return (
+      <p className="text-sm text-muted-foreground">{t("noFieldsMessage")}</p>
+    );
   }
 
   return (
@@ -64,16 +94,19 @@ export function FieldList({ inventory, onUpdateFields }: FieldListProps) {
       onDragEnd={handleDragEnd}
     >
       <SortableContext
-        items={customFields}
+        items={sortedFields}
         strategy={verticalListSortingStrategy}
       >
         <div className="space-y-4">
-          {customFields.map((field) => (
+          {sortedFields.map((field) => (
             <SortableFieldEditorRow
               key={field.id}
               field={field}
               inventory={inventory}
               onUpdateFields={onUpdateFields}
+              isSelected={selectedFields.includes(field.id)}
+              onFieldSelect={onFieldSelect}
+              onCheckboxChange={onCheckboxChange}
             />
           ))}
         </div>

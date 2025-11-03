@@ -164,3 +164,16 @@ export type LocaleLayoutProps = {
   children: ReactNode;
   params: { locale: string };
 };
+
+export interface SearchResult {
+  inventories: Inventory[];
+  items: Item[];
+}
+
+export interface InventorySearchResult extends Inventory {
+  // Inherits from your existing Inventory entity
+}
+
+export interface ItemSearchResult extends Item {
+  inventoryTitle?: string; // You might want to join this
+}

@@ -14,7 +14,7 @@ export const customFieldService = {
     fields: Array<{
       title: string;
       description: string | null;
-      type: "text" | "number" | "boolean" | "url" | "longtext";
+      type: "text" | "number" | "boolean" | "link" | "textarea";
       showInTable: boolean;
       orderIndex: number;
     }>

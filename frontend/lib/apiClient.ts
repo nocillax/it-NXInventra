@@ -1,6 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
 import { Item, NewItem } from "@/types/shared";
-import { fetchMock } from "./mockApi";
 
 export async function apiFetch(path: string, opts: RequestInit = {}) {
   const stack = new Error().stack;

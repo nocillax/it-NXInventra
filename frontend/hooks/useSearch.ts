@@ -1,34 +1,57 @@
-import useSWR from "swr";
+// useSearch.ts
+import { useEffect, useState } from "react";
 import { Inventory, Item } from "@/types/shared";
-import { useDebounce } from "use-debounce";
-import { apiFetch } from "@/lib/apiClient";
 
-interface SearchResults {
+interface SearchResult {
   inventories: Inventory[];
   items: Item[];
 }
 
-const searchFetcher = async (query: string): Promise<SearchResults> => {
-  if (!query) {
-    return { inventories: [], items: [] };
-  }
-  // Fetch in parallel
-  const [inventories, items] = await Promise.all([
-    apiFetch(`/search/inventories?q=${encodeURIComponent(query)}`) as Promise<
-      Inventory[]
-    >,
-    apiFetch(`/search/items?q=${encodeURIComponent(query)}`) as Promise<Item[]>,
-  ]);
-  return { inventories, items };
-};
-
 export function useSearch(query: string) {
-  const [debouncedQuery] = useDebounce(query, 300);
+  const [data, setData] = useState<SearchResult>({
+    inventories: [],
+    items: [],
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const { data, error, isLoading } = useSWR<SearchResults>(
-    debouncedQuery ? `search-${debouncedQuery}` : null,
-    () => searchFetcher(debouncedQuery) // Direct call
-  );
+  useEffect(() => {
+    if (!query.trim()) {
+      setData({ inventories: [], items: [] });
+      setError(null);
+      return;
+    }
 
-  return { data, error, isLoading: (query && !data && !error) || isLoading };
+    const debounceTimer = setTimeout(async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/search?q=${encodeURIComponent(
+            query
+          )}&limit=10`,
+          {
+            credentials: "include", // This sends cookies to cross-origin requests
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(`Search failed: ${response.statusText}`);
+        }
+
+        const results = await response.json();
+        setData(results);
+      } catch (error) {
+        console.error("Search failed:", error);
+        setError(error instanceof Error ? error.message : "Search failed");
+        setData({ inventories: [], items: [] });
+      } finally {
+        setIsLoading(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(debounceTimer);
+  }, [query]);
+
+  return { data, isLoading, error };
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Link, useRouter } from "@/navigation";
+import { useRouter } from "@/navigation";
 import {
   CommandDialog,
   CommandEmpty,
@@ -12,7 +12,7 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { useSearch } from "@/hooks/useSearch";
-import { FileText, Package } from "lucide-react";
+import { FileText, Package, AlertCircle } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTranslations } from "next-intl";
@@ -26,9 +26,17 @@ export function GlobalSearch({
 }) {
   const router = useRouter();
   const [query, setQuery] = React.useState("");
-  const { data, isLoading } = useSearch(query);
+  const { data, isLoading, error } = useSearch(query);
   const t = useTranslations("GlobalSearch");
 
+  // Close search when navigating away
+  React.useEffect(() => {
+    if (!open) {
+      setQuery(""); // Reset query when closing
+    }
+  }, [open]);
+
+  // Keyboard shortcut
   React.useEffect(() => {
     const down = (e: KeyboardEvent) => {
       if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
@@ -44,10 +52,13 @@ export function GlobalSearch({
   const runCommand = React.useCallback(
     (command: () => unknown) => {
       setOpen(false);
+      setQuery(""); // Clear search after selection
       command();
     },
     [setOpen]
   );
+
+  const hasResults = data.inventories.length > 0 || data.items.length > 0;
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -59,6 +70,13 @@ export function GlobalSearch({
             onValueChange={setQuery}
           />
           <CommandList>
+            {error && (
+              <div className="flex items-center gap-2 p-4 text-sm text-destructive">
+                <AlertCircle className="h-4 w-4" />
+                <span>{error}</span>
+              </div>
+            )}
+
             {isLoading && (
               <div className="p-4 space-y-4">
                 <Skeleton className="h-4 w-1/4" />
@@ -66,10 +84,12 @@ export function GlobalSearch({
                 <Skeleton className="h-8 w-full" />
               </div>
             )}
-            {!isLoading && !data?.inventories.length && !data?.items.length && (
+
+            {!isLoading && !error && !hasResults && query && (
               <CommandEmpty>{t("no_results")}</CommandEmpty>
             )}
-            {data?.inventories && data.inventories.length > 0 && (
+
+            {!isLoading && !error && data.inventories.length > 0 && (
               <CommandGroup heading={t("inventories")}>
                 {data.inventories.map((inv) => (
                   <CommandItem
@@ -80,39 +100,34 @@ export function GlobalSearch({
                     }}
                   >
                     <Package className="mr-2 h-4 w-4" />
-                    {inv.title}
+                    <span className="truncate">{inv.title}</span>
                   </CommandItem>
                 ))}
               </CommandGroup>
             )}
-            {data?.items && data.items.length > 0 && (
+
+            {!isLoading && !error && data.items.length > 0 && (
               <CommandGroup heading={t("items")}>
-                {data.items.map((item) => {
-                  const inventory = data.inventories.find(
-                    (inv) => inv.id === item.inventoryId
-                  );
-                  const inventoryTitle =
-                    inventory?.title || t("unknown_inventory");
-                  return (
-                    <CommandItem
-                      key={item.id}
-                      value={`${item.customId} ${inventoryTitle}`}
-                      onSelect={() => {
-                        runCommand(() =>
-                          router.push(`/inventories/${item.inventoryId}`)
-                        );
-                      }}
-                    >
-                      <FileText className="mr-2 h-4 w-4" />
-                      <div className="flex flex-col">
-                        <span>{item.customId}</span>
-                        <span className="text-xs text-muted-foreground">
-                          - {inventoryTitle}
-                        </span>
-                      </div>
-                    </CommandItem>
-                  );
-                })}
+                {data.items.map((item) => (
+                  <CommandItem
+                    key={item.id}
+                    value={`${item.customId} || ''}`}
+                    onSelect={() => {
+                      runCommand(() =>
+                        router.push(
+                          `/inventories/${item.inventoryId}/items/${item.id}`
+                        )
+                      );
+                    }}
+                  >
+                    <FileText className="mr-2 h-4 w-4" />
+                    <div className="flex flex-col min-w-0">
+                      <span className="truncate font-medium">
+                        {item.customId}
+                      </span>
+                    </div>
+                  </CommandItem>
+                ))}
               </CommandGroup>
             )}
           </CommandList>

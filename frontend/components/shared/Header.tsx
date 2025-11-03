@@ -62,12 +62,7 @@ export function Header() {
             >
               {t("home_link")}
             </Link>
-            <Link
-              href="/shared-with-me"
-              className="transition-colors hover:text-foreground/80 text-foreground/60"
-            >
-              {t("shared_link")}
-            </Link>
+
             <Link
               href="/explore"
               className="transition-colors hover:text-foreground/80 text-foreground/60"

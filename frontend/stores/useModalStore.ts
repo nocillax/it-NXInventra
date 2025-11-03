@@ -3,8 +3,6 @@ import { Access, CustomField, Item } from "@/types/shared";
 
 export type ModalType =
   | "createInventory"
-  | "createItem"
-  | "editItem"
   | "deleteItem"
   | "deleteCustomField"
   | "removeAccess"

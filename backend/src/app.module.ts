@@ -22,6 +22,7 @@ import { CategoryService } from './modules/category/category.service';
 import { CategoryController } from './modules/category/category.controller';
 import { CategoryModule } from './modules/category/category.module';
 import { CommentModule } from './modules/comment/comment.module';
+import { SearchModule } from './modules/search/search.module';
 
 @Module({
   imports: [
@@ -43,7 +44,7 @@ import { CommentModule } from './modules/comment/comment.module';
           ItemLike,
           Tag,
         ],
-        synchronize: true,
+        synchronize: false,
         logging: false,
       }),
       inject: [ConfigService],
@@ -55,6 +56,7 @@ import { CommentModule } from './modules/comment/comment.module';
     TagModule,
     CategoryModule,
     CommentModule,
+    SearchModule,
   ],
   controllers: [AppController],
   providers: [AppService],

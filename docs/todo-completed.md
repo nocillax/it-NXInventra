@@ -24,4 +24,5 @@
 8. discussion page works perfectly with markdown as well!
 9. items crud works nicely. (need to add tooltip more)
 10. global search done
-11.
+
+## implement customid edit with validation

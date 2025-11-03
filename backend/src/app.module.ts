@@ -44,7 +44,7 @@ import { SearchModule } from './modules/search/search.module';
           ItemLike,
           Tag,
         ],
-        synchronize: false,
+        synchronize: true,
         logging: false,
       }),
       inject: [ConfigService],

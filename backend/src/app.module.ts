@@ -33,7 +33,7 @@ import { SearchModule } from './modules/search/search.module';
         type: 'postgres',
         url: configService.get<string>('DATABASE_URL'),
         entities: ['dist/database/entities/*.entity.js'],
-        synchronize: true,
+        synchronize: false,
         logging: false,
       }),
       inject: [ConfigService],

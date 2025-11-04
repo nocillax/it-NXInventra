@@ -7,10 +7,11 @@ async function bootstrap() {
 
   app.use(cookieParser());
   app.enableCors({
-    origin: process.env.CORS_ORIGIN!.split(','),
+    // origin: process.env.CORS_ORIGIN!.split(','),
+    origin: 'https://it-nx-inventra.vercel.app',
     credentials: true,
   });
 
-  await app.listen(process.env.PORT!);
+  await app.listen(process.env.PORT || 8080);
 }
 bootstrap();

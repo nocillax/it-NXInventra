@@ -1,21 +1,17 @@
-"use client";
-
+// hooks/useStats.ts
 import useSWR from "swr";
-import { apiFetch } from "@/lib/apiClient";
 import { InventoryStats } from "@/types/shared";
+import { statsService } from "@/services/statsService";
 
-async function statsFetcher(path: string) {
-  // The real API will be `/api/inventories/:id/stats`
-  const inventoryId = path.split("/")[2];
-  const allStats: InventoryStats[] = await apiFetch("/stats");
-  return allStats.find((s) => s.inventoryId === inventoryId);
-}
-
-export function useStats(inventoryId: string | undefined) {
-  const { data, error, isLoading, mutate } = useSWR<InventoryStats | undefined>(
+export function useStats(inventoryId: string) {
+  const { data, error, isLoading } = useSWR(
     inventoryId ? `/inventories/${inventoryId}/stats` : null,
-    statsFetcher
+    () => statsService.getStats(inventoryId)
   );
 
-  return { stats: data, error, isLoading, mutate };
+  return {
+    stats: data,
+    isLoading,
+    error,
+  };
 }

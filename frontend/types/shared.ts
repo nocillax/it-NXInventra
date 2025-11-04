@@ -151,16 +151,45 @@ export interface MonthlyAddition {
   count: number;
 }
 
+// types/shared.ts or wherever you keep your types
+
 export interface InventoryStats {
-  inventoryId: string;
-  visibility: "public" | "private";
   totalItems: number;
-  avgPrice: number | null;
-  avgQuantity: number | null;
-  totalQuantity: number | null;
-  quantityDistribution: { label: string; quantity: number }[] | null;
   topContributors: Contributor[];
-  monthlyAdditions: MonthlyAddition[];
+  monthlyGrowth: MonthlyGrowth[];
+  priceStats?: PriceStats; // Optional since it might not exist
+  quantityStats?: QuantityStats; // Optional since it might not exist
+}
+
+export interface Contributor {
+  userId: string;
+  name: string;
+  itemCount: number;
+}
+
+export interface MonthlyGrowth {
+  month: string; // Format: "2025-11"
+  year: number;
+  count: number;
+}
+
+export interface PriceStats {
+  avg: number;
+  min: number;
+  max: number;
+  total: number;
+}
+
+export interface QuantityStats {
+  avg: number;
+  min: number;
+  max: number;
+  total: number;
+}
+
+export interface MonthlyAddition {
+  month: string;
+  count: number;
 }
 
 export type LocaleLayoutProps = {

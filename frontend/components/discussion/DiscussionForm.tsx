@@ -60,7 +60,6 @@ export function DiscussionForm({
                   value={field.value}
                   onChange={field.onChange}
                   placeholder={t("discussion_placeholder")}
-                  className="min-h-[100px]"
                 />
               </FormControl>
             </FormItem>

@@ -3,15 +3,11 @@
 import * as React from "react";
 import { useParams } from "next/navigation";
 import { useStats } from "@/hooks/useStats";
-import { useInventory } from "@/hooks/useInventory";
-import { useItems } from "@/hooks/useItems";
-import { useUsers } from "@/hooks/useUsers";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatCard } from "@/components/statistics/StatCard";
 import { MonthlyAdditionsChart } from "@/components/statistics/MonthlyAdditionsChart";
 import { PlaceholderStatCard } from "@/components/statistics/PlaceholderStatCard";
 import { TopContributorsCard } from "@/components/statistics/TopContributorsCard";
-import { FieldDistributionChart } from "@/components/statistics/FieldDistributionChart";
 import { Skeleton } from "@/components/ui/skeleton";
 import { GenericError } from "@/components/shared/GenericError";
 import { useTranslations, useLocale } from "next-intl";
@@ -20,70 +16,40 @@ export default function InventoryStatisticsPage() {
   const params = useParams();
   const inventoryId = params.id as string;
 
-  const {
-    stats,
-    isLoading: isLoadingStats,
-    error: statsError,
-  } = useStats(inventoryId);
-  const {
-    inventory,
-    isLoading: isLoadingInventory,
-    error: inventoryError,
-  } = useInventory(inventoryId);
-  const {
-    items,
-    isLoading: isLoadingItems,
-    error: itemsError,
-  } = useItems(inventoryId);
-  const { users, isLoading: isLoadingUsers, error: usersError } = useUsers();
+  const { stats, isLoading, error } = useStats(inventoryId);
 
   const t = useTranslations("StatisticsPage");
   const locale = useLocale();
-  const error = statsError || inventoryError || itemsError || usersError;
 
-  // Prepare data for the 12-month bar chart
+  // Transform monthlyGrowth data for the chart
   const monthlyAdditionsData = React.useMemo(() => {
-    if (!stats) return []; // Guard against null/undefined stats
-    const last12Months = Array.from({ length: 12 })
-      .map((_, i) => {
-        const d = new Date();
-        d.setMonth(d.getMonth() - i);
-        return {
-          name: d.toLocaleString(locale, { month: "short" }),
-          key: d.toLocaleString("en-US", { month: "short" }), // Stable English key for matching
-        };
-      })
-      .reverse();
+    if (!stats?.monthlyGrowth) return [];
 
-    return last12Months.map((monthInfo) => {
-      const existing = stats.monthlyAdditions.find(
-        (m) => m.month === monthInfo.key
-      );
-      return { month: monthInfo.name, count: existing ? existing.count : 0 };
+    return stats.monthlyGrowth.map((item) => {
+      // Parse the month string "2025-11" properly
+      const [year, month] = item.month.split("-").map(Number);
+      return {
+        month: new Date(year, month - 1).toLocaleString(locale, {
+          month: "short",
+        }),
+        count: item.count,
+      };
     });
-  }, [stats, locale]);
+  }, [stats?.monthlyGrowth, locale]);
 
-  const quantityChartData = React.useMemo(
-    () =>
-      stats?.quantityDistribution?.map((item) => ({
-        name: item.label,
-        value: item.quantity,
-      })),
-    [stats]
-  );
+  console.log("Monthly Growth Data:", stats?.monthlyGrowth);
+  console.log("Transformed Chart Data:", monthlyAdditionsData);
 
   const formatNumber = (num: number) => {
     return new Intl.NumberFormat(locale).format(num);
   };
+
   const formatDecimal = (num: number) => {
     return new Intl.NumberFormat(locale, {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(num);
   };
-
-  const isLoading =
-    isLoadingStats || isLoadingInventory || isLoadingUsers || isLoadingItems;
 
   if (isLoading) {
     return (
@@ -94,9 +60,9 @@ export default function InventoryStatisticsPage() {
           <Skeleton className="h-32" />
           <Skeleton className="h-32" />
         </div>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-          <Skeleton className="h-[422px] lg:col-span-4" />
-          <Skeleton className="h-[422px] lg:col-span-3" />
+        <div className="space-y-4">
+          <Skeleton className="h-80" />
+          <Skeleton className="h-80" />
         </div>
       </div>
     );
@@ -106,22 +72,27 @@ export default function InventoryStatisticsPage() {
     return <GenericError />;
   }
 
-  if (!stats || !inventory || !users || !items) {
+  if (!stats) {
     return <p>{t("no_data_message")}</p>;
   }
 
+  // Check if price and quantity fields exist
+  const hasPriceField = !!stats.priceStats;
+  const hasQuantityField = !!stats.quantityStats;
+
   return (
     <div className="space-y-4">
+      {/* Stats Cards */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <StatCard
           title={t("total_items")}
           value={formatNumber(stats.totalItems)}
         />
 
-        {stats.totalQuantity !== null ? (
+        {hasQuantityField ? (
           <StatCard
             title={t("total_quantity")}
-            value={formatNumber(stats.totalQuantity)}
+            value={formatNumber(stats.quantityStats!.total)}
           />
         ) : (
           <PlaceholderStatCard
@@ -130,10 +101,10 @@ export default function InventoryStatisticsPage() {
           />
         )}
 
-        {stats.avgPrice !== null ? (
+        {hasPriceField ? (
           <StatCard
             title={t("avg_price")}
-            value={`$${formatDecimal(stats.avgPrice)}`}
+            value={`$${formatDecimal(stats.priceStats!.avg)}`}
           />
         ) : (
           <PlaceholderStatCard
@@ -142,10 +113,10 @@ export default function InventoryStatisticsPage() {
           />
         )}
 
-        {stats.avgQuantity !== null ? (
+        {hasQuantityField ? (
           <StatCard
             title={t("avg_quantity")}
-            value={formatDecimal(stats.avgQuantity)}
+            value={formatDecimal(stats.quantityStats!.avg)}
           />
         ) : (
           <PlaceholderStatCard
@@ -155,42 +126,27 @@ export default function InventoryStatisticsPage() {
         )}
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="lg:col-span-4 overflow-hidden min-w-0 flex flex-col">
+      {/* Charts Section - Full width layout */}
+      <div className="space-y-4">
+        {/* Top Contributors - Full width */}
+        <Card className="w-full">
+          <CardHeader>
+            <CardTitle>{t("top_contributors")}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <TopContributorsCard contributors={stats.topContributors} />
+          </CardContent>
+        </Card>
+
+        {/* Monthly Additions Chart - Full width */}
+        <Card className="w-full overflow-hidden">
           <CardHeader>
             <CardTitle>{t("monthly_additions")}</CardTitle>
           </CardHeader>
-          <CardContent className="pl-2 flex-grow min-h-[350px]">
+          <CardContent className="p-4">
             <MonthlyAdditionsChart data={monthlyAdditionsData} />
           </CardContent>
         </Card>
-        <div className="lg:col-span-3 space-y-4 min-w-0">
-          <TopContributorsCard
-            contributors={stats.topContributors}
-            users={users}
-          />
-          {quantityChartData ? (
-            <Card className="overflow-hidden">
-              <CardHeader>
-                <CardTitle>{t("qty_distribution")}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <FieldDistributionChart data={quantityChartData} />
-              </CardContent>
-            </Card>
-          ) : (
-            <Card className="flex flex-col items-center justify-center text-center p-6">
-              <CardHeader>
-                <CardTitle>{t("visualize_more_data_message")}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  {t("visualize_more_data_description")}
-                </p>
-              </CardContent>
-            </Card>
-          )}
-        </div>
       </div>
     </div>
   );

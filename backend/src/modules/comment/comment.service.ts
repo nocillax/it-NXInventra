@@ -7,6 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Comment } from '../../database/entities/comment.entity';
 import { CreateCommentDto } from './dto/create-comment.dto';
+import { paginate, mapCommentEntity } from './comment.helpers';
 
 @Injectable()
 export class CommentService {
@@ -21,37 +22,16 @@ export class CommentService {
     limit: number = 10,
   ): Promise<{ comments: any[]; pagination: any }> {
     const skip = (page - 1) * limit;
-
     const [comments, total] = await this.commentRepository.findAndCount({
       where: { inventoryId },
       relations: ['user'],
-      order: { timestamp: 'DESC' }, // Linear order, oldest first
+      order: { timestamp: 'DESC' },
       skip,
       take: limit,
     });
-
-    const totalPages = Math.ceil(total / limit);
-    const hasNext = page < totalPages;
-
     return {
-      comments: comments.map((comment) => ({
-        id: comment.id,
-        message: comment.message,
-        timestamp: comment.timestamp,
-        user: {
-          id: comment.user.id,
-          name: comment.user.name,
-          email: comment.user.email,
-        },
-      })),
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages,
-        hasNext,
-        hasPrev: page > 1,
-      },
+      comments: comments.map(mapCommentEntity),
+      pagination: paginate(page, limit, total),
     };
   }
 
@@ -60,13 +40,13 @@ export class CommentService {
     createCommentDto: CreateCommentDto,
     userId: string,
   ): Promise<Comment> {
-    const comment = this.commentRepository.create({
-      inventoryId,
-      userId,
-      message: createCommentDto.message,
-    });
-
-    return this.commentRepository.save(comment);
+    return this.commentRepository.save(
+      this.commentRepository.create({
+        inventoryId,
+        userId,
+        message: createCommentDto.message,
+      }),
+    );
   }
 
   async deleteComment(
@@ -77,17 +57,9 @@ export class CommentService {
       where: { id: commentId },
       relations: ['inventory'],
     });
-
-    if (!comment) {
-      throw new NotFoundException('Comment not found');
-    }
-
-    // Basic check: only inventory creator can delete comments
-    // This will be replaced with RoleGuard later
-    if (comment.inventory.createdBy !== userId) {
+    if (!comment) throw new NotFoundException('Comment not found');
+    if (comment.inventory.createdBy !== userId)
       throw new ForbiddenException('Only inventory owner can delete comments');
-    }
-
     await this.commentRepository.remove(comment);
     return { message: 'Comment deleted successfully' };
   }

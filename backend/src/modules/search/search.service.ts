@@ -3,9 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Inventory } from '../../database/entities/inventory.entity';
 import { Item } from '../../database/entities/item.entity';
 import { DataSource, Repository } from 'typeorm';
-
-// search.service.ts
-// search.service.ts
+import { buildWildcardQuery } from './search.helpers';
 @Injectable()
 export class SearchService {
   constructor(
@@ -16,6 +14,7 @@ export class SearchService {
     private dataSource: DataSource,
   ) {}
 
+  // This function performs a global search for inventories and items
   async globalSearch(
     query: string,
     userId: string,
@@ -26,26 +25,15 @@ export class SearchService {
     if (!searchQuery) {
       return { inventories: [], items: [] };
     }
-
-    // Convert to wildcard query for both searches
-    const wildcardQuery = this.buildWildcardQuery(searchQuery);
-
+    const wildcardQuery = buildWildcardQuery(searchQuery);
     const [inventories, items] = await Promise.all([
       this.searchInventories(wildcardQuery, userId, page, limit),
       this.searchItems(wildcardQuery, userId, page, limit),
     ]);
-
     return { inventories, items };
   }
 
-  private buildWildcardQuery(query: string): string {
-    return query
-      .split(' ')
-      .filter((term) => term.length > 0)
-      .map((term) => `${term}:*`)
-      .join(' & ');
-  }
-
+  // This function searches inventories matching the wildcard query and user access
   private async searchInventories(
     wildcardQuery: string,
     userId: string,
@@ -72,6 +60,7 @@ export class SearchService {
       .getMany();
   }
 
+  // This function searches items matching the wildcard query and user access
   private async searchItems(
     wildcardQuery: string,
     userId: string,

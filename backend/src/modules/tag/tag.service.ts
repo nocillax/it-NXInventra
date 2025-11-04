@@ -6,6 +6,11 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Tag } from '../../database/entities/tag.entity';
 import { Repository } from 'typeorm';
+import {
+  isValidTagName,
+  sortTagsByInventoryCount,
+  mapTagWithCount,
+} from './tag.helpers';
 @Injectable()
 export class TagService {
   constructor(
@@ -13,25 +18,23 @@ export class TagService {
     private readonly tagRepository: Repository<Tag>,
   ) {}
 
+  // This function finds existing tags or creates new ones from a list of names
   async findOrCreate(tagNames: string[]): Promise<Tag[]> {
     if (!tagNames || tagNames.length === 0) return [];
-
     const existingTags = await this.tagRepository
       .createQueryBuilder('tag')
       .where('tag.name IN (:...tagNames)', { tagNames })
       .getMany();
-
     const existingTagNames = new Set(existingTags.map((tag) => tag.name));
     const newTagNames = tagNames.filter((name) => !existingTagNames.has(name));
-
     const newTags = newTagNames.map((name) =>
       this.tagRepository.create({ name }),
     );
     const savedNewTags = await this.tagRepository.save(newTags);
-
     return [...existingTags, ...savedNewTags];
   }
 
+  // This function autocompletes tag names based on a query
   async autocomplete(query: string, limit: number = 10): Promise<string[]> {
     const tags = await this.tagRepository
       .createQueryBuilder('tag')
@@ -39,10 +42,10 @@ export class TagService {
       .orderBy('tag.name', 'ASC')
       .limit(limit)
       .getMany();
-
     return tags.map((tag) => tag.name);
   }
 
+  // This function returns the most popular tags by inventory count
   async getPopularTags(
     limit: number = 20,
   ): Promise<{ name: string; count: number }[]> {
@@ -55,33 +58,23 @@ export class TagService {
       .orderBy('count', 'DESC')
       .limit(limit)
       .getRawMany();
-
     return popularTags.map((tag) => ({
       name: tag.name,
       count: parseInt(tag.count),
     }));
   }
 
+  // This function returns all tags with pagination and inventory counts
   async getAllTags(page: number = 1, limit: number = 20): Promise<any> {
     const skip = (page - 1) * limit;
-
     const [tags, total] = await this.tagRepository.findAndCount({
       relations: ['inventories'],
       skip,
       take: limit,
       order: { name: 'ASC' },
     });
-
-    const tagsWithCounts = tags.map((tag) => ({
-      id: tag.id, // Now includes ID
-      name: tag.name,
-      createdAt: tag.createdAt,
-      inventoryCount: tag.inventories?.length || 0,
-    }));
-
-    // Sort by count descending
-    tagsWithCounts.sort((a, b) => b.inventoryCount - a.inventoryCount);
-
+    const tagsWithCounts = tags.map(mapTagWithCount);
+    sortTagsByInventoryCount(tagsWithCounts);
     return {
       tags: tagsWithCounts,
       pagination: {

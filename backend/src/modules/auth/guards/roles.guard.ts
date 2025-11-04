@@ -79,11 +79,12 @@ export class RolesGuard implements CanActivate {
   }
 
   private async isInventoryPublic(inventoryId: string): Promise<boolean> {
-    const inventory = await this.inventoryRepository.findOne({
-      where: { id: inventoryId },
-      select: ['public'],
-    });
-    return !!inventory?.public;
+    const result = await this.inventoryRepository
+      .createQueryBuilder('inventory')
+      .select('inventory.public', 'public')
+      .where('inventory.id = :id', { id: inventoryId })
+      .getRawOne();
+    return !!result?.public;
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {

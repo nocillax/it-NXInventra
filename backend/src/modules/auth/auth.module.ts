@@ -12,12 +12,13 @@ import { GoogleStrategy } from './strategies/google.strategy';
 import { GithubStrategy } from './strategies/github.strategy';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { Access } from '../../database/entities/access.entity';
+import { User } from '../../database/entities/user.entity';
 
 @Module({
   imports: [
     UserModule,
     PassportModule,
-    TypeOrmModule.forFeature([Item, Access, Inventory]),
+    TypeOrmModule.forFeature([Item, Access, Inventory, User]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({

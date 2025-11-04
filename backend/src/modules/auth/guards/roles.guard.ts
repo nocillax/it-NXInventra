@@ -13,6 +13,7 @@ import { Item } from '../../../database/entities/item.entity';
 import { Inventory } from '../../../database/entities/inventory.entity';
 import { ROLES_KEY } from '../decorators/roles.decorator';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
+import { User } from '../../../database/entities/user.entity';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -24,17 +25,73 @@ export class RolesGuard implements CanActivate {
     private readonly itemRepository: Repository<Item>,
     @InjectRepository(Inventory)
     private readonly inventoryRepository: Repository<Inventory>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
   ) {}
+
+  // Role hierarchy: higher index = higher privilege
+  private static readonly ROLE_PRIORITY: AccessRole[] = [
+    'Viewer',
+    'Editor',
+    'Owner',
+  ];
+
+  private getRolePriority(role: AccessRole): number {
+    return RolesGuard.ROLE_PRIORITY.indexOf(role);
+  }
+
+  private isRoleAtLeast(
+    userRole: AccessRole,
+    requiredRole: AccessRole,
+  ): boolean {
+    return this.getRolePriority(userRole) >= this.getRolePriority(requiredRole);
+  }
+
+  private async isAdmin(userId: string): Promise<boolean> {
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+      select: ['isAdmin'],
+    });
+    return !!user?.isAdmin;
+  }
+
+  private async getInventoryId(request: any): Promise<string | undefined> {
+    // Try params first
+    let inventoryId = request.params?.inventoryId || request.params?.id;
+    if (inventoryId) return inventoryId;
+    // Try itemId
+    const itemId = request.params?.itemId;
+    if (itemId) {
+      const item = await this.itemRepository.findOne({
+        where: { id: itemId },
+        select: ['inventoryId'],
+      });
+      return item?.inventoryId;
+    }
+    return undefined;
+  }
+
+  private async getUserAccess(
+    userId: string,
+    inventoryId: string,
+  ): Promise<Access | null> {
+    return this.accessRepository.findOneBy({ userId, inventoryId });
+  }
+
+  private async isInventoryPublic(inventoryId: string): Promise<boolean> {
+    const inventory = await this.inventoryRepository.findOne({
+      where: { id: inventoryId },
+      select: ['public'],
+    });
+    return !!inventory?.public;
+  }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
       context.getHandler(),
       context.getClass(),
     ]);
-
-    if (isPublic) {
-      return true;
-    }
+    if (isPublic) return true;
 
     const requiredRoles = this.reflector.getAllAndOverride<AccessRole[]>(
       ROLES_KEY,
@@ -43,60 +100,45 @@ export class RolesGuard implements CanActivate {
 
     const request = context.switchToHttp().getRequest();
     const user = request.user;
+    if (!user) throw new UnauthorizedException();
 
-    if (!user) {
-      // This should technically be handled by JwtAuthGuard, but as a safeguard:
-      throw new UnauthorizedException();
-    }
+    // Admins have access to everything
+    if (await this.isAdmin(user.id)) return true;
 
-    // TODO: Implement Admin role check from user object when available
-    // if (user.role === 'Admin') {
-    //   return true;
-    // }
+    // If no roles required, allow if logged in
+    if (!requiredRoles || requiredRoles.length === 0) return true;
 
-    let inventoryId = request.params.id || request.params.inventoryId;
-    const itemId = request.params.itemId;
+    // Get inventory context
+    const inventoryId = await this.getInventoryId(request);
+    if (!inventoryId) throw new ForbiddenException();
 
-    if (!inventoryId && itemId) {
-      const item = await this.itemRepository.findOne({ where: { id: itemId } });
-      if (item) {
-        inventoryId = item.inventoryId;
+    // Check if inventory is public
+    const isPublicInv = await this.isInventoryPublic(inventoryId);
+
+    // For public inventories, treat all logged-in users as Editor for item-level actions
+    if (isPublicInv) {
+      // If required role is Editor or lower, allow
+      const minRequired = requiredRoles
+        .map((r) => this.getRolePriority(r))
+        .reduce((a, b) => Math.min(a, b), 2);
+      if (minRequired <= this.getRolePriority('Editor')) return true;
+      // Only Owner/Admin can do inventory-level changes
+      if (requiredRoles.includes('Owner')) {
+        const access = await this.getUserAccess(user.id, inventoryId);
+        if (access?.role === 'Owner') return true;
+        throw new ForbiddenException();
       }
     }
 
-    if (!inventoryId) {
-      // If we still don't have an inventoryId, we cannot determine the role.
-      throw new ForbiddenException(
-        'Cannot determine inventory context for this action.',
-      );
-    }
+    // For private inventories, check user's access
+    const access = await this.getUserAccess(user.id, inventoryId);
+    if (!access) throw new ForbiddenException();
 
-    // First, check if the inventory itself is public.
-    const inventory = await this.inventoryRepository.findOne({
-      where: { id: inventoryId },
-      select: ['public'],
-    });
-
-    // If the route requires no specific role and the inventory is public, allow access.
-    if ((!requiredRoles || requiredRoles.length === 0) && inventory?.public) {
-      return true;
-    }
-
-    const access = await this.accessRepository.findOneBy({
-      userId: user.id,
-      inventoryId: inventoryId,
-    });
-
-    // If no specific roles are required, just check if the user has any access record.
-    if (!requiredRoles || requiredRoles.length === 0) return !!access;
-
-    const hasRequiredRole = requiredRoles.some((role) => access?.role === role);
-
-    if (!access || !hasRequiredRole) {
-      throw new ForbiddenException(
-        'You do not have permission to perform this action.',
-      );
-    }
+    // Enforce role hierarchy
+    const hasRequired = requiredRoles.some((role) =>
+      this.isRoleAtLeast(access.role, role),
+    );
+    if (!hasRequired) throw new ForbiddenException();
 
     return true;
   }

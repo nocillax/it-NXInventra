@@ -8,10 +8,11 @@ import { CustomField } from '../../database/entities/custom_field.entity';
 import { Item } from '../../database/entities/item.entity';
 import { Tag } from '../../database/entities/tag.entity';
 import { TagService } from '../tag/tag.service';
+import { User } from '../../database/entities/user.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Inventory, Access, CustomField, Item, Tag]),
+    TypeOrmModule.forFeature([Inventory, Access, CustomField, Item, Tag, User]),
   ],
   controllers: [InventoryController],
   providers: [InventoryService, TagService],

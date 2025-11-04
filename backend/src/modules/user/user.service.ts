@@ -9,6 +9,11 @@ import { User } from '../../database/entities/user.entity';
 import { Access } from '../../database/entities/access.entity';
 import { Inventory } from '../../database/entities/inventory.entity';
 import { UpdatePreferencesDto } from './dto/update-preferences.dto';
+import {
+  isValidUserQuery,
+  mapUserProfile,
+  mapUserSearch,
+} from './user.helpers';
 
 export interface UserProfile {
   providerId: string;
@@ -29,26 +34,21 @@ export class UserService {
     private readonly dataSource: DataSource,
   ) {}
 
+  // Finds a user by profile or creates a new one
   async findOrCreate(profile: UserProfile): Promise<User> {
     let user = await this.userRepository.findOne({
       where: { provider: profile.provider, providerId: profile.providerId },
     });
-
     if (user) {
-      // Update user info on login in case their avatar or name changed
       user.name = profile.name;
       return this.userRepository.save(user);
     }
-
-    // If user does not exist, create a new one
-    const newUser = this.userRepository.create(profile);
-    return this.userRepository.save(newUser);
+    return this.userRepository.save(this.userRepository.create(profile));
   }
 
-  async searchUsers(
-    query: string,
-    limit: number = 10,
-  ): Promise<{ id: string; name: string; email: string }[]> {
+  // Searches users by name or email
+  async searchUsers(query: string, limit: number = 10) {
+    if (!isValidUserQuery(query)) return [];
     const users = await this.userRepository
       .createQueryBuilder('user')
       .select(['user.id', 'user.name', 'user.email'])
@@ -57,148 +57,88 @@ export class UserService {
       })
       .limit(limit)
       .getMany();
-
-    return users.map((user) => ({
-      id: user.id,
-      name: user.name,
-      email: user.email,
-    }));
+    return users.map(mapUserSearch);
   }
 
-  async getCurrentUser(userId: string): Promise<any> {
+  // Gets the current user's profile
+  async getCurrentUser(userId: string) {
     const user = await this.userRepository.findOne({ where: { id: userId } });
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
-    return {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      isAdmin: user.isAdmin,
-      theme: user.theme,
-      language: user.language,
-      createdAt: user.createdAt,
-    };
+    if (!user) throw new NotFoundException('User not found');
+    return mapUserProfile(user);
   }
 
-  async updatePreferences(
-    userId: string,
-    updatePreferencesDto: UpdatePreferencesDto,
-  ): Promise<User> {
+  // Updates user preferences (name, theme, language)
+  async updatePreferences(userId: string, dto: UpdatePreferencesDto) {
     const user = await this.userRepository.findOne({ where: { id: userId } });
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
-    if (updatePreferencesDto.name) {
-      user.name = updatePreferencesDto.name;
-    }
-    if (updatePreferencesDto.theme) {
-      user.theme = updatePreferencesDto.theme;
-    }
-    if (updatePreferencesDto.language) {
-      user.language = updatePreferencesDto.language;
-    }
-
+    if (!user) throw new NotFoundException('User not found');
+    if (dto.name) user.name = dto.name;
+    if (dto.theme) user.theme = dto.theme;
+    if (dto.language) user.language = dto.language;
     return this.userRepository.save(user);
   }
 
-  async blockUser(userId: string, currentUserId: string): Promise<User> {
+  // Blocks a user (admin only)
+  async blockUser(userId: string, currentUserId: string) {
     await this.validateAdmin(currentUserId);
-
     const user = await this.userRepository.findOne({ where: { id: userId } });
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
+    if (!user) throw new NotFoundException('User not found');
     user.blocked = true;
     return this.userRepository.save(user);
   }
 
-  async unblockUser(userId: string, currentUserId: string): Promise<User> {
+  // Unblocks a user (admin only)
+  async unblockUser(userId: string, currentUserId: string) {
     await this.validateAdmin(currentUserId);
-
     const user = await this.userRepository.findOne({ where: { id: userId } });
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
+    if (!user) throw new NotFoundException('User not found');
     user.blocked = false;
     return this.userRepository.save(user);
   }
 
-  async promoteToAdmin(userId: string, currentUserId: string): Promise<User> {
+  // Promotes a user to admin (admin only)
+  async promoteToAdmin(userId: string, currentUserId: string) {
     await this.validateAdmin(currentUserId);
-
     const user = await this.userRepository.findOne({ where: { id: userId } });
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
+    if (!user) throw new NotFoundException('User not found');
     user.isAdmin = true;
     return this.userRepository.save(user);
   }
 
-  async demoteFromAdmin(userId: string, currentUserId: string): Promise<User> {
+  // Demotes a user from admin (admin only, can demote self)
+  async demoteFromAdmin(userId: string, currentUserId: string) {
     await this.validateAdmin(currentUserId);
-
     const user = await this.userRepository.findOne({ where: { id: userId } });
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
-    // Allow admin to demote themselves (as required by project)
+    if (!user) throw new NotFoundException('User not found');
     user.isAdmin = false;
     return this.userRepository.save(user);
   }
 
-  async deleteUser(
-    userId: string,
-    currentUserId: string,
-  ): Promise<{ message: string }> {
-    // Allow admin or self-deletion
+  // Deletes a user (admin or self), deletes inventories if sole owner
+  async deleteUser(userId: string, currentUserId: string) {
     const currentUser = await this.userRepository.findOne({
       where: { id: currentUserId },
     });
-    if (!currentUser?.isAdmin && currentUserId !== userId) {
+    if (!currentUser?.isAdmin && currentUserId !== userId)
       throw new ForbiddenException('Only admin or self can delete user');
-    }
-
     const userToDelete = await this.userRepository.findOne({
       where: { id: userId },
       relations: ['accessRecords'],
     });
-
-    if (!userToDelete) {
-      throw new NotFoundException('User not found');
-    }
-
+    if (!userToDelete) throw new NotFoundException('User not found');
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
-
     try {
-      // Check each inventory where user has access for sole ownership
       for (const access of userToDelete.accessRecords) {
         if (access.role === 'Owner') {
           const ownerCount = await queryRunner.manager.count(Access, {
-            where: {
-              inventoryId: access.inventoryId,
-              role: 'Owner',
-            },
+            where: { inventoryId: access.inventoryId, role: 'Owner' },
           });
-
-          if (ownerCount === 1) {
-            // User is sole owner - delete entire inventory (cascade will handle related data)
+          if (ownerCount === 1)
             await queryRunner.manager.delete(Inventory, access.inventoryId);
-          }
         }
       }
-
-      // Delete user (this will cascade delete their access records)
       await queryRunner.manager.delete(User, userId);
-
       await queryRunner.commitTransaction();
       return { message: 'User deleted successfully' };
     } catch (error) {
@@ -209,32 +149,16 @@ export class UserService {
     }
   }
 
-  private async validateAdmin(userId: string): Promise<void> {
+  // Checks if a user is admin, throws if not
+  private async validateAdmin(userId: string) {
     const user = await this.userRepository.findOne({ where: { id: userId } });
-    if (!user?.isAdmin) {
-      throw new ForbiddenException('Admin access required');
-    }
+    if (!user?.isAdmin) throw new ForbiddenException('Admin access required');
   }
 
-  // Add this method to the UserService class
-  async getUserById(userId: string): Promise<any> {
-    const user = await this.userRepository.findOne({
-      where: { id: userId },
-    });
-
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
-    return {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      isAdmin: user.isAdmin,
-      theme: user.theme,
-      language: user.language,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-    };
+  // Gets a user by ID
+  async getUserById(userId: string) {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) throw new NotFoundException('User not found');
+    return mapUserProfile(user);
   }
 }

@@ -22,6 +22,9 @@ import { UpdateAccessDto } from './dto/update-access.dto';
 import { AddAccessDto } from './dto/add-access.dto';
 import { UpdateCustomFieldDto } from './dto/update-custom-fields.dto';
 import { AddCustomFieldsDto } from './dto/add-custom-fields.dto';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { Public } from '../auth/decorators/public.decorator';
 
 @Controller('inventories')
 export class InventoryController {
@@ -92,7 +95,8 @@ export class InventoryController {
     return this.inventoryService.findOne(id, req.user.id);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('Owner')
   @Patch(':id')
   update(
     @Param('id', ParseUUIDPipe) id: string,
@@ -163,7 +167,8 @@ export class InventoryController {
     return this.inventoryService.getCustomFields(inventoryId, req.user.id);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('Owner')
   @Post(':id/custom-fields')
   async addCustomFields(
     @Param('id', ParseUUIDPipe) inventoryId: string,

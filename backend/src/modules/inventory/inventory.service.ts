@@ -22,6 +22,7 @@ import { AddAccessDto } from './dto/add-access.dto';
 import { User } from '../../database/entities/user.entity';
 import { UpdateCustomFieldDto } from './dto/update-custom-fields.dto';
 import { AddCustomFieldsDto } from './dto/add-custom-fields.dto';
+import * as helpers from './inventory.helpers';
 
 @Injectable()
 export class InventoryService {
@@ -36,9 +37,7 @@ export class InventoryService {
     private readonly tagService: TagService,
   ) {}
 
-  // ========== TINY REUSABLE HELPER FUNCTIONS ==========
-
-  // Helper methods first
+  // This function validates that the current user has owner access to the inventory
   private async validateCurrentUserIsOwner(
     inventoryId: string,
     userId: string,
@@ -51,12 +50,14 @@ export class InventoryService {
     }
   }
 
+  // This function counts how many owners an inventory has
   private async getOwnerCount(inventoryId: string): Promise<number> {
     return this.accessRepository.count({
       where: { inventoryId, role: 'Owner' },
     });
   }
 
+  // This function ensures we don't remove or modify the last owner of an inventory
   private async validateNotLastOwner(
     inventoryId: string,
     targetUserId: string,
@@ -70,7 +71,8 @@ export class InventoryService {
       throw new ForbiddenException('Cannot remove or change the last owner');
     }
   }
-  // Add this new helper method for transaction-safe tag syncing
+
+  // This function updates inventory tags within a transaction (finding or creating tags as needed)
   private async syncInventoryTagsInTransaction(
     queryRunner: QueryRunner,
     inventoryId: string,
@@ -91,25 +93,15 @@ export class InventoryService {
     }
   }
 
-  // Let me also create a cleaner helper method for the access checking
+  // This function adds a WHERE condition to exclude inventories where user is already an owner
   private addNotOwnerCondition(query: any, userId: string): void {
     query
-      .andWhere((qb) => {
-        const subQuery = qb
-          .subQuery()
-          .select('1')
-          .from('access', 'access')
-          .where('access.inventoryId = inventory.id')
-          .andWhere('access.userId = :userId')
-          .andWhere('access.role = :role')
-          .getQuery();
-        return `NOT EXISTS (${subQuery})`;
-      })
+      .andWhere((qb) => helpers.buildNotOwnerSubQuery(qb))
       .setParameter('userId', userId)
       .setParameter('role', 'Owner');
   }
 
-  // Add this helper to create tags within transaction
+  // This function finds existing tags or creates new ones within a database transaction
   private async findOrCreateTagsInTransaction(
     queryRunner: QueryRunner,
     tagNames: string[],
@@ -122,20 +114,14 @@ export class InventoryService {
       .where('tag.name IN (:...tagNames)', { tagNames })
       .getMany();
 
-    const existingTagNames = new Set(existingTags.map((tag) => tag.name));
-    const newTagNames = tagNames.filter((name) => !existingTagNames.has(name));
-
-    // Create new tags
-    const newTags = newTagNames.map((name) => {
-      const tag = new Tag();
-      tag.name = name;
-      return tag;
-    });
+    const { newTagNames } = helpers.categorizeTagNames(tagNames, existingTags);
+    const newTags = helpers.createTagEntities(newTagNames);
 
     const savedNewTags = await queryRunner.manager.save(Tag, newTags);
     return [...existingTags, ...savedNewTags];
   }
 
+  // This function wraps database operations in a transaction with automatic rollback on error
   private async runTransaction<T>(
     callback: (queryRunner: QueryRunner) => Promise<T>,
   ): Promise<T> {
@@ -155,41 +141,19 @@ export class InventoryService {
     }
   }
 
+  // This function creates an inventory entity with default ID format and creator info
   private createInventoryEntity(
     createInventoryDto: CreateInventoryDto,
     userId: string,
   ): Inventory {
-    // Create the entity without tags first, then handle tags separately
-    const { tags, ...dtoWithoutTags } = createInventoryDto;
-
-    return this.inventoryRepository.create({
-      ...dtoWithoutTags,
-      createdBy: userId,
-      // Add default ID format here
-      idFormat: [
-        { id: 'seg1', type: 'fixed', value: 'ITEM-' },
-        { id: 'seg2', type: 'sequence', format: 'D3' },
-      ],
-      // Don't set tags here - they'll be handled by syncInventoryTags
-    });
-  }
-
-  private createOwnerAccess(inventoryId: string, userId: string): Access {
-    return this.accessRepository.create({
-      inventoryId,
+    const entityData = helpers.createInventoryEntityData(
+      createInventoryDto,
       userId,
-      role: 'Owner',
-    });
+    );
+    return this.inventoryRepository.create(entityData);
   }
 
-  private async validateInventoryExists(id: string): Promise<Inventory> {
-    const inventory = await this.inventoryRepository.findOne({ where: { id } });
-    if (!inventory) {
-      throw new NotFoundException(`Inventory with ID "${id}" not found.`);
-    }
-    return inventory;
-  }
-
+  // This function verifies that a user has access to a specific inventory
   private async checkUserAccess(
     inventoryId: string,
     userId: string,
@@ -203,67 +167,7 @@ export class InventoryService {
     }
   }
 
-  private mapCustomFieldType(dtoType: string): CustomFieldType {
-    const typeMap = {
-      longtext: 'textarea' as CustomFieldType,
-      url: 'link' as CustomFieldType,
-      text: 'text' as CustomFieldType,
-      number: 'number' as CustomFieldType,
-      boolean: 'boolean' as CustomFieldType,
-    };
-    return typeMap[dtoType] || 'text';
-  }
-
-  private extractCustomFieldIds(customFields: any[]): Set<number> {
-    return new Set(
-      customFields.map((f) => parseInt(f.id, 10)).filter((id) => !isNaN(id)),
-    );
-  }
-
-  private async getExistingCustomFields(
-    queryRunner: QueryRunner,
-    inventoryId: string,
-  ): Promise<CustomField[]> {
-    return queryRunner.manager.find(CustomField, {
-      where: { inventoryId },
-    });
-  }
-
-  private createCustomFieldEntity(
-    fieldDto: any,
-    inventoryId: string,
-    index: number,
-  ): Partial<CustomField> {
-    return {
-      id: fieldDto.id ? parseInt(fieldDto.id, 10) : undefined,
-      inventoryId,
-      orderIndex: index,
-      title: fieldDto.title,
-      type: this.mapCustomFieldType(fieldDto.type),
-      showInTable: fieldDto.showInTable,
-    };
-  }
-
-  private async deleteRemovedFields(
-    queryRunner: QueryRunner,
-    fieldsToDelete: CustomField[],
-  ): Promise<void> {
-    if (fieldsToDelete.length > 0) {
-      await queryRunner.manager.remove(fieldsToDelete);
-    }
-  }
-
-  private async saveCustomFields(
-    queryRunner: QueryRunner,
-    fieldEntities: Partial<CustomField>[],
-  ): Promise<void> {
-    for (const fieldEntity of fieldEntities) {
-      await queryRunner.manager.save(CustomField, fieldEntity);
-    }
-  }
-
-  // ========== MAIN SERVICE METHODS (NOW SIMPLIFIED) ==========
-
+  // This function creates a new inventory with owner access and optional tags
   async create(
     createInventoryDto: CreateInventoryDto,
     userId: string,
@@ -275,7 +179,11 @@ export class InventoryService {
       );
       const savedInventory = await queryRunner.manager.save(newInventory);
 
-      const ownerAccess = this.createOwnerAccess(savedInventory.id, userId);
+      const ownerAccess = this.accessRepository.create({
+        inventoryId: savedInventory.id,
+        userId,
+        role: 'Owner',
+      });
       await queryRunner.manager.save(ownerAccess);
 
       // Handle tags INSIDE the transaction
@@ -303,6 +211,7 @@ export class InventoryService {
     });
   }
 
+  // This function retrieves a single inventory with all related data (creator, fields, tags, access)
   async findOne(id: string, userId: string): Promise<Inventory> {
     const inventory = await this.inventoryRepository
       .createQueryBuilder('inventory')
@@ -321,6 +230,7 @@ export class InventoryService {
     return inventory;
   }
 
+  // This function updates inventory details including custom fields and tags
   async update(
     id: string,
     updateInventoryDto: UpdateInventoryDto,
@@ -354,30 +264,35 @@ export class InventoryService {
     });
   }
 
+  // This function synchronizes custom fields by adding new ones and removing deleted ones
   private async syncCustomFields(
     queryRunner: QueryRunner,
     inventoryId: string,
     customFields: any[],
   ): Promise<void> {
-    const existingFields = await this.getExistingCustomFields(
-      queryRunner,
-      inventoryId,
+    const existingFields = await queryRunner.manager.find(CustomField, {
+      where: { inventoryId },
+    });
+    const incomingFieldIds = helpers.extractCustomFieldIds(customFields);
+    const fieldsToDelete = helpers.identifyFieldsToDelete(
+      existingFields,
+      incomingFieldIds,
     );
-    const existingFieldIds = new Set(existingFields.map((f) => f.id));
-    const incomingFieldIds = this.extractCustomFieldIds(customFields);
 
-    const fieldsToDelete = existingFields.filter(
-      (f) => !incomingFieldIds.has(f.id),
-    );
-    await this.deleteRemovedFields(queryRunner, fieldsToDelete);
+    if (fieldsToDelete.length > 0) {
+      await queryRunner.manager.remove(fieldsToDelete);
+    }
 
     const fieldEntities = customFields.map((fieldDto, index) =>
-      this.createCustomFieldEntity(fieldDto, inventoryId, index),
+      helpers.createCustomFieldEntity(fieldDto, inventoryId, index),
     );
 
-    await this.saveCustomFields(queryRunner, fieldEntities);
+    for (const fieldEntity of fieldEntities) {
+      await queryRunner.manager.save(CustomField, fieldEntity);
+    }
   }
 
+  // This function permanently deletes an inventory from the database
   async remove(id: string, userId: string): Promise<void> {
     const result = await this.inventoryRepository.delete(id);
     if (result.affected === 0) {
@@ -385,12 +300,13 @@ export class InventoryService {
     }
   }
 
+  // This function returns public inventories that the user doesn't own yet
   async findAllPublic(
     userId: string,
     page: number = 1,
     limit: number = 10,
   ): Promise<any> {
-    const skip = (page - 1) * limit;
+    const skip = helpers.calculateSkip(page, limit);
 
     const query = this.inventoryRepository
       .createQueryBuilder('inventory')
@@ -414,17 +330,16 @@ export class InventoryService {
       .orderBy('inventory.createdAt', 'DESC')
       .getManyAndCount();
 
-    return {
+    return helpers.createPaginationResponse(
       inventories,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit),
-      },
-    };
+      page,
+      limit,
+      total,
+      'inventories',
+    );
   }
 
+  // This function searches inventories with filters (category, tags, public status, search text)
   async findWithPagination(
     inventoryQueryDto: InventoryQueryDto,
     userId?: string,
@@ -437,7 +352,7 @@ export class InventoryService {
       public: isPublic,
       search,
     } = inventoryQueryDto;
-    const skip = (page - 1) * limit;
+    const skip = helpers.calculateSkip(page, limit);
 
     const query = this.inventoryRepository
       .createQueryBuilder('inventory')
@@ -451,18 +366,25 @@ export class InventoryService {
     }
 
     if (tags && tags.length > 0) {
-      query.andWhere('inventory.tags && :tags', { tags });
+      query
+        .andWhere((qb) => helpers.buildTagFilterSubQuery(qb))
+        .setParameter('tags', tags);
     }
 
-    // Handle public filter and access logic
+    // Handle public filter and access logic - REPLACE THIS ENTIRE BLOCK
     if (isPublic !== undefined) {
       query.andWhere('inventory.public = :isPublic', { isPublic });
     } else {
       // If no public filter specified:
       if (userId) {
-        // For authenticated users: show public inventories where they're NOT owners
-        query.andWhere('inventory.public = :isPublic', { isPublic: true });
-        this.addNotOwnerCondition(query, userId);
+        // For authenticated users: show ALL inventories they have access to
+        // This includes: public inventories + private inventories they own/have access to
+        query.andWhere(
+          '(inventory.public = true OR EXISTS (' +
+            'SELECT 1 FROM access a WHERE a.inventory_id = inventory.id AND a.user_id = :userId' +
+            '))',
+          { userId },
+        );
       } else {
         // For guest users: only show public inventories
         query.andWhere('inventory.public = :isPublic', { isPublic: true });
@@ -482,18 +404,16 @@ export class InventoryService {
       .orderBy('inventory.createdAt', 'DESC')
       .getManyAndCount();
 
-    return {
+    return helpers.createPaginationResponse(
       inventories,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit),
-      },
-    };
+      page,
+      limit,
+      total,
+      'inventories',
+    );
   }
 
-  // Main access management methods
+  // This function adds a user to an inventory's access list with a specific role
   async addAccess(
     inventoryId: string,
     addAccessDto: AddAccessDto,
@@ -526,6 +446,7 @@ export class InventoryService {
     return this.accessRepository.save(newAccess);
   }
 
+  // This function returns a list of all users who have access to an inventory
   async getAccessList(
     inventoryId: string,
     currentUserId: string,
@@ -538,15 +459,10 @@ export class InventoryService {
       relations: ['user'],
     });
 
-    return accessList.map((access) => ({
-      userId: access.userId,
-      userName: access.user.name,
-      userEmail: access.user.email,
-      role: access.role,
-      createdAt: access.createdAt,
-    }));
+    return helpers.formatAccessList(accessList);
   }
 
+  // This function changes a user's access role for an inventory
   async updateAccess(
     inventoryId: string,
     targetUserId: string,
@@ -568,6 +484,7 @@ export class InventoryService {
     return this.accessRepository.save(access);
   }
 
+  // This function removes a user's access to an inventory
   async removeAccess(
     inventoryId: string,
     targetUserId: string,
@@ -598,12 +515,13 @@ export class InventoryService {
     return { message: 'Access removed successfully' };
   }
 
+  // This function returns all inventories where the user is an owner
   async findMyInventories(
     userId: string,
     page: number = 1,
     limit: number = 10,
   ): Promise<any> {
-    const skip = (page - 1) * limit;
+    const skip = helpers.calculateSkip(page, limit);
 
     const [inventories, total] = await this.inventoryRepository
       .createQueryBuilder('inventory')
@@ -630,23 +548,22 @@ export class InventoryService {
       .orderBy('inventory.createdAt', 'DESC')
       .getManyAndCount();
 
-    return {
+    return helpers.createPaginationResponse(
       inventories,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit),
-      },
-    };
+      page,
+      limit,
+      total,
+      'inventories',
+    );
   }
 
+  // This function returns inventories shared with the user (Editor or Viewer role)
   async findSharedWithMe(
     userId: string,
     page: number = 1,
     limit: number = 10,
   ): Promise<any> {
-    const skip = (page - 1) * limit;
+    const skip = helpers.calculateSkip(page, limit);
 
     const [inventories, total] = await this.inventoryRepository
       .createQueryBuilder('inventory')
@@ -674,17 +591,16 @@ export class InventoryService {
       .orderBy('inventory.createdAt', 'DESC')
       .getManyAndCount();
 
-    return {
+    return helpers.createPaginationResponse(
       inventories,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit),
-      },
-    };
+      page,
+      limit,
+      total,
+      'inventories',
+    );
   }
 
+  // This function returns the user's access role for a specific inventory
   async getMyAccess(
     inventoryId: string,
     userId: string,
@@ -700,6 +616,7 @@ export class InventoryService {
     return { role: access.role };
   }
 
+  // This function retrieves all custom fields for an inventory
   async getCustomFields(
     inventoryId: string,
     userId: string,
@@ -713,6 +630,7 @@ export class InventoryService {
     });
   }
 
+  // This function adds new custom fields to an inventory
   async addCustomFields(
     inventoryId: string,
     addCustomFieldsDto: AddCustomFieldsDto,
@@ -736,22 +654,13 @@ export class InventoryService {
         order: { orderIndex: 'DESC' },
       });
 
-      const highestOrderIndex =
-        existingFields.length > 0 ? existingFields[0].orderIndex : -1;
-
-      const fieldEntities = addCustomFieldsDto.fields.map((fieldDto, index) => {
-        // Use provided orderIndex if exists, otherwise calculate it
-        const orderIndex =
-          fieldDto.orderIndex !== undefined
-            ? fieldDto.orderIndex
-            : highestOrderIndex + 1 + index;
-
-        return this.createCustomFieldEntity(
-          { ...fieldDto, orderIndex }, // Pass the calculated orderIndex
-          inventoryId,
-          orderIndex, // Or pass it as separate parameter if needed
-        );
-      });
+      const startingOrderIndex =
+        helpers.calculateNextOrderIndex(existingFields);
+      const fieldEntities = helpers.createCustomFieldEntities(
+        addCustomFieldsDto.fields,
+        inventoryId,
+        startingOrderIndex,
+      );
 
       const savedFields = await queryRunner.manager.save(
         CustomField,
@@ -760,6 +669,8 @@ export class InventoryService {
       return savedFields;
     });
   }
+
+  // This function updates an existing custom field's properties (except type)
   async updateCustomField(
     inventoryId: string,
     fieldId: number,
@@ -804,6 +715,7 @@ export class InventoryService {
     return this.customFieldRepository.save(field);
   }
 
+  // This function permanently removes a custom field from an inventory
   async deleteCustomField(
     inventoryId: string,
     fieldId: number,
@@ -825,7 +737,7 @@ export class InventoryService {
     return { message: 'Custom field deleted successfully' };
   }
 
-  // Helper method to validate owner or editor access
+  // This function validates that the user has either Owner or Editor access to the inventory
   private async validateCurrentUserIsOwnerOrEditor(
     inventoryId: string,
     userId: string,
@@ -845,25 +757,24 @@ export class InventoryService {
     }
   }
 
-  // Helper method to validate no duplicate field names
+  // This function checks for duplicate field titles both in the request and in the database
   private async validateNoDuplicateFieldNames(
     queryRunner: QueryRunner | null,
     inventoryId: string,
     fields: Array<{ title: string }>,
     excludeFieldId: number | null = null,
   ): Promise<void> {
-    const fieldTitles = fields.map((f) => f.title.toLowerCase());
-    const duplicateTitles = fieldTitles.filter(
-      (title, index) => fieldTitles.indexOf(title) !== index,
-    );
+    // Use helper to check for duplicates in the request
+    const validation = helpers.validateNoDuplicateTitles(fields);
 
-    if (duplicateTitles.length > 0) {
+    if (!validation.valid) {
       throw new ConflictException(
-        `Duplicate field names found: ${duplicateTitles.join(', ')}`,
+        `Duplicate field names found: ${validation.duplicates.join(', ')}`,
       );
     }
 
     // Check against existing fields in database
+    const fieldTitles = fields.map((f) => f.title.toLowerCase());
     const repository = queryRunner
       ? queryRunner.manager.getRepository(CustomField)
       : this.customFieldRepository;
@@ -887,6 +798,7 @@ export class InventoryService {
     }
   }
 
+  // This function returns the custom ID format string for an inventory
   async getInventoryIdFormat(
     inventoryId: string,
     userId: string,
@@ -905,24 +817,9 @@ export class InventoryService {
     }
 
     if (!inventory.idFormat || inventory.idFormat.length === 0) {
-      return ''; // Return empty string if no format defined
+      return '';
     }
 
-    // Convert idFormat array to concatenated string pattern
-    const formatParts = inventory.idFormat.map((segment) => {
-      if (segment.type === 'fixed') {
-        return segment.value || '';
-      } else if (segment.type === 'random_6digit') {
-        return 'rand6';
-      } else if (segment.type === 'random_9digit') {
-        return 'rand9';
-      } else {
-        // For all other types (date, sequence, random_20bit, random_32bit, guid)
-        // Just use the format field if present, otherwise use type as fallback
-        return segment.format || segment.type;
-      }
-    });
-
-    return formatParts.join('');
+    return helpers.generateIdFormatString(inventory.idFormat);
   }
 }

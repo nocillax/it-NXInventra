@@ -6,7 +6,7 @@ import {
   Min,
   IsBoolean,
 } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 
 export class InventoryQueryDto {
   @IsOptional()
@@ -28,6 +28,13 @@ export class InventoryQueryDto {
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
+  @Type(() => String)
+  @Transform(({ value }) =>
+    value
+      .split(',')
+      .map((tag) => tag.trim())
+      .filter((tag) => tag.length > 0),
+  )
   tags?: string[];
 
   @IsOptional()

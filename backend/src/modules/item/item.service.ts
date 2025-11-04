@@ -7,21 +7,14 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { Item } from '../../database/entities/item.entity';
-import { IdSegment, Inventory } from '../../database/entities/inventory.entity';
+import { Inventory } from '../../database/entities/inventory.entity';
 import { CreateItemDto } from './dto/create-item.dto';
 import { UpdateItemDto } from './dto/update-item.dto';
 import { ItemFieldValue } from '../../database/entities/item_field_value.entity';
-import {
-  extractSequenceNumber,
-  generateCustomId,
-  generateIdTemplate,
-  getSegmentAtPosition,
-  isValidEditableChar,
-} from '../../common/utils/id-generator.util';
-import { CustomField } from '../../database/entities/custom_field.entity';
-import { version } from 'os';
+import { generateCustomId } from '../../common/utils/id-generator.util';
 import { ItemLike } from '../../database/entities/item_like.entity';
 import { PaginationDto } from './dto/pagination.dto';
+import * as helpers from './item.helpers';
 
 @Injectable()
 export class ItemService {
@@ -37,8 +30,7 @@ export class ItemService {
     private readonly dataSource: DataSource,
   ) {}
 
-  // ========== TINY REUSABLE FUNCTIONS ==========
-
+  // This function fetches an inventory with all its custom field definitions loaded
   private async getInventoryWithFields(
     inventoryId: string,
   ): Promise<Inventory> {
@@ -56,10 +48,7 @@ export class ItemService {
     return inventory;
   }
 
-  private createFieldMap(customFields: any[]): Map<string, any> {
-    return new Map(customFields.map((field) => [field.id.toString(), field]));
-  }
-
+  // This function calculates the next sequence number for a new item in the inventory
   private async getNextSequenceNumber(
     queryRunner: any,
     inventoryId: string,
@@ -72,71 +61,7 @@ export class ItemService {
       .then((result) => (result.maxSequence || 0) + 1);
   }
 
-  private createBaseItem(
-    inventoryId: string,
-    userId: string,
-    sequenceNumber: number,
-    customId: string,
-  ): Item {
-    return this.itemRepository.create({
-      inventoryId,
-      createdBy: userId,
-      sequenceNumber,
-      customId,
-    });
-  }
-
-  private createFieldValue(
-    itemId: string,
-    fieldId: number,
-    value: any,
-    fieldType: string,
-  ): ItemFieldValue {
-    const fieldValue = new ItemFieldValue();
-    fieldValue.itemId = itemId;
-    fieldValue.fieldId = fieldId;
-
-    if (fieldType === 'number') fieldValue.valueNumber = Number(value);
-    else if (fieldType === 'boolean')
-      fieldValue.valueBoolean = this.toBoolean(value);
-    else fieldValue.valueText = String(value);
-
-    return fieldValue;
-  }
-
-  private toBoolean(value: any): boolean {
-    return value === true || value === 'true' || value === 1;
-  }
-
-  private createFieldValues(
-    itemId: string,
-    fields: any,
-    fieldMap: Map<string, any>,
-  ): ItemFieldValue[] {
-    return Object.entries(fields)
-      .map(([fieldIdStr, value]) => {
-        const fieldDef = fieldMap.get(fieldIdStr);
-        if (!fieldDef) return null;
-
-        return this.createFieldValue(
-          itemId,
-          parseInt(fieldIdStr, 10),
-          value,
-          fieldDef.type,
-        );
-      })
-      .filter((field): field is ItemFieldValue => field !== null);
-  }
-
-  private async saveFieldValues(
-    queryRunner: any,
-    fieldValues: ItemFieldValue[],
-  ): Promise<void> {
-    if (fieldValues.length > 0) {
-      await queryRunner.manager.save(ItemFieldValue, fieldValues);
-    }
-  }
-
+  // This function fetches a complete item with all its field values and field definitions
   private getItemWithRelations(itemId: string): Promise<Item> {
     return this.itemRepository.findOneOrFail({
       where: { id: itemId },
@@ -144,40 +69,7 @@ export class ItemService {
     });
   }
 
-  private handleTransactionError(error: any): void {
-    if (error.code === '23505') {
-      throw new ConflictException(
-        'A duplicate Custom ID was generated. Please try again.',
-      );
-    }
-    throw error;
-  }
-  private formatItemForResponse(item: Item): any {
-    const fields = {};
-
-    if (item.fieldValues) {
-      item.fieldValues.forEach((fv) => {
-        const key = fv.field.title;
-        fields[key] = this.getFieldValue(fv);
-      });
-    }
-
-    return {
-      id: item.id,
-      inventoryId: item.inventoryId,
-      customId: item.customId,
-      likes: item.likes,
-      version: item.version,
-      fields,
-    };
-  }
-
-  private getFieldValue(fieldValue: ItemFieldValue): any {
-    if (fieldValue.field.type === 'number') return fieldValue.valueNumber;
-    if (fieldValue.field.type === 'boolean') return fieldValue.valueBoolean;
-    return fieldValue.valueText;
-  }
-
+  // This function fetches an item for updating and validates the version for optimistic locking
   private async getItemForUpdate(
     queryRunner: any,
     itemId: string,
@@ -198,35 +90,23 @@ export class ItemService {
     return item;
   }
 
-  private formatFieldDefinitions(customFields: CustomField[]): any[] {
-    return customFields
-      .sort((a, b) => a.orderIndex - b.orderIndex)
-      .map((field) => ({
-        id: field.id,
-        title: field.title,
-        type: field.type,
-        description: field.description,
-        showInTable: field.showInTable,
-        orderIndex: field.orderIndex,
-      }));
-  }
-
+  // This function updates or creates field values for an item within a transaction
   private async updateFieldValues(
     queryRunner: any,
     itemId: string,
     fields: any,
     fieldMap: Map<string, any>,
   ): Promise<void> {
-    // Get existing field values
     const existingValues = await queryRunner.manager.find(ItemFieldValue, {
       where: { itemId },
     });
 
+    // Create a map of existing field values for quick lookup
     const existingValueMap = new Map(
       existingValues.map((value) => [value.fieldId.toString(), value]),
     );
 
-    // Update or create only the provided fields
+    // Loop through each field to update or create
     for (const [fieldKey, newValue] of Object.entries(fields)) {
       const fieldDef = fieldMap.get(fieldKey);
       if (!fieldDef) continue;
@@ -234,13 +114,11 @@ export class ItemService {
       const fieldId = parseInt(fieldKey, 10);
 
       if (existingValueMap.has(fieldKey)) {
-        // UPDATE existing field value
-        const existingValue = existingValueMap.get(fieldKey) as ItemFieldValue; // ADD TYPE CAST
-        this.updateSingleFieldValue(existingValue, newValue, fieldDef.type);
+        const existingValue = existingValueMap.get(fieldKey) as ItemFieldValue;
+        helpers.updateSingleFieldValue(existingValue, newValue, fieldDef.type);
         await queryRunner.manager.save(ItemFieldValue, existingValue);
       } else {
-        // CREATE new field value
-        const newFieldValue = this.createFieldValue(
+        const newFieldValue = helpers.createFieldValue(
           itemId,
           fieldId,
           newValue,
@@ -251,38 +129,17 @@ export class ItemService {
     }
   }
 
-  private updateSingleFieldValue(
-    fieldValue: ItemFieldValue,
-    newValue: any,
-    fieldType: string,
-  ): void {
-    // Clear all value columns first
-    fieldValue.valueText = null as any;
-    fieldValue.valueNumber = null as any;
-    fieldValue.valueBoolean = null as any;
-
-    // Set the appropriate value column
-    if (fieldType === 'number') fieldValue.valueNumber = Number(newValue);
-    else if (fieldType === 'boolean')
-      fieldValue.valueBoolean = this.toBoolean(newValue);
-    else fieldValue.valueText = String(newValue);
-  }
-
-  private async getItemById(itemId: string): Promise<Item> {
-    const item = await this.itemRepository.findOne({ where: { id: itemId } });
-    if (!item)
-      throw new NotFoundException(`Item with ID "${itemId}" not found.`);
-    return item;
-  }
-
+  // This function increments the like count for an item by 1
   private async incrementLikesCount(itemId: string): Promise<void> {
     await this.itemRepository.increment({ id: itemId }, 'likes', 1);
   }
 
+  // This function decrements the like count for an item by 1
   private async decrementLikesCount(itemId: string): Promise<void> {
     await this.itemRepository.decrement({ id: itemId }, 'likes', 1);
   }
 
+  // This function gets the current number of likes for an item
   private async getItemLikesCount(itemId: string): Promise<number> {
     const item = await this.itemRepository.findOne({
       where: { id: itemId },
@@ -291,14 +148,13 @@ export class ItemService {
     return item?.likes || 0;
   }
 
-  // ========== STATISTICS FUNCTIONS ==========
-
+  // This function counts the total number of items in an inventory
   private async getTotalItemsCount(inventoryId: string): Promise<number> {
     return this.itemRepository.count({ where: { inventoryId } });
   }
 
+  // This function gets the top 5 users who created the most items in an inventory
   private async getTopContributors(inventoryId: string): Promise<any[]> {
-    // Reusing itemRepository for user contribution stats
     const contributors = await this.itemRepository
       .createQueryBuilder('item')
       .select('item.createdBy', 'userId')
@@ -311,15 +167,11 @@ export class ItemService {
       .limit(5)
       .getRawMany();
 
-    return contributors.map((c) => ({
-      userId: c.userId,
-      name: c.userName,
-      itemCount: parseInt(c.itemCount),
-    }));
+    return helpers.formatTopContributors(contributors);
   }
 
+  // This function gets item creation statistics for the last 6 months
   private async getMonthlyGrowth(inventoryId: string): Promise<any[]> {
-    // Last 6 months of item creation data
     const sixMonthsAgo = new Date();
     sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
 
@@ -337,28 +189,23 @@ export class ItemService {
       .addOrderBy('month', 'DESC')
       .getRawMany();
 
-    return monthlyData.map((m) => ({
-      month: m.month,
-      year: parseInt(m.year),
-      count: parseInt(m.count),
-    }));
+    return helpers.formatMonthlyGrowth(monthlyData);
   }
 
+  // This function gets statistics for a specific field (currently only numeric fields)
   private async getFieldStats(
     inventoryId: string,
     fieldTitle: string,
     fieldType: string,
   ): Promise<any> {
     const inventory = await this.getInventoryWithFields(inventoryId);
-    const fieldMap = this.createFieldMap(inventory.customFields);
+    const fieldMap = helpers.createFieldMap(inventory.customFields);
 
-    // Find field by title (reusing our field resolution logic)
     const fieldDef = Array.from(fieldMap.values()).find(
       (field) => field.title === fieldTitle,
     );
     if (!fieldDef) return null;
 
-    // Get stats based on field type
     if (fieldType === 'number') {
       return this.getNumericFieldStats(fieldDef.id);
     }
@@ -366,6 +213,7 @@ export class ItemService {
     return null;
   }
 
+  // This function calculates average, min, max, and total for a numeric field
   private async getNumericFieldStats(fieldId: number): Promise<any> {
     const stats = await this.itemFieldValueRepository
       .createQueryBuilder('fv')
@@ -377,130 +225,17 @@ export class ItemService {
       .andWhere('fv.valueNumber IS NOT NULL')
       .getRawOne();
 
-    return {
-      avg: parseFloat(stats.avg) || 0,
-      min: parseFloat(stats.min) || 0,
-      max: parseFloat(stats.max) || 0,
-      total: parseFloat(stats.total) || 0,
-    };
+    return helpers.formatNumericFieldStats(stats);
   }
 
-  // ========== CUSTOM ID EDIT VALIDATION ==========
-
-  private validateCustomIdEdit(
-    oldCustomId: string,
-    newCustomId: string,
-    idFormat: IdSegment[],
-  ): { valid: boolean; message: string } {
-    if (!newCustomId || newCustomId.length === 0) {
-      return { valid: false, message: 'Custom ID cannot be empty' };
-    }
-
-    if (oldCustomId === newCustomId) {
-      return { valid: true, message: 'No changes detected' };
-    }
-
-    // Generate template and validate structure
-    const template = generateIdTemplate(idFormat);
-
-    if (template.length !== newCustomId.length) {
-      return {
-        valid: false,
-        message: `Custom ID must be ${template.length} characters`,
-      };
-    }
-
-    // Validate each character position
-    for (let i = 0; i < template.length; i++) {
-      const templateChar = template[i];
-      const oldChar = oldCustomId[i];
-      const newChar = newCustomId[i];
-
-      if (templateChar !== 'x') {
-        // Fixed position (including suffixes) - must match original
-        if (newChar !== oldChar) {
-          return {
-            valid: false,
-            message: `Character at position ${i + 1} cannot be changed`,
-          };
-        }
-      } else {
-        // Editable position - validate character type
-        const segmentInfo = getSegmentAtPosition(i, idFormat);
-        if (!segmentInfo || !isValidEditableChar(newChar, segmentInfo)) {
-          return {
-            valid: false,
-            message: `Invalid character at position ${i + 1}`,
-          };
-        }
-      }
-    }
-
-    return { valid: true, message: 'Valid edit' };
-  }
-
-  private basicFormatValidation(
-    customId: string,
-    idFormat: IdSegment[],
-  ): { valid: boolean; message: string } {
-    // Temporary basic validation
-    // This will be replaced with proper segment parsing
-    try {
-      // Try generating an ID to see if the format is valid
-      const testId = generateCustomId(idFormat, 1);
-      // If we can generate an ID, the format is likely valid
-      // TODO: Replace with actual segment parsing
-      return { valid: true, message: 'Basic format validation passed' };
-    } catch (error) {
-      return {
-        valid: false,
-        message: 'Custom ID does not match inventory format',
-      };
-    }
-  }
-
-  private hasSequenceSegmentChanged(
-    oldCustomId: string,
-    newCustomId: string,
-    idFormat: IdSegment[],
-  ): boolean {
-    const template = generateIdTemplate(idFormat);
-    const hasSequence = idFormat.some((segment) => segment.type === 'sequence');
-
-    if (!hasSequence) return false;
-
-    // Check if any sequence character changed
-    for (let i = 0; i < template.length; i++) {
-      if (template[i] === 'x') {
-        const segmentInfo = getSegmentAtPosition(i, idFormat);
-        if (
-          segmentInfo?.segment.type === 'sequence' &&
-          oldCustomId[i] !== newCustomId[i]
-        ) {
-          return true;
-        }
-      }
-    }
-
-    return false;
-  }
-
-  private extractSequenceNumber(
-    customId: string,
-    idFormat: IdSegment[],
-  ): number {
-    return extractSequenceNumber(customId, idFormat);
-  }
-
-  // ========== MAIN SERVICE METHODS ==========
-
+  // This function creates a new item with auto-generated custom ID and field values
   async create(
     inventoryId: string,
     createItemDto: CreateItemDto,
     userId: string,
   ): Promise<Item> {
     const inventory = await this.getInventoryWithFields(inventoryId);
-    const fieldMap = this.createFieldMap(inventory.customFields);
+    const fieldMap = helpers.createFieldMap(inventory.customFields);
     const queryRunner = this.dataSource.createQueryRunner();
 
     await queryRunner.connect();
@@ -513,20 +248,23 @@ export class ItemService {
       );
       const customId = generateCustomId(inventory.idFormat, nextSequence);
 
-      const newItem = this.createBaseItem(
-        inventory.id,
-        userId,
-        nextSequence,
+      const newItem = this.itemRepository.create({
+        inventoryId: inventory.id,
+        createdBy: userId,
+        sequenceNumber: nextSequence,
         customId,
-      );
+      });
       const savedItem = await queryRunner.manager.save(Item, newItem);
 
-      const fieldValues = this.createFieldValues(
+      const fieldValues = helpers.createFieldValues(
         savedItem.id,
         createItemDto.fields,
         fieldMap,
       );
-      await this.saveFieldValues(queryRunner, fieldValues);
+
+      if (fieldValues.length > 0) {
+        await queryRunner.manager.save(ItemFieldValue, fieldValues);
+      }
 
       await queryRunner.commitTransaction();
       return this.getItemWithRelations(savedItem.id);
@@ -537,13 +275,13 @@ export class ItemService {
           'Custom ID already exists. Please try again or edit custom ID manually.',
         );
       }
-      this.handleTransactionError(error);
-      throw error; // ADD THIS LINE to ensure the function always returns or throws
+      throw error;
     } finally {
       await queryRunner.release();
     }
   }
 
+  // This function returns a paginated list of items with their field values
   async findAll(
     inventoryId: string,
     paginationDto: PaginationDto,
@@ -560,7 +298,7 @@ export class ItemService {
     });
 
     return {
-      items: items.map((item) => this.formatItemForResponse(item)),
+      items: items.map((item) => helpers.formatItemForResponse(item)),
       pagination: {
         page,
         limit,
@@ -570,6 +308,7 @@ export class ItemService {
     };
   }
 
+  // This function updates an item's custom ID and/or field values with version checking
   async update(
     itemId: string,
     updateItemDto: UpdateItemDto,
@@ -583,11 +322,10 @@ export class ItemService {
 
     try {
       const item = await this.getItemForUpdate(queryRunner, itemId, version);
-      console.log('BEFORE UPDATE - Version:', item.version);
 
-      // ========== CUSTOM ID VALIDATION ==========
+      // Validate and update custom ID if provided
       if (customId && customId !== item.customId) {
-        const validation = this.validateCustomIdEdit(
+        const validation = helpers.validateCustomIdEdit(
           item.customId,
           customId,
           item.inventory.idFormat,
@@ -597,13 +335,13 @@ export class ItemService {
         }
 
         if (
-          this.hasSequenceSegmentChanged(
+          helpers.hasSequenceSegmentChanged(
             item.customId,
             customId,
             item.inventory.idFormat,
           )
         ) {
-          const newSequence = this.extractSequenceNumber(
+          const newSequence = helpers.extractSequenceNumberFromId(
             customId,
             item.inventory.idFormat,
           );
@@ -612,22 +350,15 @@ export class ItemService {
 
         item.customId = customId;
       }
-      // ========== END CUSTOM ID VALIDATION ==========
 
-      const fieldMap = this.createFieldMap(item.inventory.customFields);
+      const fieldMap = helpers.createFieldMap(item.inventory.customFields);
       await this.updateFieldValues(queryRunner, itemId, fields, fieldMap);
 
-      // ========== FIX: SAVE THE ITEM ENTITY TO TRIGGER VERSION INCREMENT ==========
       item.version += 1;
       await queryRunner.manager.save(Item, item);
-      console.log('AFTER SAVE - Version:', item.version);
-      // ========== END FIX ==========
 
       await queryRunner.commitTransaction();
-      const finalItem = await this.getItemWithRelations(itemId);
-      console.log('FINAL - Version:', finalItem.version);
-
-      return finalItem;
+      return this.getItemWithRelations(itemId);
     } catch (error) {
       await queryRunner.rollbackTransaction();
       if (error.code === '23505' && error.detail?.includes('custom_id')) {
@@ -641,6 +372,7 @@ export class ItemService {
     }
   }
 
+  // This function permanently deletes an item from the database
   async remove(itemId: string): Promise<void> {
     const result = await this.itemRepository.delete(itemId);
     if (result.affected === 0) {
@@ -648,11 +380,13 @@ export class ItemService {
     }
   }
 
+  // This function returns all custom field definitions for an inventory
   async getInventoryFields(inventoryId: string): Promise<any[]> {
     const inventory = await this.getInventoryWithFields(inventoryId);
-    return this.formatFieldDefinitions(inventory.customFields);
+    return helpers.formatFieldDefinitions(inventory.customFields);
   }
 
+  // This function adds or removes a like for an item by a user
   async toggleLike(
     itemId: string,
     userId: string,
@@ -675,6 +409,7 @@ export class ItemService {
     }
   }
 
+  // This function checks if a user has already liked a specific item
   async hasUserLikedItem(itemId: string, userId: string): Promise<boolean> {
     const like = await this.itemLikeRepository.findOne({
       where: { itemId, userId },
@@ -682,14 +417,16 @@ export class ItemService {
     return !!like;
   }
 
+  // This function returns comprehensive statistics for an inventory including contributors and growth data
   async getInventoryStats(inventoryId: string): Promise<any> {
+    // Fetch all core statistics in parallel for better performance
     const [totalItems, topContributors, monthlyGrowth] = await Promise.all([
       this.getTotalItemsCount(inventoryId),
       this.getTopContributors(inventoryId),
       this.getMonthlyGrowth(inventoryId),
     ]);
 
-    // Conditionally get field stats
+    // Conditionally get field statistics for Price and Quantity if they exist
     const [priceStats, quantityStats] = await Promise.all([
       this.getFieldStats(inventoryId, 'Price', 'number'),
       this.getFieldStats(inventoryId, 'Quantity', 'number'),
@@ -704,6 +441,7 @@ export class ItemService {
     };
   }
 
+  // This function returns a single item with all its details and field values
   async findOne(itemId: string): Promise<any> {
     const item = await this.itemRepository.findOne({
       where: { id: itemId },
@@ -714,38 +452,24 @@ export class ItemService {
       throw new NotFoundException(`Item with ID "${itemId}" not found.`);
     }
 
-    return this.formatItemForResponse(item);
+    return helpers.formatItemForResponse(item);
   }
+
+  // This function validates if a custom ID is properly formatted and unique within the inventory
   async validateCustomId(
     inventoryId: string,
     customId: string,
   ): Promise<{ valid: boolean; message: string }> {
     const inventory = await this.getInventoryWithFields(inventoryId);
 
-    // Use template-based validation
-    const template = generateIdTemplate(inventory.idFormat);
-
-    if (template.length !== customId.length) {
-      return {
-        valid: false,
-        message: `Custom ID must be ${template.length} characters`,
-      };
+    const formatValidation = helpers.validateCustomIdFormat(
+      customId,
+      inventory.idFormat,
+    );
+    if (!formatValidation.valid) {
+      return formatValidation;
     }
 
-    // Check format validity using template
-    for (let i = 0; i < template.length; i++) {
-      if (template[i] === 'x') {
-        const segmentInfo = getSegmentAtPosition(i, inventory.idFormat);
-        if (!segmentInfo || !isValidEditableChar(customId[i], segmentInfo)) {
-          return {
-            valid: false,
-            message: `Invalid character at position ${i + 1}`,
-          };
-        }
-      }
-    }
-
-    // Check uniqueness
     const existingItem = await this.itemRepository.findOne({
       where: { inventoryId, customId },
     });

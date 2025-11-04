@@ -10,8 +10,11 @@ import {
   ColumnDef,
   getCoreRowModel,
   useReactTable,
+  SortingState,
+  getSortedRowModel,
 } from "@tanstack/react-table";
 import { useRouter } from "next/navigation";
+import { set } from "date-fns";
 
 interface InventoryTableProps {
   inventories: Inventory[];
@@ -28,6 +31,7 @@ export function InventoryTable({
   accessList,
   currentUserId,
 }: InventoryTableProps) {
+  const [sorting, setSorting] = React.useState<SortingState>([]);
   const t = useTranslations("InventoryTable");
   const usersMap = React.useMemo(
     () => new Map(users.map((user) => [user.id, user])),
@@ -43,6 +47,11 @@ export function InventoryTable({
     data: inventories || [],
     columns,
     getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    onSortingChange: setSorting,
+    state: {
+      sorting,
+    },
   });
 
   if (!inventories) {

@@ -3,7 +3,9 @@
 import * as React from "react";
 import {
   ColumnDef,
+  getSortedRowModel,
   RowSelectionState,
+  SortingState,
   useReactTable,
 } from "@tanstack/react-table";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -16,6 +18,7 @@ import { useTranslations } from "next-intl";
 import { useRbac } from "@/hooks/useRbac";
 import { getCoreRowModel } from "@tanstack/react-table";
 import { useRouter } from "next/navigation";
+import { get } from "http";
 
 // components/item/ItemsTable.tsx - FIXED
 interface ItemsTableProps {
@@ -26,6 +29,7 @@ interface ItemsTableProps {
 
 export function ItemsTable({ items, inventory, isLoading }: ItemsTableProps) {
   const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
+  const [sorting, setSorting] = React.useState<SortingState>([]);
   const { canEdit, isOwner } = useRbac(inventory);
   const t = useTranslations("ItemsActions");
 
@@ -40,9 +44,12 @@ export function ItemsTable({ items, inventory, isLoading }: ItemsTableProps) {
     data: items || [],
     columns,
     getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    onSortingChange: setSorting,
     onRowSelectionChange: setRowSelection,
     state: {
       rowSelection,
+      sorting,
     },
   });
 

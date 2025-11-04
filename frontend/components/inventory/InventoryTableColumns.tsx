@@ -25,6 +25,7 @@ export const getInventoryTableColumns = (
     id: "title",
     accessorKey: "title",
     header: t("name"),
+    enableSorting: true,
     cell: ({ row }) => (
       <div className="flex items-center gap-2 font-semibold max-w-[250px] truncate">
         <Package className="h-4 w-4 text-muted-foreground flex-shrink-0" />
@@ -36,6 +37,7 @@ export const getInventoryTableColumns = (
     id: "category",
     accessorKey: "category",
     header: t("category"),
+    enableSorting: true,
     cell: ({ row }) => (
       <div className="max-w-[150px] truncate">
         {row.original.category || "-"}
@@ -46,6 +48,7 @@ export const getInventoryTableColumns = (
     id: "createdBy",
     accessorKey: "createdBy",
     header: t("createdBy"),
+    enableSorting: true,
     cell: ({ row }) => {
       // Use creator object from API response
       const creator = row.original.creator;
@@ -59,6 +62,7 @@ export const getInventoryTableColumns = (
     id: "visibility",
     accessorKey: "public",
     header: t("visibility"),
+    enableSorting: true,
     cell: ({ row }) => (
       <Badge variant="outline" className="flex items-center gap-1 w-fit">
         {row.original.public ? (
@@ -77,6 +81,7 @@ export const getInventoryTableColumns = (
         {
           id: "your_role",
           header: t("your_role"),
+          enableSorting: true,
           cell: ({ row }: CellContext<any, unknown>) => {
             const role =
               row.original.accessRecords?.[0]?.role || "Public Viewer";

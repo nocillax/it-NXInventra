@@ -38,7 +38,7 @@ export const getItemTableColumns = (
           />
         </div>
       ),
-      enableSorting: false,
+      enableSorting: true,
       enableHiding: false,
       size: 40,
     });

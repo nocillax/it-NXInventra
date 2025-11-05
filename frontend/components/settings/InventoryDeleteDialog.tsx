@@ -36,14 +36,6 @@ export function InventoryDeleteDialog() {
 
     setIsDeleting(true);
     try {
-      // Check access first
-      const access = await apiFetch(`/inventories/${inventoryId}/access/me`);
-      if (access.role !== "Owner") {
-        toast.error(t("no_access_message"));
-        onClose();
-        return;
-      }
-
       // Delete the inventory - apiFetch now handles empty responses
       await apiFetch(`/inventories/${inventoryId}`, {
         method: "DELETE",

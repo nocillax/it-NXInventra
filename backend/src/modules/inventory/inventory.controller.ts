@@ -25,6 +25,8 @@ import { AddCustomFieldsDto } from './dto/add-custom-fields.dto';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Public } from '../auth/decorators/public.decorator';
+import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt.guard';
+import { Role } from 'src/common/enums/role.enum';
 
 @Controller('inventories')
 export class InventoryController {
@@ -39,17 +41,15 @@ export class InventoryController {
     return this.inventoryService.create(createInventoryDto, req.user.id);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @Public()
   @Get()
   async findAll(
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10,
-    @Req() req,
   ) {
-    return this.inventoryService.findAllPublic(req.user.id, page, limit);
+    return this.inventoryService.findAllPublic(page, limit);
   }
 
-  // Add these new endpoints to the InventoryController class
   @UseGuards(JwtAuthGuard)
   @Get('me')
   async findMyInventories(
@@ -79,6 +79,7 @@ export class InventoryController {
     return this.inventoryService.getMyAccess(inventoryId, req.user.id);
   }
 
+  // Im pretty sure im not using this anymore
   @Get('search')
   searchInventories(
     @Query(new ValidationPipe({ transform: true }))
@@ -89,10 +90,37 @@ export class InventoryController {
     return this.inventoryService.findWithPagination(inventoryQueryDto, userId);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(OptionalJwtAuthGuard)
   @Get(':id')
-  findOne(@Param('id', ParseUUIDPipe) id: string, @Req() req) {
-    return this.inventoryService.findOne(id, req.user.id);
+  getInventoryDetails(@Param('id', ParseUUIDPipe) id: string, @Req() req) {
+    // Pass userId if logged in, else undefined
+    return this.inventoryService.getInventoryDetails(id, req.user?.id);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('Owner')
+  @Get(':id/access')
+  getAccessList(@Param('id', ParseUUIDPipe) inventoryId: string, @Req() req) {
+    return this.inventoryService.getAccessList(inventoryId, req.user.id);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('Owner')
+  @Get(':id/custom-fields')
+  async getCustomFields(
+    @Param('id', ParseUUIDPipe) inventoryId: string,
+    @Req() req,
+  ) {
+    return this.inventoryService.getCustomFields(inventoryId, req.user.id);
+  }
+
+  @Get(':id/id-format')
+  async getIdFormat(
+    @Param('id') inventoryId: string,
+  ): Promise<{ format: string }> {
+    const format =
+      await this.inventoryService.getInventoryIdFormat(inventoryId);
+    return { format };
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -103,68 +131,53 @@ export class InventoryController {
     @Body(ValidationPipe) updateInventoryDto: UpdateInventoryDto,
     @Req() req,
   ) {
-    return this.inventoryService.update(id, updateInventoryDto, req.user.id);
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Delete(':id')
-  remove(@Param('id', ParseUUIDPipe) id: string, @Req() req) {
-    return this.inventoryService.remove(id, req.user.id);
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Post(':id/access')
-  addAccess(
-    @Param('id', ParseUUIDPipe) inventoryId: string,
-    @Body(ValidationPipe) addAccessDto: AddAccessDto,
-    @Req() req,
-  ) {
-    return this.inventoryService.addAccess(
-      inventoryId,
-      addAccessDto,
+    return this.inventoryService.updateInventory(
+      id,
+      updateInventoryDto,
       req.user.id,
     );
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Get(':id/access')
-  getAccessList(@Param('id', ParseUUIDPipe) inventoryId: string, @Req() req) {
-    return this.inventoryService.getAccessList(inventoryId, req.user.id);
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('Owner')
+  @Delete(':id')
+  remove(@Param('id', ParseUUIDPipe) id: string) {
+    return this.inventoryService.removeInventory(id);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('Owner')
+  @Post(':id/access')
+  addAccess(
+    @Param('id', ParseUUIDPipe) inventoryId: string,
+    @Body(ValidationPipe) addAccessDto: AddAccessDto,
+  ) {
+    return this.inventoryService.addAccess(inventoryId, addAccessDto);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('Owner')
   @Patch(':id/access/:userId')
   updateAccess(
     @Param('id', ParseUUIDPipe) inventoryId: string,
     @Param('userId', ParseUUIDPipe) userId: string,
     @Body(ValidationPipe) updateAccessDto: UpdateAccessDto,
-    @Req() req,
   ) {
     return this.inventoryService.updateAccess(
       inventoryId,
       userId,
       updateAccessDto,
-      req.user.id,
     );
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('Owner')
   @Delete(':id/access/:userId')
   removeAccess(
     @Param('id', ParseUUIDPipe) inventoryId: string,
     @Param('userId', ParseUUIDPipe) userId: string,
-    @Req() req,
   ) {
-    return this.inventoryService.removeAccess(inventoryId, userId, req.user.id);
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Get(':id/custom-fields')
-  async getCustomFields(
-    @Param('id', ParseUUIDPipe) inventoryId: string,
-    @Req() req,
-  ) {
-    return this.inventoryService.getCustomFields(inventoryId, req.user.id);
+    return this.inventoryService.removeAccess(inventoryId, userId);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -173,55 +186,35 @@ export class InventoryController {
   async addCustomFields(
     @Param('id', ParseUUIDPipe) inventoryId: string,
     @Body(ValidationPipe) addCustomFieldsDto: AddCustomFieldsDto,
-    @Req() req,
   ) {
     return this.inventoryService.addCustomFields(
       inventoryId,
       addCustomFieldsDto,
-      req.user.id,
     );
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('Owner')
   @Patch(':id/custom-fields/:fieldId')
   async updateCustomField(
     @Param('id', ParseUUIDPipe) inventoryId: string,
     @Param('fieldId', ParseIntPipe) fieldId: number,
     @Body(ValidationPipe) updateCustomFieldDto: UpdateCustomFieldDto,
-    @Req() req,
   ) {
     return this.inventoryService.updateCustomField(
       inventoryId,
       fieldId,
       updateCustomFieldDto,
-      req.user.id,
     );
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('Owner')
   @Delete(':id/custom-fields/:fieldId')
   async deleteCustomField(
     @Param('id', ParseUUIDPipe) inventoryId: string,
     @Param('fieldId', ParseIntPipe) fieldId: number,
-    @Req() req,
   ) {
-    return this.inventoryService.deleteCustomField(
-      inventoryId,
-      fieldId,
-      req.user.id,
-    );
-  }
-
-  @Get(':id/id-format')
-  @UseGuards(JwtAuthGuard) // Generic JWT guard
-  async getIdFormat(
-    @Param('id') inventoryId: string,
-    @Req() req,
-  ): Promise<{ format: string }> {
-    const format = await this.inventoryService.getInventoryIdFormat(
-      inventoryId,
-      req.user.id,
-    );
-    return { format };
+    return this.inventoryService.deleteCustomField(inventoryId, fieldId);
   }
 }

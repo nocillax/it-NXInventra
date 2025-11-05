@@ -3,15 +3,13 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, In, QueryRunner, Repository } from 'typeorm';
 import { Inventory } from '../../database/entities/inventory.entity';
 import { CreateInventoryDto } from './dto/create-inventory.dto';
-import {
-  CustomField,
-  CustomFieldType,
-} from '../../database/entities/custom_field.entity';
+import { CustomField } from '../../database/entities/custom_field.entity';
 import { UpdateInventoryDto } from './dto/update-inventory.dto';
 import { Access } from '../../database/entities/access.entity';
 import { InventoryQueryDto } from './dto/inventory-query.dto';
@@ -36,19 +34,6 @@ export class InventoryService {
     private readonly dataSource: DataSource,
     private readonly tagService: TagService,
   ) {}
-
-  // This function validates that the current user has owner access to the inventory
-  private async validateCurrentUserIsOwner(
-    inventoryId: string,
-    userId: string,
-  ): Promise<void> {
-    const access = await this.accessRepository.findOne({
-      where: { inventoryId, userId, role: 'Owner' },
-    });
-    if (!access) {
-      throw new ForbiddenException('Only owners can manage access');
-    }
-  }
 
   // This function counts how many owners an inventory has
   private async getOwnerCount(inventoryId: string): Promise<number> {
@@ -91,14 +76,6 @@ export class InventoryService {
       inventory.tags = tags; // This now works because tags is Tag[]
       await queryRunner.manager.save(inventory);
     }
-  }
-
-  // This function adds a WHERE condition to exclude inventories where user is already an owner
-  private addNotOwnerCondition(query: any, userId: string): void {
-    query
-      .andWhere((qb) => helpers.buildNotOwnerSubQuery(qb))
-      .setParameter('userId', userId)
-      .setParameter('role', 'Owner');
   }
 
   // This function finds existing tags or creates new ones within a database transaction
@@ -153,41 +130,21 @@ export class InventoryService {
     return this.inventoryRepository.create(entityData);
   }
 
-  // This function verifies that a user has access to a specific inventory
-  private async checkUserAccess(
-    inventoryId: string,
-    userId: string,
-  ): Promise<void> {
-    const access = await this.accessRepository.findOneBy({
-      inventoryId,
-      userId,
-    });
-    if (!access) {
-      throw new ForbiddenException('You do not have access to this inventory.');
-    }
-  }
-
   // This function creates a new inventory with owner access and optional tags
   async create(
     createInventoryDto: CreateInventoryDto,
     userId: string,
   ): Promise<Inventory> {
     return this.runTransaction(async (queryRunner) => {
-      const newInventory = this.createInventoryEntity(
+      const savedInventory = await this.saveNewInventory(
+        queryRunner,
         createInventoryDto,
         userId,
       );
-      const savedInventory = await queryRunner.manager.save(newInventory);
 
-      const ownerAccess = this.accessRepository.create({
-        inventoryId: savedInventory.id,
-        userId,
-        role: 'Owner',
-      });
-      await queryRunner.manager.save(ownerAccess);
+      await this.grantOwnerAccess(queryRunner, savedInventory.id, userId);
 
-      // Handle tags INSIDE the transaction
-      if (createInventoryDto.tags && createInventoryDto.tags.length > 0) {
+      if (createInventoryDto.tags?.length) {
         await this.syncInventoryTagsInTransaction(
           queryRunner,
           savedInventory.id,
@@ -195,24 +152,56 @@ export class InventoryService {
         );
       }
 
-      // Return the inventory with tags loaded - ensure it's not null
-      const finalInventory = await queryRunner.manager.findOne(Inventory, {
-        where: { id: savedInventory.id },
-        relations: ['tags'],
-      });
-
-      if (!finalInventory) {
-        throw new NotFoundException(
-          'Inventory was created but could not be retrieved',
-        );
-      }
-
-      return finalInventory;
+      return await this.loadFinalInventory(queryRunner, savedInventory.id);
     });
   }
 
-  // This function retrieves a single inventory with all related data (creator, fields, tags, access)
-  async findOne(id: string, userId: string): Promise<Inventory> {
+  // Saves a new inventory entity to the database inside a transaction
+  private async saveNewInventory(
+    queryRunner: QueryRunner,
+    dto: CreateInventoryDto,
+    userId: string,
+  ): Promise<Inventory> {
+    const entity = this.createInventoryEntity(dto, userId);
+    return await queryRunner.manager.save(entity);
+  }
+
+  // Assigns owner-level access to the user for the newly created inventory
+  private async grantOwnerAccess(
+    queryRunner: QueryRunner,
+    inventoryId: string,
+    userId: string,
+  ): Promise<void> {
+    const access = this.accessRepository.create({
+      inventoryId,
+      userId,
+      role: 'Owner',
+    });
+    await queryRunner.manager.save(access);
+  }
+
+  // Loads the inventory from the database along with its tags after creation
+  private async loadFinalInventory(
+    queryRunner: QueryRunner,
+    inventoryId: string,
+  ): Promise<Inventory> {
+    const inventory = await queryRunner.manager.findOne(Inventory, {
+      where: { id: inventoryId },
+      relations: ['tags'],
+    });
+
+    if (!inventory) {
+      throw new NotFoundException(
+        'Inventory was created but could not be retrieved',
+      );
+    }
+
+    return inventory;
+  }
+
+  // Returns inventory details for public/private inventories with RBAC
+  async getInventoryDetails(id: string, userId?: string): Promise<Inventory> {
+    // Fetch inventory with explicit relations (no eager loading)
     const inventory = await this.inventoryRepository
       .createQueryBuilder('inventory')
       .leftJoinAndSelect('inventory.creator', 'creator')
@@ -226,42 +215,71 @@ export class InventoryService {
       throw new NotFoundException(`Inventory with ID ${id} not found`);
     }
 
-    // Skip access checks and just return the inventory with all relations
+    // If public, return full data
+    if (inventory.public) {
+      return inventory;
+    }
+
+    // If private, check user
+    if (!userId) {
+      throw new UnauthorizedException('Please log in to see details');
+    }
+
+    // Check access table for permission
+    const access = await this.accessRepository.findOne({
+      where: { inventoryId: id, userId },
+    });
+    if (!access) {
+      throw new ForbiddenException('You do not have access to this inventory');
+    }
     return inventory;
   }
 
   // This function updates inventory details including custom fields and tags
-  async update(
+  async updateInventory(
     id: string,
     updateInventoryDto: UpdateInventoryDto,
     userId: string,
   ): Promise<Inventory> {
-    // Extract tags separately and handle the rest
+    this.validateUserId(userId);
     const { customFields, tags, ...inventoryData } = updateInventoryDto;
 
     return this.runTransaction(async (queryRunner) => {
-      // Update basic inventory data (without tags)
-      await queryRunner.manager.update(Inventory, id, inventoryData);
+      await this.updateBasicInventory(queryRunner, id, inventoryData);
 
       if (customFields) {
         await this.syncCustomFields(queryRunner, id, customFields);
       }
 
-      // Handle tags separately - this will convert string[] to Tag[]
       if (tags !== undefined) {
         await this.syncInventoryTagsInTransaction(queryRunner, id, tags);
       }
 
-      const updatedInventory = await this.inventoryRepository.findOne({
-        where: { id },
-        relations: ['customFields', 'tags'],
-      });
-
-      if (!updatedInventory) {
-        throw new NotFoundException(`Inventory with ID "${id}" not found`);
-      }
-      return updatedInventory;
+      return await this.loadUpdatedInventory(id);
     });
+  }
+
+  // This function updates basic inventory fields like name, description, etc.
+  private async updateBasicInventory(
+    queryRunner: QueryRunner,
+    id: string,
+    inventoryData: Partial<Inventory>,
+  ): Promise<void> {
+    await queryRunner.manager.update(Inventory, id, inventoryData);
+  }
+
+  // This function loads the updated inventory with its custom fields and tags
+  private async loadUpdatedInventory(id: string): Promise<Inventory> {
+    const inventory = await this.inventoryRepository.findOne({
+      where: { id },
+      relations: ['customFields', 'tags'],
+    });
+
+    if (!inventory) {
+      throw new NotFoundException(`Inventory with ID "${id}" not found`);
+    }
+
+    return inventory;
   }
 
   // This function synchronizes custom fields by adding new ones and removing deleted ones
@@ -293,19 +311,15 @@ export class InventoryService {
   }
 
   // This function permanently deletes an inventory from the database
-  async remove(id: string, userId: string): Promise<void> {
+  async removeInventory(id: string): Promise<void> {
     const result = await this.inventoryRepository.delete(id);
     if (result.affected === 0) {
       throw new NotFoundException(`Inventory with ID "${id}" not found`);
     }
   }
 
-  // This function returns public inventories that the user doesn't own yet
-  async findAllPublic(
-    userId: string,
-    page: number = 1,
-    limit: number = 10,
-  ): Promise<any> {
+  // This function returns all public inventories
+  async findAllPublic(page: number = 1, limit: number = 10): Promise<any> {
     const skip = helpers.calculateSkip(page, limit);
 
     const query = this.inventoryRepository
@@ -313,16 +327,7 @@ export class InventoryService {
       .leftJoinAndSelect('inventory.creator', 'creator')
       .leftJoinAndSelect('inventory.customFields', 'customFields')
       .leftJoinAndSelect('inventory.tags', 'tags')
-      .leftJoinAndSelect(
-        'inventory.accessRecords',
-        'accessRecords',
-        'accessRecords.userId = :userId',
-        { userId },
-      )
       .where('inventory.public = :isPublic', { isPublic: true });
-
-    // Use the helper method
-    this.addNotOwnerCondition(query, userId);
 
     const [inventories, total] = await query
       .skip(skip)
@@ -417,26 +422,7 @@ export class InventoryService {
   async addAccess(
     inventoryId: string,
     addAccessDto: AddAccessDto,
-    currentUserId: string,
   ): Promise<Access> {
-    await this.validateCurrentUserIsOwner(inventoryId, currentUserId);
-
-    // Check if user exists
-    const userExists = await this.dataSource.getRepository(User).findOne({
-      where: { id: addAccessDto.userId },
-    });
-    if (!userExists) {
-      throw new NotFoundException('User not found');
-    }
-
-    // Check if user already has access
-    const existingAccess = await this.accessRepository.findOne({
-      where: { inventoryId, userId: addAccessDto.userId },
-    });
-    if (existingAccess) {
-      throw new ConflictException('User already has access to this inventory');
-    }
-
     const newAccess = this.accessRepository.create({
       inventoryId,
       userId: addAccessDto.userId,
@@ -452,7 +438,7 @@ export class InventoryService {
     currentUserId: string,
   ): Promise<any[]> {
     // Verify current user has access to this inventory
-    await this.findOne(inventoryId, currentUserId);
+    await this.getInventoryDetails(inventoryId, currentUserId);
 
     const accessList = await this.accessRepository.find({
       where: { inventoryId },
@@ -467,41 +453,23 @@ export class InventoryService {
     inventoryId: string,
     targetUserId: string,
     updateAccessDto: UpdateAccessDto,
-    currentUserId: string,
   ): Promise<Access> {
-    await this.validateCurrentUserIsOwner(inventoryId, currentUserId);
     await this.validateNotLastOwner(inventoryId, targetUserId);
 
     const access = await this.accessRepository.findOne({
       where: { inventoryId, userId: targetUserId },
     });
 
-    if (!access) {
-      throw new NotFoundException('Access record not found');
-    }
-
-    access.role = updateAccessDto.role;
-    return this.accessRepository.save(access);
+    access!.role = updateAccessDto.role;
+    return this.accessRepository.save(access!);
   }
 
   // This function removes a user's access to an inventory
   async removeAccess(
     inventoryId: string,
     targetUserId: string,
-    currentUserId: string,
   ): Promise<{ message: string }> {
-    await this.validateCurrentUserIsOwner(inventoryId, currentUserId);
     await this.validateNotLastOwner(inventoryId, targetUserId);
-
-    // Prevent self-removal if you're the only owner
-    if (targetUserId === currentUserId) {
-      const ownerCount = await this.getOwnerCount(inventoryId);
-      if (ownerCount <= 1) {
-        throw new ForbiddenException(
-          'Cannot remove yourself as the last owner',
-        );
-      }
-    }
 
     const result = await this.accessRepository.delete({
       inventoryId,
@@ -515,15 +483,42 @@ export class InventoryService {
     return { message: 'Access removed successfully' };
   }
 
-  // This function returns all inventories where the user is an owner
+  // This function throws an error if userId is missing
+  private validateUserId(userId: string | undefined): void {
+    if (!userId) {
+      throw new UnauthorizedException('Please log in to see details');
+    }
+  }
+
+  // This function returns a paginated list of inventories owned by the user
   async findMyInventories(
     userId: string,
     page: number = 1,
     limit: number = 10,
   ): Promise<any> {
     const skip = helpers.calculateSkip(page, limit);
+    const [inventories, total] = await this.getOwnedInventories(
+      userId,
+      skip,
+      limit,
+    );
 
-    const [inventories, total] = await this.inventoryRepository
+    return helpers.createPaginationResponse(
+      inventories,
+      page,
+      limit,
+      total,
+      'inventories',
+    );
+  }
+
+  // Builds and runs a query to fetch inventories where the user is the owner
+  private async getOwnedInventories(
+    userId: string,
+    skip: number,
+    limit: number,
+  ): Promise<[Inventory[], number]> {
+    return this.inventoryRepository
       .createQueryBuilder('inventory')
       .innerJoin(
         'inventory.accessRecords',
@@ -547,6 +542,20 @@ export class InventoryService {
       .take(limit)
       .orderBy('inventory.createdAt', 'DESC')
       .getManyAndCount();
+  }
+
+  // This function returns inventories shared with the user (Editor or Viewer role)
+  async findSharedWithMe(
+    userId: string,
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<any> {
+    const skip = helpers.calculateSkip(page, limit);
+    const [inventories, total] = await this.getSharedInventories(
+      userId,
+      skip,
+      limit,
+    );
 
     return helpers.createPaginationResponse(
       inventories,
@@ -557,15 +566,13 @@ export class InventoryService {
     );
   }
 
-  // This function returns inventories shared with the user (Editor or Viewer role)
-  async findSharedWithMe(
+  // This function builds and runs a query to fetch inventories shared with the user (Editor or Viewer)
+  private async getSharedInventories(
     userId: string,
-    page: number = 1,
-    limit: number = 10,
-  ): Promise<any> {
-    const skip = helpers.calculateSkip(page, limit);
-
-    const [inventories, total] = await this.inventoryRepository
+    skip: number,
+    limit: number,
+  ): Promise<[Inventory[], number]> {
+    return this.inventoryRepository
       .createQueryBuilder('inventory')
       .innerJoin(
         'inventory.accessRecords',
@@ -590,14 +597,6 @@ export class InventoryService {
       .take(limit)
       .orderBy('inventory.createdAt', 'DESC')
       .getManyAndCount();
-
-    return helpers.createPaginationResponse(
-      inventories,
-      page,
-      limit,
-      total,
-      'inventories',
-    );
   }
 
   // This function returns the user's access role for a specific inventory
@@ -605,6 +604,8 @@ export class InventoryService {
     inventoryId: string,
     userId: string,
   ): Promise<{ role: string }> {
+    this.validateUserId(userId);
+
     const access = await this.accessRepository.findOne({
       where: { inventoryId, userId },
     });
@@ -612,7 +613,6 @@ export class InventoryService {
     if (!access) {
       throw new NotFoundException('You do not have access to this inventory');
     }
-
     return { role: access.role };
   }
 
@@ -622,7 +622,7 @@ export class InventoryService {
     userId: string,
   ): Promise<CustomField[]> {
     // Verify user has access to the inventory
-    await this.checkUserAccess(inventoryId, userId);
+    // await this.checkUserAccess(inventoryId, userId);
 
     return this.customFieldRepository.find({
       where: { inventoryId },
@@ -634,11 +634,7 @@ export class InventoryService {
   async addCustomFields(
     inventoryId: string,
     addCustomFieldsDto: AddCustomFieldsDto,
-    userId: string,
   ): Promise<CustomField[]> {
-    // Verify user has owner/editor access
-    await this.validateCurrentUserIsOwnerOrEditor(inventoryId, userId);
-
     return this.runTransaction(async (queryRunner) => {
       // Validate no duplicate field names in the request
       await this.validateNoDuplicateFieldNames(
@@ -675,11 +671,7 @@ export class InventoryService {
     inventoryId: string,
     fieldId: number,
     updateCustomFieldDto: UpdateCustomFieldDto,
-    userId: string,
   ): Promise<CustomField> {
-    // Verify user has owner/editor access
-    await this.validateCurrentUserIsOwnerOrEditor(inventoryId, userId);
-
     const field = await this.customFieldRepository.findOne({
       where: { id: fieldId, inventoryId },
     });
@@ -719,11 +711,7 @@ export class InventoryService {
   async deleteCustomField(
     inventoryId: string,
     fieldId: number,
-    userId: string,
   ): Promise<{ message: string }> {
-    // Verify user has owner/editor access
-    await this.validateCurrentUserIsOwnerOrEditor(inventoryId, userId);
-
     const field = await this.customFieldRepository.findOne({
       where: { id: fieldId, inventoryId },
     });
@@ -799,27 +787,10 @@ export class InventoryService {
   }
 
   // This function returns the custom ID format string for an inventory
-  async getInventoryIdFormat(
-    inventoryId: string,
-    userId: string,
-  ): Promise<string> {
-    // Verify inventory exists and user has access
-    await this.checkUserAccess(inventoryId, userId);
-
+  async getInventoryIdFormat(inventoryId: string): Promise<string> {
     const inventory = await this.inventoryRepository.findOne({
       where: { id: inventoryId },
     });
-
-    if (!inventory) {
-      throw new NotFoundException(
-        `Inventory with ID "${inventoryId}" not found`,
-      );
-    }
-
-    if (!inventory.idFormat || inventory.idFormat.length === 0) {
-      return '';
-    }
-
-    return helpers.generateIdFormatString(inventory.idFormat);
+    return helpers.generateIdFormatString(inventory!.idFormat);
   }
 }

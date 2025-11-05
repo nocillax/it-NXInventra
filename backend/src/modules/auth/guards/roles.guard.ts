@@ -11,6 +11,7 @@ import { Repository } from 'typeorm';
 import { Access, AccessRole } from '../../../database/entities/access.entity';
 import { Item } from '../../../database/entities/item.entity';
 import { Inventory } from '../../../database/entities/inventory.entity';
+import { Comment } from '../../../database/entities/comment.entity';
 import { AppRole, ROLES_KEY } from '../decorators/roles.decorator';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 import { User } from '../../../database/entities/user.entity';
@@ -25,6 +26,8 @@ export class RolesGuard implements CanActivate {
     private readonly itemRepository: Repository<Item>,
     @InjectRepository(Inventory)
     private readonly inventoryRepository: Repository<Inventory>,
+    @InjectRepository(Comment)
+    private readonly commentRepository: Repository<Comment>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
   ) {}
@@ -53,17 +56,79 @@ export class RolesGuard implements CanActivate {
     return !!user?.isAdmin;
   }
 
+  // private async getInventoryId(request: any): Promise<string | undefined> {
+  //   let inventoryId = request.params?.inventoryId || request.params?.id;
+  //   if (inventoryId) return inventoryId;
+
+  //   // Try itemId
+  //   const itemId = request.params?.itemId || request.params?.id;
+  //   if (itemId) {
+  //     const item = await this.itemRepository.findOne({
+  //       where: { id: itemId },
+  //       select: ['inventoryId'],
+  //     });
+  //     if (item?.inventoryId) return item.inventoryId;
+  //   }
+
+  //   // Try commentId
+  //   const commentId = request.params?.commentId || request.params?.id;
+  //   if (commentId) {
+  //     const comment = await this.commentRepository.findOne({
+  //       where: { id: commentId },
+  //       select: ['inventoryId'],
+  //     });
+  //     if (comment?.inventoryId) return comment.inventoryId;
+  //   }
+
+  //   return undefined;
+  // }
+
   private async getInventoryId(request: any): Promise<string | undefined> {
-    let inventoryId = request.params?.inventoryId || request.params?.id;
-    if (inventoryId) return inventoryId;
-    const itemId = request.params?.itemId;
-    if (itemId) {
+    // If inventoryId is present, use it
+    if (request.params?.inventoryId) return request.params.inventoryId;
+
+    // If itemId is present, use it
+    if (request.params?.itemId) {
       const item = await this.itemRepository.findOne({
-        where: { id: itemId },
+        where: { id: request.params.itemId },
         select: ['inventoryId'],
       });
-      return item?.inventoryId;
+      if (item?.inventoryId) return item.inventoryId;
     }
+
+    // If commentId is present, use it
+    if (request.params?.commentId) {
+      const comment = await this.commentRepository.findOne({
+        where: { id: request.params.commentId },
+        select: ['inventoryId'],
+      });
+      if (comment?.inventoryId) return comment.inventoryId;
+    }
+
+    // Fallback: if id is present, try to resolve as comment, then item, then inventory
+    if (request.params?.id) {
+      // Try as inventory
+      const inventory = await this.inventoryRepository.findOne({
+        where: { id: request.params.id },
+        select: ['id'],
+      });
+      if (inventory?.id) return inventory.id;
+
+      // Try as comment
+      const comment = await this.commentRepository.findOne({
+        where: { id: request.params.id },
+        select: ['inventoryId'],
+      });
+      if (comment?.inventoryId) return comment.inventoryId;
+
+      // Try as item
+      const item = await this.itemRepository.findOne({
+        where: { id: request.params.id },
+        select: ['inventoryId'],
+      });
+      if (item?.inventoryId) return item.inventoryId;
+    }
+
     return undefined;
   }
 

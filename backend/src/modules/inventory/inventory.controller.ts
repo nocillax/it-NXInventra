@@ -41,6 +41,29 @@ export class InventoryController {
     return this.inventoryService.create(createInventoryDto, req.user.id);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('Owner')
+  @Post(':id/access')
+  addAccess(
+    @Param('id', ParseUUIDPipe) inventoryId: string,
+    @Body(ValidationPipe) addAccessDto: AddAccessDto,
+  ) {
+    return this.inventoryService.addAccess(inventoryId, addAccessDto);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('Owner')
+  @Post(':id/custom-fields')
+  async addCustomFields(
+    @Param('id', ParseUUIDPipe) inventoryId: string,
+    @Body(ValidationPipe) addCustomFieldsDto: AddCustomFieldsDto,
+  ) {
+    return this.inventoryService.addCustomFields(
+      inventoryId,
+      addCustomFieldsDto,
+    );
+  }
+
   @Public()
   @Get()
   async findAll(
@@ -140,23 +163,6 @@ export class InventoryController {
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('Owner')
-  @Delete(':id')
-  remove(@Param('id', ParseUUIDPipe) id: string) {
-    return this.inventoryService.removeInventory(id);
-  }
-
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('Owner')
-  @Post(':id/access')
-  addAccess(
-    @Param('id', ParseUUIDPipe) inventoryId: string,
-    @Body(ValidationPipe) addAccessDto: AddAccessDto,
-  ) {
-    return this.inventoryService.addAccess(inventoryId, addAccessDto);
-  }
-
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('Owner')
   @Patch(':id/access/:userId')
   updateAccess(
     @Param('id', ParseUUIDPipe) inventoryId: string,
@@ -167,29 +173,6 @@ export class InventoryController {
       inventoryId,
       userId,
       updateAccessDto,
-    );
-  }
-
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('Owner')
-  @Delete(':id/access/:userId')
-  removeAccess(
-    @Param('id', ParseUUIDPipe) inventoryId: string,
-    @Param('userId', ParseUUIDPipe) userId: string,
-  ) {
-    return this.inventoryService.removeAccess(inventoryId, userId);
-  }
-
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('Owner')
-  @Post(':id/custom-fields')
-  async addCustomFields(
-    @Param('id', ParseUUIDPipe) inventoryId: string,
-    @Body(ValidationPipe) addCustomFieldsDto: AddCustomFieldsDto,
-  ) {
-    return this.inventoryService.addCustomFields(
-      inventoryId,
-      addCustomFieldsDto,
     );
   }
 
@@ -206,6 +189,23 @@ export class InventoryController {
       fieldId,
       updateCustomFieldDto,
     );
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('Owner')
+  @Delete(':id')
+  remove(@Param('id', ParseUUIDPipe) id: string) {
+    return this.inventoryService.removeInventory(id);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('Owner')
+  @Delete(':id/access/:userId')
+  removeAccess(
+    @Param('id', ParseUUIDPipe) inventoryId: string,
+    @Param('userId', ParseUUIDPipe) userId: string,
+  ) {
+    return this.inventoryService.removeAccess(inventoryId, userId);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

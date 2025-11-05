@@ -9,10 +9,19 @@ import { Item } from '../../database/entities/item.entity';
 import { Tag } from '../../database/entities/tag.entity';
 import { TagService } from '../tag/tag.service';
 import { User } from '../../database/entities/user.entity';
+import { Comment } from '../../database/entities/comment.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Inventory, Access, CustomField, Item, Tag, User]),
+    TypeOrmModule.forFeature([
+      Inventory,
+      Access,
+      CustomField,
+      Item,
+      Tag,
+      User,
+      Comment,
+    ]),
   ],
   controllers: [InventoryController],
   providers: [InventoryService, TagService],

@@ -49,17 +49,13 @@ export class CommentService {
     );
   }
 
-  async deleteComment(
-    commentId: string,
-    userId: string,
-  ): Promise<{ message: string }> {
+  async deleteComment(commentId: string): Promise<{ message: string }> {
     const comment = await this.commentRepository.findOne({
       where: { id: commentId },
       relations: ['inventory'],
     });
     if (!comment) throw new NotFoundException('Comment not found');
-    if (comment.inventory.createdBy !== userId)
-      throw new ForbiddenException('Only inventory owner can delete comments');
+
     await this.commentRepository.remove(comment);
     return { message: 'Comment deleted successfully' };
   }

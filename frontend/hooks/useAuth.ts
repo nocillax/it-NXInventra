@@ -8,24 +8,27 @@ export const useAuth = () => {
 
   useEffect(() => {
     const fetchCurrentUser = async () => {
-      // Only fetch if we don't have user data
-      if (!user) {
-        setLoading(true);
-        try {
-          const userData = await userService.getCurrentUser();
-          setUser(userData);
-        } catch (error) {
-          console.error("Failed to fetch user:", error);
+      setLoading(true);
+      try {
+        const userData = await userService.getCurrentUser();
+        setUser(userData);
+      } catch (error: any) {
+        if (
+          error?.status === 401 ||
+          error?.response?.status === 401 ||
+          error?.message?.includes("401")
+        ) {
+          setUser(null); // Guest user
+        } else {
           setError("Failed to load user data");
-          // Don't clear user here - might be temporary network issue
-        } finally {
-          setLoading(false);
         }
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchCurrentUser();
-  }, [user, setUser, setLoading, setError]);
+  }, []);
 
   const logout = async () => {
     try {

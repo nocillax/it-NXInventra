@@ -94,7 +94,6 @@ export class ItemController {
     return this.itemService.hasUserLikedItem(itemId, req.user.id);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get('inventories/:id/stats')
   getInventoryStats(@Param('id', ParseUUIDPipe) inventoryId: string) {
     return this.itemService.getInventoryStats(inventoryId);

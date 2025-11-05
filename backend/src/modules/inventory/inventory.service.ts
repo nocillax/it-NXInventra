@@ -226,12 +226,12 @@ export class InventoryService {
     }
 
     // Check access table for permission
-    const access = await this.accessRepository.findOne({
-      where: { inventoryId: id, userId },
-    });
-    if (!access) {
-      throw new ForbiddenException('You do not have access to this inventory');
-    }
+    // const access = await this.accessRepository.findOne({
+    //   where: { inventoryId: id, userId },
+    // });
+    // if (!access) {
+    //   throw new ForbiddenException('You do not have access to this inventory');
+    // }
     return inventory;
   }
 

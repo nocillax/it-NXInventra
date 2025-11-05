@@ -8,10 +8,12 @@ async function bootstrap() {
   app.use(cookieParser());
   app.enableCors({
     origin: [
-      process.env.CORS_ORIGIN!.split(','),
       'https://it-nx-inventra.vercel.app',
+      'http://localhost:3000', // for local development
     ],
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
   });
 
   await app.listen(process.env.PORT || 8080);

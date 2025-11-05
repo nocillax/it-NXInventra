@@ -73,7 +73,7 @@ export class InventoryController {
     return this.inventoryService.findAllPublic(page, limit);
   }
 
-  @UseGuards(OptionalJwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Get('me')
   async findMyInventories(
     @Query('page') page: number = 1,

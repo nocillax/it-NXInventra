@@ -17,8 +17,8 @@ export class AuthController {
   private setJwtCookie(res: Response, token: string) {
     res.cookie('access_token', token, {
       httpOnly: true,
-      secure: this.configService.get<string>('NODE_ENV') === 'production',
-      sameSite: 'lax',
+      secure: true,
+      sameSite: 'none',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
   }
@@ -58,8 +58,8 @@ export class AuthController {
   logout(@Res() res: Response) {
     res.clearCookie('access_token', {
       httpOnly: true,
-      secure: this.configService.get<string>('NODE_ENV') === 'production',
-      sameSite: 'lax',
+      secure: true,
+      sameSite: 'none',
     });
     return res
       .status(200)
@@ -72,8 +72,8 @@ export class AuthController {
   logoutGet(@Res() res: Response) {
     res.clearCookie('access_token', {
       httpOnly: true,
-      secure: this.configService.get<string>('NODE_ENV') === 'production',
-      sameSite: 'lax',
+      secure: true,
+      sameSite: 'none',
     });
     return res
       .status(200)

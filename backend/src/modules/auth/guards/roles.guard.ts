@@ -11,7 +11,7 @@ import { Repository } from 'typeorm';
 import { Access, AccessRole } from '../../../database/entities/access.entity';
 import { Item } from '../../../database/entities/item.entity';
 import { Inventory } from '../../../database/entities/inventory.entity';
-import { ROLES_KEY } from '../decorators/roles.decorator';
+import { AppRole, ROLES_KEY } from '../decorators/roles.decorator';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 import { User } from '../../../database/entities/user.entity';
 
@@ -30,20 +30,18 @@ export class RolesGuard implements CanActivate {
   ) {}
 
   // Role hierarchy: higher index = higher privilege
-  private static readonly ROLE_PRIORITY: AccessRole[] = [
+  private static readonly ROLE_PRIORITY: AppRole[] = [
     'Viewer',
     'Editor',
     'Owner',
+    'Admin',
   ];
 
-  private getRolePriority(role: AccessRole): number {
+  private getRolePriority(role: AppRole): number {
     return RolesGuard.ROLE_PRIORITY.indexOf(role);
   }
 
-  private isRoleAtLeast(
-    userRole: AccessRole,
-    requiredRole: AccessRole,
-  ): boolean {
+  private isRoleAtLeast(userRole: AppRole, requiredRole: AppRole): boolean {
     return this.getRolePriority(userRole) >= this.getRolePriority(requiredRole);
   }
 
@@ -56,10 +54,8 @@ export class RolesGuard implements CanActivate {
   }
 
   private async getInventoryId(request: any): Promise<string | undefined> {
-    // Try params first
     let inventoryId = request.params?.inventoryId || request.params?.id;
     if (inventoryId) return inventoryId;
-    // Try itemId
     const itemId = request.params?.itemId;
     if (itemId) {
       const item = await this.itemRepository.findOne({
@@ -94,7 +90,7 @@ export class RolesGuard implements CanActivate {
     ]);
     if (isPublic) return true;
 
-    const requiredRoles = this.reflector.getAllAndOverride<AccessRole[]>(
+    const requiredRoles = this.reflector.getAllAndOverride<AppRole[]>(
       ROLES_KEY,
       [context.getHandler(), context.getClass()],
     );
@@ -103,11 +99,22 @@ export class RolesGuard implements CanActivate {
     const user = request.user;
     if (!user) throw new UnauthorizedException();
 
-    // Admins have access to everything
+    // Admin-only endpoint
+    if (requiredRoles && requiredRoles.includes('Admin')) {
+      if (await this.isAdmin(user.id)) return true;
+      throw new ForbiddenException('Admin access required');
+    }
+
+    // Admins have access to everything else
     if (await this.isAdmin(user.id)) return true;
 
     // If no roles required, allow if logged in
     if (!requiredRoles || requiredRoles.length === 0) return true;
+
+    // Filter out 'Admin' for inventory logic
+    const inventoryRoles = requiredRoles.filter(
+      (r) => r !== 'Admin',
+    ) as AccessRole[];
 
     // Get inventory context
     const inventoryId = await this.getInventoryId(request);
@@ -118,13 +125,11 @@ export class RolesGuard implements CanActivate {
 
     // For public inventories, treat all logged-in users as Editor for item-level actions
     if (isPublicInv) {
-      // If required role is Editor or lower, allow
-      const minRequired = requiredRoles
+      const minRequired = inventoryRoles
         .map((r) => this.getRolePriority(r))
         .reduce((a, b) => Math.min(a, b), 2);
       if (minRequired <= this.getRolePriority('Editor')) return true;
-      // Only Owner/Admin can do inventory-level changes
-      if (requiredRoles.includes('Owner')) {
+      if (inventoryRoles.includes('Owner')) {
         const access = await this.getUserAccess(user.id, inventoryId);
         if (access?.role === 'Owner') return true;
         throw new ForbiddenException();
@@ -136,7 +141,7 @@ export class RolesGuard implements CanActivate {
     if (!access) throw new ForbiddenException();
 
     // Enforce role hierarchy
-    const hasRequired = requiredRoles.some((role) =>
+    const hasRequired = inventoryRoles.some((role) =>
       this.isRoleAtLeast(access.role, role),
     );
     if (!hasRequired) throw new ForbiddenException();

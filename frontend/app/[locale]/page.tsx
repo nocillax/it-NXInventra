@@ -5,7 +5,7 @@ import * as React from "react";
 import { useModalStore } from "@/stores/useModalStore";
 import { Button } from "@/components/ui/button";
 import { useTranslations } from "next-intl";
-import { MyInventories } from "@/components/dashboard/MyInventories";
+
 import { PageContainer } from "@/components/shared/PageContainer";
 import { DashboardTabs } from "@/components/dashboard/DashboardTabs";
 

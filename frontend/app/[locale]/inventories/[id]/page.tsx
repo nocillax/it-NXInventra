@@ -10,6 +10,7 @@ import { InventoryHeader } from "@/components/inventory/InventoryHeader";
 import { InventoryToolbar } from "@/components/inventory/InventoryToolbar";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Pagination } from "@/components/shared/Pagination";
 
 export default function InventoryItemsPage() {
   const params = useParams();
@@ -31,19 +32,6 @@ export default function InventoryItemsPage() {
 
   const isLoading = isInventoryLoading || areItemsLoading;
   const error = inventoryError || itemsError;
-
-  // Pagination handlers
-  const handleNextPage = () => {
-    if (pagination && currentPage < pagination.totalPages) {
-      setCurrentPage(currentPage + 1);
-    }
-  };
-
-  const handlePrevPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-    }
-  };
 
   if (error) {
     return <GenericError />;
@@ -84,31 +72,11 @@ export default function InventoryItemsPage() {
             {Math.min(currentPage * itemsPerPage, pagination.total)} of{" "}
             {pagination.total} items
           </div>
-          <div className="flex items-center space-x-6">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handlePrevPage}
-              disabled={currentPage === 1}
-            >
-              Previous
-            </Button>
-
-            <div className="flex items-center space-x-2">
-              <span className="text-sm font-medium">
-                Page {currentPage} of {pagination.totalPages}
-              </span>
-            </div>
-
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleNextPage}
-              disabled={currentPage === pagination.totalPages}
-            >
-              Next
-            </Button>
-          </div>
+          <Pagination
+            currentPage={currentPage}
+            totalPages={pagination.totalPages}
+            onPageChange={setCurrentPage}
+          />
         </div>
       )}
     </div>

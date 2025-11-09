@@ -16,17 +16,14 @@ const ITEMS_PER_PAGE = 10;
 export function SharedInventoriesTab() {
   const t = useTranslations("Dashboard");
   const { user } = useAuth();
-  const { inventories, isLoading, error } = useSharedInventories();
-
   const [currentPage, setCurrentPage] = React.useState(1);
 
-  const paginatedInventories = React.useMemo(() => {
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    const endIndex = startIndex + ITEMS_PER_PAGE;
-    return inventories.slice(startIndex, endIndex);
-  }, [inventories, currentPage]);
+  const { inventories, pagination, isLoading, error } = useSharedInventories(
+    currentPage,
+    ITEMS_PER_PAGE
+  );
 
-  const totalPages = Math.ceil(inventories.length / ITEMS_PER_PAGE);
+  const totalPages = pagination?.totalPages || 1;
 
   if (isLoading) {
     return (
@@ -52,7 +49,7 @@ export function SharedInventoriesTab() {
         <>
           <ScrollArea className="w-full whitespace-nowrap rounded-md border">
             <InventoryTable
-              inventories={paginatedInventories}
+              inventories={inventories}
               users={[]}
               accessList={[]}
               isLoading={isLoading}

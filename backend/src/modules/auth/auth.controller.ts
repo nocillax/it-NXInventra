@@ -1,12 +1,4 @@
-import {
-  ConflictException,
-  Controller,
-  Get,
-  Post,
-  Req,
-  Res,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { Response, Request } from 'express';
 import { AuthService } from './auth.service';
@@ -37,30 +29,10 @@ export class AuthController {
 
   @Get('google/callback')
   @UseGuards(GoogleAuthGuard)
-  async googleLoginCallback(@Req() req, @Res() res: Response) {
-    try {
-      const token = this.authService.login(req.user);
-      this.setJwtCookie(res, token);
-      res.redirect(this.configService.get<string>('FRONTEND_URL')!);
-    } catch (error) {
-      console.error('Google OAuth error:', error);
-
-      // Handle the provider conflict error specifically
-      if (error instanceof ConflictException) {
-        const errorMessage = encodeURIComponent(error.message);
-        res.redirect(
-          `${this.configService.get<string>('FRONTEND_URL')}/login?error=${errorMessage}`,
-        );
-      } else {
-        // Handle other errors
-        const errorMessage = encodeURIComponent(
-          'Authentication failed. Please try again.',
-        );
-        res.redirect(
-          `${this.configService.get<string>('FRONTEND_URL')}/login?error=${errorMessage}`,
-        );
-      }
-    }
+  googleLoginCallback(@Req() req, @Res() res: Response) {
+    const token = this.authService.login(req.user);
+    this.setJwtCookie(res, token);
+    res.redirect(this.configService.get<string>('FRONTEND_URL')!);
   }
 
   @Get('github')
@@ -69,30 +41,10 @@ export class AuthController {
 
   @Get('github/callback')
   @UseGuards(GithubAuthGuard)
-  async githubLoginCallback(@Req() req, @Res() res: Response) {
-    try {
-      const token = this.authService.login(req.user);
-      this.setJwtCookie(res, token);
-      res.redirect(this.configService.get<string>('FRONTEND_URL')!);
-    } catch (error) {
-      console.error('GitHub OAuth error:', error);
-
-      // Handle the provider conflict error specifically
-      if (error instanceof ConflictException) {
-        const errorMessage = encodeURIComponent(error.message);
-        res.redirect(
-          `${this.configService.get<string>('FRONTEND_URL')}/login?error=${errorMessage}`,
-        );
-      } else {
-        // Handle other errors
-        const errorMessage = encodeURIComponent(
-          'Authentication failed. Please try again.',
-        );
-        res.redirect(
-          `${this.configService.get<string>('FRONTEND_URL')}/login?error=${errorMessage}`,
-        );
-      }
-    }
+  githubLoginCallback(@Req() req, @Res() res: Response) {
+    const token = this.authService.login(req.user);
+    this.setJwtCookie(res, token);
+    res.redirect(this.configService.get<string>('FRONTEND_URL')!);
   }
 
   @UseGuards(JwtAuthGuard)

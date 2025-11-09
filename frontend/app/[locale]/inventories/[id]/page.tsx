@@ -66,18 +66,11 @@ export default function InventoryItemsPage() {
 
       {/* Pagination Controls */}
       {pagination && pagination.totalPages > 1 && (
-        <div className="flex items-center justify-between border-t pt-4">
-          <div className="text-sm text-muted-foreground">
-            Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
-            {Math.min(currentPage * itemsPerPage, pagination.total)} of{" "}
-            {pagination.total} items
-          </div>
-          <Pagination
-            currentPage={currentPage}
-            totalPages={pagination.totalPages}
-            onPageChange={setCurrentPage}
-          />
-        </div>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={pagination.totalPages}
+          onPageChange={setCurrentPage}
+        />
       )}
     </div>
   );

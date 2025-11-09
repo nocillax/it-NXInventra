@@ -1,9 +1,21 @@
 import { v4 as uuidv4 } from "uuid";
 import { Item, NewItem } from "@/types/shared";
 
+// Create a custom error class to preserve backend error details
+class ApiError extends Error {
+  constructor(
+    message: string,
+    public statusCode: number,
+    public originalError?: any
+  ) {
+    super(message);
+    this.name = "ApiError";
+  }
+}
+
 export async function apiFetch(path: string, opts: RequestInit = {}) {
   const stack = new Error().stack;
-  const callerLine = stack?.split("\n")[2]?.trim(); // Gets the calling function
+  const callerLine = stack?.split("\n")[2]?.trim();
 
   console.log(`🚀 API CALL: ${path}`, {
     method: opts.method || "GET",
@@ -27,7 +39,7 @@ export async function apiFetch(path: string, opts: RequestInit = {}) {
   if (res.status === 204 || !contentType?.includes("application/json")) {
     console.log(`📦 RESPONSE DATA: [Empty response]`);
     if (!res.ok) {
-      throw new Error(`API error: ${res.status}`);
+      throw new ApiError(`API error: ${res.status}`, res.status);
     }
     return null;
   }
@@ -36,7 +48,12 @@ export async function apiFetch(path: string, opts: RequestInit = {}) {
   console.log(`📦 RESPONSE DATA:`, data);
 
   if (!res.ok) {
-    throw new Error(data.message || `API error: ${res.status}`);
+    // Preserve the backend error message AND status code
+    throw new ApiError(
+      data.message || `API error: ${res.status}`,
+      res.status,
+      data
+    );
   }
 
   return data;

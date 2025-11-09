@@ -16,7 +16,7 @@ export const getItemTableColumns = (
     columns.push({
       id: "select",
       header: ({ table }) => (
-        <div className="flex items-center justify-center">
+        <div className="ml-2">
           <Checkbox
             checked={
               table.getIsAllPageRowsSelected() ||
@@ -30,7 +30,7 @@ export const getItemTableColumns = (
         </div>
       ),
       cell: ({ row }) => (
-        <div className="flex items-center justify-center">
+        <div className="ml-2">
           <Checkbox
             checked={row.getIsSelected()}
             onCheckedChange={(value) => row.toggleSelected(!!value)}

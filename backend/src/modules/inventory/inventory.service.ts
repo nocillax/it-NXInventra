@@ -496,6 +496,9 @@ export class InventoryService {
     page: number = 1,
     limit: number = 10,
   ): Promise<any> {
+    if (!userId) {
+      throw new UnauthorizedException('Please log in to see your inventories');
+    }
     const skip = helpers.calculateSkip(page, limit);
     const [inventories, total] = await this.getOwnedInventories(
       userId,

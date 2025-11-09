@@ -97,6 +97,8 @@ export class ItemService {
     fields: any,
     fieldMap: Map<string, any>,
   ): Promise<void> {
+    const safeFields = fields || {};
+
     const existingValues = await queryRunner.manager.find(ItemFieldValue, {
       where: { itemId },
     });
@@ -107,7 +109,7 @@ export class ItemService {
     );
 
     // Loop through each field to update or create
-    for (const [fieldKey, newValue] of Object.entries(fields)) {
+    for (const [fieldKey, newValue] of Object.entries(safeFields)) {
       const fieldDef = fieldMap.get(fieldKey);
       if (!fieldDef) continue;
 
@@ -229,7 +231,7 @@ export class ItemService {
   }
 
   // This function creates a new item with auto-generated custom ID and field values
-  async create(
+  async createItem(
     inventoryId: string,
     createItemDto: CreateItemDto,
     userId: string,

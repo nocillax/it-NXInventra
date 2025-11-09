@@ -8,6 +8,8 @@ import { Access } from '../../database/entities/access.entity';
 import { ItemFieldValue } from '../../database/entities/item_field_value.entity';
 import { AuthModule } from '../auth/auth.module';
 import { ItemLike } from '../../database/entities/item_like.entity';
+import { Comment } from '../../database/entities/comment.entity';
+import { User } from '../../database/entities/user.entity';
 
 @Module({
   imports: [
@@ -17,6 +19,8 @@ import { ItemLike } from '../../database/entities/item_like.entity';
       Access,
       ItemFieldValue,
       ItemLike,
+      Comment,
+      User,
     ]),
     AuthModule,
   ],

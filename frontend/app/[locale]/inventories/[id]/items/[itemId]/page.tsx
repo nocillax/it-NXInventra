@@ -113,16 +113,11 @@ export default function ItemDetailPage() {
       // Force SWR to refresh the data
       mutate();
     } catch (error: any) {
-      if (
-        error.message?.includes("modified by another user") ||
-        error.statusCode === 409
-      ) {
-        toast.error(
-          "This item was modified by another user. Please refresh and try again."
-        );
-      } else {
-        toast.error("Failed to update item");
-      }
+      console.error("Update item error:", error);
+
+      // Just show whatever error message comes from the backend
+      const errorMessage = error.message || "Failed to update item";
+      toast.error(errorMessage);
     } finally {
       setIsSaving(false);
     }

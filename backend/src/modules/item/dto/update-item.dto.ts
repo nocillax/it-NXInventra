@@ -5,7 +5,7 @@ export class UpdateItemDto {
   version: number;
 
   @IsOptional()
-  fields?: Record<string, any>;
+  fields?: Record<string, any> = {};
 
   @IsOptional()
   @IsString()

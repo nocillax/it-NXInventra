@@ -65,13 +65,11 @@ export function ItemHeader({
             {mode !== "create" && (
               <Button onClick={onSave} disabled={isSaving}>
                 <Save className="h-4 w-4" />
-                {isSaving ? "Saving..." : "Save"}
               </Button>
             )}
             {mode !== "create" && (
               <Button variant="outline" onClick={onCancel} disabled={isSaving}>
                 <X className="h-4 w-4" />
-                Cancel
               </Button>
             )}
             {/* <Button variant="outline" onClick={onCancel} disabled={isSaving}>
@@ -82,7 +80,6 @@ export function ItemHeader({
         ) : (
           <Button onClick={onEdit}>
             <Pencil className="h-4 w-4" />
-            Edit
           </Button>
         )}
       </div>

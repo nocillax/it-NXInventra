@@ -36,25 +36,17 @@ export class UserService {
   ) {}
 
   async findOrCreate(profile: UserProfile): Promise<User> {
-    // Check if any user already has this email
-    const existingUser = await this.userRepository.findOne({
-      where: { email: profile.email },
+    // Just find or create by provider + providerId, ignore email conflicts
+    let user = await this.userRepository.findOne({
+      where: { provider: profile.provider, providerId: profile.providerId },
     });
 
-    // If user exists with different provider, BLOCK IT
-    if (existingUser && existingUser.provider !== profile.provider) {
-      throw new ConflictException(
-        `This email is already registered with ${existingUser.provider}. Use that to login.`,
-      );
+    if (user) {
+      user.name = profile.name;
+      return this.userRepository.save(user);
     }
 
-    // If user exists with same provider, update their name if needed
-    if (existingUser) {
-      existingUser.name = profile.name;
-      return this.userRepository.save(existingUser);
-    }
-
-    // Otherwise, create new user
+    // Create new user even if email exists with different provider
     return this.userRepository.save(this.userRepository.create(profile));
   }
 

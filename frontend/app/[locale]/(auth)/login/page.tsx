@@ -11,9 +11,25 @@ import {
 import { Icons } from "@/components/ui/icons";
 import { useTheme } from "next-themes";
 import Image from "next/image";
+import { useEffect, useState } from "react";
 
 export default function LoginPage() {
+  const [error, setError] = useState<string | null>(null);
+
+  // Check for error in URL parameters
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const errorParam = urlParams.get("error");
+    if (errorParam) {
+      setError(decodeURIComponent(errorParam));
+      // Clear the error from URL
+      window.history.replaceState({}, "", "/login");
+    }
+  }, []);
+
   const handleLogin = (provider: "google" | "github") => {
+    // Clear any existing errors when trying to login again
+    setError(null);
     // Redirect to backend OAuth endpoint
     const backendUrl = process.env.NEXT_PUBLIC_API_URL;
     if (!backendUrl) {
@@ -46,6 +62,13 @@ export default function LoginPage() {
         </CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4">
+        {/* Show error message if exists */}
+        {error && (
+          <div className="bg-destructive/15 text-destructive text-sm p-3 rounded-md">
+            {error}
+          </div>
+        )}
+
         <Button variant="outline" onClick={() => handleLogin("google")}>
           {theme === "dark" ? (
             <Icons.google.dark className="mr-2 h-4 w-4" />

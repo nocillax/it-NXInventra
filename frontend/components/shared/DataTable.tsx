@@ -40,7 +40,7 @@ export function DataTable<TData extends { id: string }>({
               {headerGroup.headers.map((header) => (
                 <TableHead
                   key={header.id}
-                  className="max-w-[100px] min-w-[50px]" // Adjust min/max widths as needed
+                  className="max-w-[200px] min-w-[50px]" // Adjust min/max widths as needed
                 >
                   {header.isPlaceholder ? null : (
                     <div className="flex items-center">
@@ -125,7 +125,7 @@ export function DataTable<TData extends { id: string }>({
                   <TableCell
                     key={cell.id}
                     className="max-w-[100px] min-w-[50px] *:truncate"
-                    title={String(cell.getValue() || "")} // Show full text on hover
+                    // title={String(cell.getValue() || "")} // Show full text on hover
                   >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>

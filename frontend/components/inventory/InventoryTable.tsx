@@ -13,8 +13,6 @@ import {
   SortingState,
   getSortedRowModel,
 } from "@tanstack/react-table";
-import { useRouter } from "next/navigation";
-import { set } from "date-fns";
 
 interface InventoryTableProps {
   inventories: Inventory[];
@@ -25,22 +23,28 @@ interface InventoryTableProps {
   hideRoleColumn?: boolean;
 }
 
+interface InventoryTableProps {
+  inventories: Inventory[];
+  isLoading: boolean;
+  currentUserId: string;
+  hideRoleColumn?: boolean;
+}
+
 export function InventoryTable({
   inventories,
-  users,
-  accessList,
+  isLoading,
   currentUserId,
+  hideRoleColumn = false,
 }: InventoryTableProps) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const t = useTranslations("InventoryTable");
-  const usersMap = React.useMemo(
-    () => new Map(users.map((user) => [user.id, user])),
-    [users]
-  );
 
-  const columns: ColumnDef<Inventory>[] = React.useMemo(
-    () => getInventoryTableColumns(t, usersMap, accessList, currentUserId),
-    [t, usersMap, accessList, currentUserId]
+  const columns = getInventoryTableColumns(
+    t,
+    new Map(),
+    [],
+    currentUserId,
+    hideRoleColumn
   );
 
   const table = useReactTable({
@@ -49,26 +53,14 @@ export function InventoryTable({
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     onSortingChange: setSorting,
-    state: {
-      sorting,
-    },
+    state: { sorting },
   });
-
-  if (!inventories) {
-    return (
-      <div className="space-y-3">
-        {Array.from({ length: 5 }).map((_, i) => (
-          <Skeleton key={i} className="h-10 w-full" />
-        ))}
-      </div>
-    );
-  }
 
   return (
     <DataTable
       table={table}
       noResultsMessage={t("no_inventories")}
-      entityType="inventory" // Add this line
+      entityType="inventory"
     />
   );
 }

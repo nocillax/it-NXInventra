@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import { useInventory } from "@/hooks/useInventory";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { itemService } from "@/services/itemService";
 import { ItemForm } from "@/components/item/item-details/ItemForm";
@@ -44,7 +44,7 @@ export default function CreateItemPage() {
       await itemService.createItem(inventoryId, createData);
 
       toast.success("Item created successfully");
-      router.push(`/inventories/${inventoryId}/items`);
+      router.push(`/inventories/${inventoryId}`);
     } catch (error: any) {
       toast.error("Failed to create item");
       console.error("Create error:", error);
@@ -54,7 +54,7 @@ export default function CreateItemPage() {
   };
 
   const handleCancel = () => {
-    router.push(`/inventories/${inventoryId}/items`);
+    router.push(`/inventories/${inventoryId}`);
   };
 
   const handleCustomIdChange = (value: string) => {
@@ -67,6 +67,20 @@ export default function CreateItemPage() {
       [fieldTitle]: value,
     }));
   };
+
+  useEffect(() => {
+    if (inventory?.customFields) {
+      setFields((prevFields) => {
+        const updatedFields = { ...prevFields };
+        inventory.customFields.forEach((field) => {
+          if (field.type === "boolean" && !(field.title in updatedFields)) {
+            updatedFields[field.title] = false; // Only set if not already set
+          }
+        });
+        return updatedFields;
+      });
+    }
+  }, [inventory]);
 
   const handleCreate = async () => {
     // Validate that all required fields have values - use FIELDS not editedFields

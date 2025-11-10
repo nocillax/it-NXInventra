@@ -31,7 +31,9 @@ export default function ItemDetailPage() {
   const [editStartVersion, setEditStartVersion] = useState<number>(0);
 
   const { item, isLoading, mutate } = useItem(itemId, { isPaused: isEditing });
-  const { inventory, isLoading: inventoryLoading } = useInventory(inventoryId);
+  const { inventory, isLoading: inventoryLoading } = useInventory(inventoryId, {
+    isPaused: isEditing,
+  });
   const { canEdit } = useRbac(inventory);
 
   // Initialize form data

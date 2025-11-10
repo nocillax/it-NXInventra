@@ -9,7 +9,10 @@ interface InventoryWithCustomIdFormat extends Inventory {
   customIdFormat?: { format: string };
 }
 
-export function useInventory(inventoryId: string | undefined) {
+export function useInventory(
+  inventoryId: string | undefined,
+  options?: { isPaused?: boolean } // ← Add this parameter
+) {
   const { data, error, isLoading, mutate } =
     useSWR<InventoryWithCustomIdFormat>(
       inventoryId ? `/inventories/${inventoryId}` : null,
@@ -19,7 +22,7 @@ export function useInventory(inventoryId: string | undefined) {
         return { ...inventory, customIdFormat: idFormat };
       },
       {
-        refreshInterval: 5000, // Refresh every 5 seconds
+        refreshInterval: options?.isPaused ? 0 : 5000, // ← Now this will work
         revalidateOnFocus: true,
       }
     );

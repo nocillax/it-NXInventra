@@ -17,6 +17,7 @@ interface ItemHeaderProps {
   onCancel: () => void;
   onCreate?: () => void;
   isSaving?: boolean;
+  canEdit?: boolean;
   mode?: "create" | "edit";
 }
 
@@ -31,6 +32,7 @@ export function ItemHeader({
   onCreate,
   isSaving = false,
   mode,
+  canEdit,
 }: ItemHeaderProps) {
   const router = useRouter();
 

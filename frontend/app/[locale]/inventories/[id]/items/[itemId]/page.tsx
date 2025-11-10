@@ -5,63 +5,59 @@ import { useItem } from "@/hooks/useItem";
 import { useInventory } from "@/hooks/useInventory";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTranslations } from "next-intl";
-import { ItemDetailView } from "@/components/item/item-details/ItemDetailView";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { itemService } from "@/services/itemService";
 import { UpdateItemData } from "@/types/shared";
-import { CreateItemData } from "@/types/shared";
 import { useRouter } from "@/navigation";
+import { useRbac } from "@/hooks/useRbac";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { ItemFieldsSection } from "@/components/item/item-details/ItemFieldsSection";
+import { ItemHeader } from "@/components/item/item-details/ItemHeader";
 
 export default function ItemDetailPage() {
   const params = useParams();
   const inventoryId = params.id as string;
   const itemId = params.itemId as string;
   const router = useRouter();
-
   const t = useTranslations("ItemDetailPage");
 
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [editedCustomId, setEditedCustomId] = useState("");
-  const [editedFields, setEditedFields] = useState<Record<string, any>>({});
+  const [formData, setFormData] = useState({
+    customId: "",
+    fields: {} as Record<string, any>,
+  });
   const [editStartVersion, setEditStartVersion] = useState<number>(0);
 
-  // Pause SWR when editing
-  const { item, isLoading, mutate } = useItem(itemId, {
-    isPaused: isEditing,
-  });
-
+  const { item, isLoading, mutate } = useItem(itemId, { isPaused: isEditing });
   const { inventory, isLoading: inventoryLoading } = useInventory(inventoryId);
+  const { canEdit } = useRbac(inventory);
 
-  // Initialize form state when item loads
+  // Initialize form data
   useEffect(() => {
     if (item) {
-      setEditedCustomId(item.customId);
-      setEditedFields({ ...item.fields });
+      setFormData({
+        customId: item.customId,
+        fields: { ...item.fields },
+      });
     }
   }, [item]);
 
   const handleEdit = () => {
-    console.log("Version on edit:", item?.version);
-    setEditStartVersion(item?.version || 0); // Store the version when editing starts
+    setEditStartVersion(item?.version || 0);
     setIsEditing(true);
   };
 
   const handleSave = async () => {
-    console.log("Version on start of save:", item?.version);
     if (!item) return;
 
-    // Check if there are any changes
-    const hasFieldChanges = Object.keys(editedFields).some((fieldTitle) => {
-      const originalValue = item.fields?.[fieldTitle];
-      const newValue = editedFields[fieldTitle];
-      return newValue !== originalValue;
-    });
+    // Check for changes
+    const hasFieldChanges = Object.keys(formData.fields).some(
+      (fieldTitle) => formData.fields[fieldTitle] !== item.fields?.[fieldTitle]
+    );
+    const hasCustomIdChange = formData.customId !== item.customId;
 
-    const hasCustomIdChange = editedCustomId !== item.customId;
-
-    // If no changes, just exit edit mode
     if (!hasFieldChanges && !hasCustomIdChange) {
       setIsEditing(false);
       return;
@@ -70,73 +66,53 @@ export default function ItemDetailPage() {
     setIsSaving(true);
 
     try {
-      // Map field titles to field IDs
       const fieldUpdates: Record<string, any> = {};
 
       if (hasFieldChanges) {
-        Object.keys(editedFields).forEach((fieldTitle) => {
-          const originalValue = item.fields?.[fieldTitle];
-          const newValue = editedFields[fieldTitle];
-
-          if (newValue !== originalValue) {
-            const fieldDefinition = inventory?.customFields?.find(
-              (field) => field.title === fieldTitle
+        Object.keys(formData.fields).forEach((fieldTitle) => {
+          if (formData.fields[fieldTitle] !== item.fields?.[fieldTitle]) {
+            const fieldDef = inventory?.customFields?.find(
+              (f) => f.title === fieldTitle
             );
-
-            if (fieldDefinition) {
-              fieldUpdates[fieldDefinition.id.toString()] = newValue;
-            }
+            if (fieldDef)
+              fieldUpdates[fieldDef.id.toString()] =
+                formData.fields[fieldTitle];
           }
         });
       }
 
-      // Prepare update data with correct type
-      const updateData: UpdateItemData = {
-        version: editStartVersion,
-      };
-
-      // Only include fields if there are field changes
-      if (Object.keys(fieldUpdates).length > 0) {
+      const updateData: UpdateItemData = { version: editStartVersion };
+      if (Object.keys(fieldUpdates).length > 0)
         updateData.fields = fieldUpdates;
-      }
+      if (hasCustomIdChange) updateData.customId = formData.customId;
 
-      // Only include customId if it changed
-      if (hasCustomIdChange) {
-        updateData.customId = editedCustomId;
-      }
-
-      // Use the fixed service
       await itemService.updateItem(itemId, updateData);
-
       toast.success("Item updated successfully");
       setIsEditing(false);
-      // Force SWR to refresh the data
       mutate();
     } catch (error: any) {
-      console.error("Update item error:", error);
-
-      // Just show whatever error message comes from the backend
-      const errorMessage = error.message || "Failed to update item";
-      toast.error(errorMessage);
+      toast.error(error.message || "Failed to update item");
     } finally {
       setIsSaving(false);
     }
   };
 
   const handleCancel = () => {
-    setEditedCustomId(item?.customId || "");
-    setEditedFields({ ...item?.fields });
+    setFormData({
+      customId: item?.customId || "",
+      fields: { ...item?.fields },
+    });
     setIsEditing(false);
   };
 
   const handleCustomIdChange = (value: string) => {
-    setEditedCustomId(value);
+    setFormData((prev) => ({ ...prev, customId: value }));
   };
 
   const handleFieldChange = (fieldTitle: string, value: any) => {
-    setEditedFields((prev) => ({
+    setFormData((prev) => ({
       ...prev,
-      [fieldTitle]: value,
+      fields: { ...prev.fields, [fieldTitle]: value },
     }));
   };
 
@@ -151,7 +127,7 @@ export default function ItemDetailPage() {
     );
   }
 
-  if (!item) {
+  if (!item || !inventory) {
     return (
       <div className="container mx-auto p-6">
         <p>{t("not_found")}</p>
@@ -161,20 +137,32 @@ export default function ItemDetailPage() {
 
   return (
     <div className="container mx-auto p-6">
-      <ItemDetailView
-        item={item}
-        inventory={inventory}
-        inventoryId={inventoryId}
-        isEditing={isEditing}
-        editedCustomId={editedCustomId}
-        editedFields={editedFields}
-        isSaving={isSaving}
-        onEdit={handleEdit}
-        onSave={handleSave}
-        onCancel={handleCancel}
-        onCustomIdChange={handleCustomIdChange}
-        onFieldChange={handleFieldChange}
-      />
+      <Card className="max-w-3xl mx-auto">
+        <CardHeader>
+          <ItemHeader
+            customId={isEditing ? formData.customId : item.customId}
+            inventory={inventory}
+            inventoryId={inventoryId}
+            isEditing={isEditing}
+            isSaving={isSaving}
+            canEdit={canEdit}
+            onEdit={handleEdit}
+            onSave={handleSave}
+            onCancel={handleCancel}
+          />
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <ItemFieldsSection
+            inventory={inventory}
+            itemFields={isEditing ? formData.fields : item.fields}
+            isEditing={isEditing}
+            customId={isEditing ? formData.customId : item.customId}
+            onCustomIdChange={handleCustomIdChange}
+            onFieldChange={handleFieldChange}
+            mode="edit"
+          />
+        </CardContent>
+      </Card>
     </div>
   );
 }

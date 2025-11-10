@@ -1,5 +1,5 @@
 import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
 interface FieldProps {
   field: {
@@ -14,19 +14,25 @@ interface FieldProps {
   disabled?: boolean;
 }
 
-export function TextField({ field, value, onChange, disabled }: FieldProps) {
+export function TextareaField({
+  field,
+  value,
+  onChange,
+  disabled,
+}: FieldProps) {
   return (
     <div className="space-y-2">
       <Label htmlFor={`field-${field.id}`}>
         {field.title}
         {field.required && <span className="text-destructive ml-1">*</span>}
       </Label>
-      <Input
+      <Textarea
         id={`field-${field.id}`}
         value={value || ""}
         onChange={(e) => onChange(e.target.value)}
         disabled={disabled}
         placeholder={`Enter ${field.title.toLowerCase()}`}
+        className="min-h-[100px]"
       />
     </div>
   );

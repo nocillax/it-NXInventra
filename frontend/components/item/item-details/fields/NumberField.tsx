@@ -14,7 +14,7 @@ interface FieldProps {
   disabled?: boolean;
 }
 
-export function TextField({ field, value, onChange, disabled }: FieldProps) {
+export function NumberField({ field, value, onChange, disabled }: FieldProps) {
   return (
     <div className="space-y-2">
       <Label htmlFor={`field-${field.id}`}>
@@ -23,8 +23,9 @@ export function TextField({ field, value, onChange, disabled }: FieldProps) {
       </Label>
       <Input
         id={`field-${field.id}`}
+        type="number"
         value={value || ""}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e) => onChange(e.target.value ? Number(e.target.value) : "")}
         disabled={disabled}
         placeholder={`Enter ${field.title.toLowerCase()}`}
       />

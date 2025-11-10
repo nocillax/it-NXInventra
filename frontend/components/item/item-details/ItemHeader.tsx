@@ -23,7 +23,6 @@ interface ItemHeaderProps {
 
 export function ItemHeader({
   customId,
-  inventory,
   inventoryId,
   isEditing,
   onEdit,
@@ -32,57 +31,53 @@ export function ItemHeader({
   onCreate,
   isSaving = false,
   mode,
-  canEdit,
+  canEdit = false, // Default to false
 }: ItemHeaderProps) {
   const router = useRouter();
 
-  const handleBack = () => {
-    router.push(`/inventories/${inventoryId}`);
-  };
-
   return (
     <div className="relative flex items-center justify-between w-full">
-      {/* Left (Back Button) */}
-      <div className="flex-shrink-0">
-        <Button variant="ghost" size="icon" onClick={handleBack}>
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-      </div>
+      {/* Back Button */}
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={() => router.push(`/inventories/${inventoryId}`)}
+      >
+        <ArrowLeft className="h-4 w-4" />
+      </Button>
 
-      {/* Center (Title - absolutely centered, independent of sides) */}
+      {/* Centered Title */}
       <div className="absolute left-1/2 transform -translate-x-1/2 text-center">
         <h1 className="text-2xl font-bold">{customId}</h1>
       </div>
 
-      {/* Right (Edit / Save buttons) */}
-      <div className="flex items-center justify-end space-x-2 flex-shrink-0">
-        {isEditing ? (
+      {/* Action Buttons - Only show if user can edit OR in create mode */}
+      <div className="flex items-center space-x-2">
+        {mode === "create" ? (
           <>
-            {mode === "create" && (
-              <Button onClick={onCreate} disabled={isSaving}>
-                <Save className="h-4 w-4" />
-                {isSaving ? "Creating..." : "Create"}
-              </Button>
-            )}
-            {mode !== "create" && (
+            <Button onClick={onCreate} disabled={isSaving}>
+              <Save className="h-4 w-4" />
+            </Button>
+            <Button variant="outline" onClick={onCancel} disabled={isSaving}>
+              <X className="h-4 w-4" />
+            </Button>
+          </>
+        ) : (
+          canEdit &&
+          (isEditing ? (
+            <>
               <Button onClick={onSave} disabled={isSaving}>
                 <Save className="h-4 w-4" />
               </Button>
-            )}
-            {mode !== "create" && (
               <Button variant="outline" onClick={onCancel} disabled={isSaving}>
                 <X className="h-4 w-4" />
               </Button>
-            )}
-            {/* <Button variant="outline" onClick={onCancel} disabled={isSaving}>
-              <X className="h-4 w-4" />
-              Cancel
-            </Button> */}
-          </>
-        ) : (
-          <Button onClick={onEdit}>
-            <Pencil className="h-4 w-4" />
-          </Button>
+            </>
+          ) : (
+            <Button onClick={onEdit}>
+              <Pencil className="h-4 w-4" />
+            </Button>
+          ))
         )}
       </div>
     </div>

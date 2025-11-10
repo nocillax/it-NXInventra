@@ -30,7 +30,7 @@ interface ItemsTableProps {
 export function ItemsTable({ items, inventory, isLoading }: ItemsTableProps) {
   const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
   const [sorting, setSorting] = React.useState<SortingState>([]);
-  const { canEdit, isOwner } = useRbac(inventory);
+  const { canEdit, isOwner, effectiveRole } = useRbac(inventory);
   const t = useTranslations("ItemsActions");
 
   const router = useRouter();
@@ -68,6 +68,7 @@ export function ItemsTable({ items, inventory, isLoading }: ItemsTableProps) {
   }
 
   if (!items || items.length === 0) {
+    console.log("RBAC values:", { canEdit, isOwner, effectiveRole });
     return (
       <div className="flex flex-col items-center justify-center h-60 border border-dashed rounded-lg text-center p-4">
         <p className="text-muted-foreground mb-4">{t("no_items_message")}</p>
@@ -75,7 +76,7 @@ export function ItemsTable({ items, inventory, isLoading }: ItemsTableProps) {
           <ItemBulkActions
             table={table}
             inventoryId={inventory.id}
-            isOwner={isOwner}
+            canEdit={canEdit}
           />
         )}
       </div>
@@ -88,7 +89,7 @@ export function ItemsTable({ items, inventory, isLoading }: ItemsTableProps) {
         <ItemBulkActions
           table={table}
           inventoryId={inventory.id}
-          isOwner={isOwner}
+          canEdit={canEdit}
         />
       )}
       <ScrollArea className="w-full whitespace-nowrap rounded-md border">

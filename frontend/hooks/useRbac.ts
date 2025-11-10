@@ -24,28 +24,25 @@ export function useRbac(inventory: Inventory | null | undefined) {
     {
       revalidateOnFocus: true,
       dedupingInterval: 30000,
-      shouldRetryOnError: false, // Don't retry on 404 (no access)
+      shouldRetryOnError: false,
     }
   );
 
   const effectiveRole: Role | "PublicViewer" | "None" | "Loading" =
     useMemo(() => {
       if (!inventory) return "None";
-
-      // Still loading
       if (isLoadingAccess) return "Loading";
 
-      // Use the role from the API response
+      // If user has explicit role, use it
       if (userAccess?.role) {
         return userAccess.role;
       }
 
-      // If no explicit role, check if the inventory is public
+      // If inventory is public, anyone can view
       if (inventory.public) {
         return "PublicViewer";
       }
 
-      // If private and no role, no access
       return "None";
     }, [inventory, userAccess, isLoadingAccess]);
 

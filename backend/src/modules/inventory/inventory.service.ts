@@ -613,10 +613,20 @@ export class InventoryService {
       where: { inventoryId, userId },
     });
 
-    if (!access) {
-      throw new NotFoundException('You do not have access to this inventory');
+    if (access) {
+      return { role: access.role };
     }
-    return { role: access.role };
+
+    // Check if inventory is public
+    const inventory = await this.inventoryRepository.findOne({
+      where: { id: inventoryId },
+    });
+
+    if (inventory?.public) {
+      return { role: 'Editor' }; // Public inventory + logged in = Editor
+    }
+
+    throw new NotFoundException('You do not have access to this inventory');
   }
 
   // This function retrieves all custom fields for an inventory

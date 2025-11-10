@@ -56,12 +56,14 @@ export function Header() {
             )}
           </Link>
           <nav className="hidden items-center space-x-6 text-sm font-medium md:flex">
-            <Link
-              href="/"
-              className="transition-colors hover:text-foreground/80 text-foreground/60"
-            >
-              {t("home_link")}
-            </Link>
+            {user && (
+              <Link
+                href="/"
+                className="transition-colors hover:text-foreground/80 text-foreground/60"
+              >
+                {t("home_link")}
+              </Link>
+            )}
 
             <Link
               href="/explore"
@@ -117,48 +119,57 @@ export function Header() {
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="flex w-[280px] flex-col p-0">
-              <SheetHeader className="border-b p-4">
-                {user && (
-                  <div className="flex items-center gap-3">
-                    <Avatar>
-                      <AvatarFallback>
-                        {user.name.charAt(0).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex flex-col">
-                      <span className="text-sm font-semibold">{user.name}</span>
-                      <span className="text-xs text-muted-foreground">
-                        {user.email}
-                      </span>
-                    </div>
-                  </div>
-                )}
+              <SheetHeader className=" p-4">
+                <Link
+                  href="/"
+                  className="flex items-center justify-center w-full relative space-x-2  pb-4 border-b"
+                >
+                  {mounted ? (
+                    <Image
+                      src={
+                        theme === "dark"
+                          ? "/logos/nocillax-logo-light.png"
+                          : "/logos/nocillax-logo-dark.png"
+                      }
+                      alt="NXInventra Logo"
+                      width={32}
+                      height={32}
+                    />
+                  ) : (
+                    <div className="h-8 w-8" />
+                  )}
+                  <span className="font-bold">NXInventra</span>
+                </Link>
               </SheetHeader>
               <nav className="flex-1 space-y-2 p-4">
+                {user && (
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start border-b h-12"
+                    asChild
+                    onClick={() => setSheetOpen(false)}
+                  >
+                    <Link href="/">{t("home_link")}</Link>
+                  </Button>
+                )}
                 <Button
-                  variant="outline"
-                  className="w-full justify-start"
-                  asChild
-                  onClick={() => setSheetOpen(false)}
-                >
-                  <Link href="/">{t("home_link")}</Link>
-                </Button>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start"
+                  variant="ghost"
+                  className="w-full justify-start border-b h-12"
                   asChild
                   onClick={() => setSheetOpen(false)}
                 >
                   <Link href="/explore">{t("explore_link")}</Link>
                 </Button>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start"
-                  asChild
-                  onClick={() => setSheetOpen(false)}
-                >
-                  <Link href="/profile">{t("profile_link")}</Link>
-                </Button>
+                {user && (
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start border-b h-12"
+                    asChild
+                    onClick={() => setSheetOpen(false)}
+                  >
+                    <Link href="/profile">{t("profile_link")}</Link>
+                  </Button>
+                )}
               </nav>
               <SheetFooter className="mt-auto flex-col items-stretch gap-2 border-t p-4">
                 <div className="flex w-full items-center justify-between gap-2">
@@ -177,16 +188,18 @@ export function Header() {
                   </Button>
                   <LanguageToggle />
                 </div>
-                <Button
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => {
-                    logout(); // Use the logout from useAuth
-                    setSheetOpen(false);
-                  }}
-                >
-                  {t("log_out")}
-                </Button>
+                {user && (
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => {
+                      logout(); // Use the logout from useAuth
+                      setSheetOpen(false);
+                    }}
+                  >
+                    {t("log_out")}
+                  </Button>
+                )}
               </SheetFooter>
             </SheetContent>
           </Sheet>

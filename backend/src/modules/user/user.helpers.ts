@@ -12,6 +12,7 @@ export function mapUserProfile(user: any) {
     id: user.id,
     name: user.name,
     email: user.email,
+    provider: user.provider,
     isAdmin: user.isAdmin,
     theme: user.theme,
     language: user.language,

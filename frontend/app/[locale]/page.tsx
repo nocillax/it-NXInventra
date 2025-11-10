@@ -11,19 +11,12 @@ import { DashboardTabs } from "@/components/dashboard/DashboardTabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import ExplorePage from "./explore/page";
 
 export default function HomePage() {
   const t = useTranslations("Dashboard");
   const { onOpen } = useModalStore();
   const { user, isLoading } = useAuth();
-  const router = useRouter();
-
-  // Redirect to explore page if not logged in
-  useEffect(() => {
-    if (!isLoading && !user) {
-      router.push("/explore");
-    }
-  }, [user, isLoading, router]);
 
   // Show loading state while checking auth
   if (isLoading) {
@@ -41,15 +34,9 @@ export default function HomePage() {
     );
   }
 
-  // Show nothing while redirecting or if not logged in
+  // If not logged in, show explore page content directly
   if (!user) {
-    return (
-      <PageContainer>
-        <div className="flex items-center justify-center h-40">
-          <p className="text-muted-foreground">Redirecting...</p>
-        </div>
-      </PageContainer>
-    );
+    return <ExplorePage />;
   }
 
   // Show dashboard only for logged in users
@@ -61,7 +48,6 @@ export default function HomePage() {
           {t("create_inventory")}
         </Button>
       </div>
-
       <DashboardTabs />
     </PageContainer>
   );

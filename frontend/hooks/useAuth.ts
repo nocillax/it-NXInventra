@@ -1,34 +1,18 @@
-// hooks/useAuth.ts
-import { useEffect } from "react";
-import { useUserStore } from "@/stores/useUserStore";
+// hooks/useAuth.ts - SIMPLIFIED
+import useSWR from "swr";
+import { User } from "@/types/shared";
 import { userService } from "@/services/userService";
 
 export const useAuth = () => {
-  const { user, setUser, setLoading, setError, clearUser } = useUserStore();
-
-  useEffect(() => {
-    const fetchCurrentUser = async () => {
-      setLoading(true);
-      try {
-        const userData = await userService.getCurrentUser();
-        setUser(userData);
-      } catch (error: any) {
-        if (
-          error?.status === 401 ||
-          error?.response?.status === 401 ||
-          error?.message?.includes("401")
-        ) {
-          setUser(null); // Guest user
-        } else {
-          setError("Failed to load user data");
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCurrentUser();
-  }, []);
+  const { data, error, isLoading, mutate } = useSWR<User>(
+    "/user/me",
+    () => userService.getCurrentUser(),
+    {
+      refreshInterval: 0,
+      revalidateOnFocus: false,
+      shouldRetryOnError: false, // Don't retry on auth errors
+    }
+  );
 
   const logout = async () => {
     try {
@@ -36,29 +20,16 @@ export const useAuth = () => {
     } catch (error) {
       console.error("Logout error:", error);
     } finally {
-      // Always clear user from store regardless of API call success
-      clearUser();
-      // Optional: redirect to home page
+      mutate(undefined, false); // Clear SWR cache
       window.location.href = "/";
     }
   };
 
-  const refreshUser = async () => {
-    setLoading(true);
-    try {
-      const userData = await userService.getCurrentUser();
-      setUser(userData);
-    } catch (error) {
-      console.error("Failed to refresh user:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return {
-    user,
+    user: data,
     logout,
-    refreshUser, // Add this
-    isLoading: useUserStore((state) => state.loading),
+    refreshUser: mutate,
+    isLoading,
+    isAuthenticated: !!data,
   };
 };

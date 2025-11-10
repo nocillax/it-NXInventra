@@ -9,12 +9,13 @@ import {
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../../modules/auth/guards/jwt.guard';
 import { SearchService } from './search.service';
+import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt.guard';
 
 @Controller('api/search')
-@UseGuards(JwtAuthGuard)
 export class SearchController {
   constructor(private readonly searchService: SearchService) {}
 
+  @UseGuards(OptionalJwtAuthGuard)
   @Get()
   async search(
     @Query('q') query: string,
@@ -22,12 +23,7 @@ export class SearchController {
     @Query('limit') limit: number = 10,
     @Request() req: any,
   ) {
-    // Check if user exists in request (added by JWT guard)
-    if (!req.user) {
-      throw new UnauthorizedException('User not authenticated');
-    }
-
-    const userId = req.user.id;
+    const userId = req.user?.id || null;
 
     // Validate page and limit
     const pageNum = Math.max(1, parseInt(page as any) || 1);

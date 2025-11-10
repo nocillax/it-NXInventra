@@ -47,6 +47,11 @@ export function ProfileForm() {
           <Input id="email" value={user?.email || ""} disabled />
           <p className="text-xs text-muted-foreground">{t("email_note")}</p>
         </div>
+        <div className="space-y-2">
+          <Label htmlFor="provider">{t("provider_label")}</Label>
+          <Input id="provider" value={user?.provider || ""} disabled />
+          <p className="text-xs text-muted-foreground">{t("provider_note")}</p>
+        </div>
       </CardContent>
       <CardFooter className="flex justify-end">
         <ProfileDeleteAction />

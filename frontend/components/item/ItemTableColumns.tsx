@@ -74,14 +74,14 @@ export const getItemTableColumns = (
 
   columns.push(...fieldColumns);
 
-  columns.push({
-    id: "likes", // ✅ Has id
-    header: "Likes",
-    accessorKey: "likes",
-    cell: ({ row }) => (
-      <div className="font-mono text-xs">{row.original.likes}</div>
-    ),
-  });
+  // columns.push({
+  //   id: "likes", // ✅ Has id
+  //   header: "Likes",
+  //   accessorKey: "likes",
+  //   cell: ({ row }) => (
+  //     <div className="font-mono text-xs">{row.original.likes}</div>
+  //   ),
+  // });
 
   return columns;
 };

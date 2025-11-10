@@ -11,13 +11,13 @@ import { useRouter } from "@/navigation";
 interface ItemBulkActionsProps<TData> {
   table: Table<TData>;
   inventoryId: string;
-  isOwner: boolean;
+  canEdit: boolean;
 }
 
 export function ItemBulkActions<TData>({
   table,
   inventoryId,
-  isOwner,
+  canEdit,
 }: ItemBulkActionsProps<TData>) {
   const { onOpen } = useModalStore();
   const selectedRows = table.getFilteredSelectedRowModel().rows;
@@ -46,7 +46,7 @@ export function ItemBulkActions<TData>({
         </Button>
         {numSelected > 0 && (
           <>
-            {isOwner && (
+            {canEdit && (
               <Button
                 variant="destructive"
                 onClick={handleDelete}

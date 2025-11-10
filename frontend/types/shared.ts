@@ -7,6 +7,7 @@ export interface User {
   id: string;
   name: string;
   email: string;
+  provider?: string;
   isAdmin?: boolean; // Optional since your response doesn't always include it
   theme?: string;
   language?: string;

@@ -55,10 +55,13 @@ export function UserNav() {
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <Link href="/profile" className="block p-2 rounded-sm hover:bg-accent">
-          <div className="flex flex-col space-y-1">
+          <div className="flex flex-col space-y-2">
             <p className="text-sm font-medium leading-none">{user.name}</p>
             <p className="text-xs leading-none text-muted-foreground">
               {user.email}
+            </p>
+            <p className="text-xs font-medium leading-none text-muted-foreground ">
+              ({user.provider})
             </p>
           </div>
         </Link>

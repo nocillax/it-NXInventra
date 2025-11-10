@@ -11,6 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { useAccessCheck } from "@/hooks/useAccessCheck";
+import { useRbac } from "@/hooks/useRbac";
 
 export default function InventoryDiscussionPage() {
   const params = useParams();
@@ -18,13 +19,14 @@ export default function InventoryDiscussionPage() {
   const { inventory } = useInventory(inventoryId);
 
   const { role, isLoading: isLoadingAccess } = useAccessCheck(inventoryId);
+  const { canEdit, isLoading: isLoadingRbac } = useRbac(inventory);
   const isOwner = role === "Owner";
 
   const { discussions, isLoading, mutate, loadMore, hasMore } =
     useDiscussion(inventoryId);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
-  const isLoadingPage = isLoading || isLoadingAccess;
+  const isLoadingPage = isLoading || isLoadingAccess || isLoadingRbac;
 
   if (!inventoryId) return null;
 
@@ -54,18 +56,20 @@ export default function InventoryDiscussionPage() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
-      <DiscussionForm inventoryId={inventoryId} onDiscussionPosted={mutate} />
+      {canEdit && (
+        <DiscussionForm inventoryId={inventoryId} onDiscussionPosted={mutate} />
+      )}
 
       <DiscussionList
-        discussions={discussions} // Already sorted in the hook
-        isLoading={isLoading && discussions.length === 0} // Only show loading for initial load
+        discussions={discussions}
+        isLoading={isLoading && discussions.length === 0}
         selectedIds={selectedIds}
         onSelectionChange={setSelectedIds}
         canDelete={isOwner}
         onDeleteSuccess={mutate}
         hasMore={hasMore}
         onLoadMore={loadMore}
-        isLoadingMore={isLoading && discussions.length > 0} // Show loading for "Load More"
+        isLoadingMore={isLoading && discussions.length > 0}
       />
     </div>
   );

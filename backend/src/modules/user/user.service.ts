@@ -42,8 +42,7 @@ export class UserService {
     });
 
     if (user) {
-      user.name = profile.name;
-      return this.userRepository.save(user);
+      return user;
     }
 
     // Create new user even if email exists with different provider

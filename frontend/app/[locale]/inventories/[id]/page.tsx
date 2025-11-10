@@ -3,19 +3,34 @@
 import { useParams } from "next/navigation";
 import { useItems } from "@/hooks/useItems";
 import { useInventory } from "@/hooks/useInventory";
-import { InventoryItemsView } from "@/components/inventory/InventoryItemsView";
+
 import { Skeleton } from "@/components/ui/skeleton";
 import { GenericError } from "@/components/shared/GenericError";
 import { InventoryHeader } from "@/components/inventory/InventoryHeader";
 import { InventoryToolbar } from "@/components/inventory/InventoryToolbar";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Pagination } from "@/components/shared/Pagination";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { DataTable } from "@/components/shared/DataTable";
+import { ItemBulkActions } from "@/components/item/ItemBulkActions";
+import {
+  getCoreRowModel,
+  getSortedRowModel,
+  RowSelectionState,
+  SortingState,
+  useReactTable,
+} from "@tanstack/react-table";
+import { getItemTableColumns } from "@/components/item/ItemTableColumns";
+import { useTranslations } from "next-intl";
+import { useRbac } from "@/hooks/useRbac";
 
 export default function InventoryItemsPage() {
   const params = useParams();
   const inventoryId = params.id as string;
   const [currentPage, setCurrentPage] = useState(1);
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const itemsPerPage = 10;
 
   const {
@@ -29,6 +44,28 @@ export default function InventoryItemsPage() {
     isLoading: areItemsLoading,
     error: itemsError,
   } = useItems(inventoryId, { page: currentPage, limit: itemsPerPage });
+
+  const { canEdit } = useRbac(inventory);
+  const t = useTranslations("ItemsActions");
+
+  // Move table logic here
+  const columns = useMemo(
+    () => getItemTableColumns(inventory!, new Map(), canEdit),
+    [inventory, canEdit]
+  );
+
+  const table = useReactTable({
+    data: items || [],
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    onSortingChange: setSorting,
+    onRowSelectionChange: setRowSelection,
+    state: {
+      rowSelection,
+      sorting,
+    },
+  });
 
   const isLoading = isInventoryLoading || areItemsLoading;
   const error = inventoryError || itemsError;
@@ -58,11 +95,25 @@ export default function InventoryItemsPage() {
     <div className="container mx-auto p-4 space-y-6">
       {/* Your existing header and toolbar would go here */}
 
-      <InventoryItemsView
-        items={items || []}
-        inventory={inventory}
-        isLoading={isLoading}
-      />
+      <div className="space-y-4">
+        {canEdit && (
+          <ItemBulkActions
+            table={table}
+            inventoryId={inventory.id}
+            canEdit={canEdit}
+          />
+        )}
+
+        <ScrollArea className="w-full whitespace-nowrap rounded-md border">
+          <DataTable
+            table={table}
+            noResultsMessage={t("no_items")}
+            inventoryId={inventory.id}
+            entityType="item"
+          />
+          <ScrollBar orientation="horizontal" />
+        </ScrollArea>
+      </div>
 
       {/* Pagination Controls */}
       {pagination && pagination.totalPages > 1 && (

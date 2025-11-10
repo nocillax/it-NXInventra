@@ -52,10 +52,18 @@ export const getInventoryTableColumns = (
     cell: ({ row }) => {
       // Use creator object from API response
       const creator = row.original.creator;
-      if (creator?.id === currentUserId) {
-        return t("you");
-      }
-      return creator?.name || row.original.createdBy || "-";
+      const displayName =
+        creator?.id === currentUserId
+          ? t("you")
+          : creator?.name || row.original.createdBy || "-";
+
+      return (
+        <div className="max-w-[120px] truncate">
+          {" "}
+          {/* Match your category column width */}
+          {displayName}
+        </div>
+      );
     },
   },
   {

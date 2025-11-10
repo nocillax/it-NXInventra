@@ -165,4 +165,13 @@ export class UserService {
     if (!user) throw new NotFoundException('User not found');
     return mapUserProfile(user);
   }
+
+  // Checks if a user exists by ID
+  async userExists(userId: string): Promise<boolean> {
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+      select: ['id'],
+    });
+    return !!user;
+  }
 }

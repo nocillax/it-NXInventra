@@ -56,33 +56,6 @@ export class RolesGuard implements CanActivate {
     return !!user?.isAdmin;
   }
 
-  // private async getInventoryId(request: any): Promise<string | undefined> {
-  //   let inventoryId = request.params?.inventoryId || request.params?.id;
-  //   if (inventoryId) return inventoryId;
-
-  //   // Try itemId
-  //   const itemId = request.params?.itemId || request.params?.id;
-  //   if (itemId) {
-  //     const item = await this.itemRepository.findOne({
-  //       where: { id: itemId },
-  //       select: ['inventoryId'],
-  //     });
-  //     if (item?.inventoryId) return item.inventoryId;
-  //   }
-
-  //   // Try commentId
-  //   const commentId = request.params?.commentId || request.params?.id;
-  //   if (commentId) {
-  //     const comment = await this.commentRepository.findOne({
-  //       where: { id: commentId },
-  //       select: ['inventoryId'],
-  //     });
-  //     if (comment?.inventoryId) return comment.inventoryId;
-  //   }
-
-  //   return undefined;
-  // }
-
   private async getInventoryId(request: any): Promise<string | undefined> {
     // If inventoryId is present, use it
     if (request.params?.inventoryId) return request.params.inventoryId;

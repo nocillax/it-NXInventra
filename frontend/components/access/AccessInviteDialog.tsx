@@ -26,12 +26,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useModalStore } from "@/stores/useModalStore";
-import { useUsers } from "@/hooks/useUsers";
+
 import { useAccess } from "@/hooks/useAccess";
 import { Button } from "@/components/ui/button";
 import { Role, User } from "@/types/shared";
-import { apiFetch } from "@/lib/apiClient";
-import { v4 as uuidv4 } from "uuid";
 import { useTranslations } from "next-intl";
 import { accessService } from "@/services/accessService";
 import { useUserSearch } from "@/hooks/useUserSearch";

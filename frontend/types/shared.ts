@@ -12,6 +12,7 @@ export interface User {
   theme?: string;
   language?: string;
   createdAt?: string;
+  updatedAt?: string;
 }
 
 export type CustomFieldType =

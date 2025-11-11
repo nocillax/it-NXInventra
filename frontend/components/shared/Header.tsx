@@ -71,6 +71,15 @@ export function Header() {
             >
               {t("explore_link")}
             </Link>
+
+            {user?.isAdmin && (
+              <Link
+                href="/users"
+                className="transition-colors hover:text-foreground/80 text-foreground/60"
+              >
+                {t("users_link")}
+              </Link>
+            )}
           </nav>
         </div>
         <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
@@ -160,6 +169,16 @@ export function Header() {
                 >
                   <Link href="/explore">{t("explore_link")}</Link>
                 </Button>
+                {user?.isAdmin && (
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start border-b h-12"
+                    asChild
+                    onClick={() => setSheetOpen(false)}
+                  >
+                    <Link href="/users">{t("users_link")}</Link>
+                  </Button>
+                )}
                 {user && (
                   <Button
                     variant="ghost"

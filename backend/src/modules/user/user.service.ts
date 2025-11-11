@@ -49,6 +49,25 @@ export class UserService {
     return this.userRepository.save(this.userRepository.create(profile));
   }
 
+  // Gets all users with pagination
+  async getAllUsers(page: number = 1, limit: number = 50) {
+    const skip = (page - 1) * limit;
+
+    const [users, total] = await this.userRepository.findAndCount({
+      skip,
+      take: limit,
+      order: { createdAt: 'DESC' }, // Default sort by newest
+    });
+
+    return {
+      users: users.map(mapUserProfile),
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
+
   // Searches users by name or email
   async searchUsers(query: string, limit: number = 10) {
     if (!isValidUserQuery(query)) return [];

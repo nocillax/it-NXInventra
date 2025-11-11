@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -28,6 +29,14 @@ export class UserController {
       return [];
     }
     return this.userService.searchUsers(query, limit);
+  }
+
+  @Get('all')
+  async getAllUsers(
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 50,
+  ) {
+    return this.userService.getAllUsers(page, limit);
   }
 
   @UseGuards(JwtAuthGuard)

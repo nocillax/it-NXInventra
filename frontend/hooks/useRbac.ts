@@ -1,4 +1,3 @@
-// hooks/useRbac.ts - WITH BETTER LOADING STATES
 "use client";
 
 import { useMemo } from "react";
@@ -28,10 +27,15 @@ export function useRbac(inventory: Inventory | null | undefined) {
     }
   );
 
-  const effectiveRole: Role | "PublicViewer" | "None" | "Loading" =
+  const effectiveRole: Role | "PublicViewer" | "None" | "Loading" | "Admin" =
     useMemo(() => {
       if (!inventory) return "None";
       if (isLoadingAccess) return "Loading";
+
+      // If user is admin, they have full access to everything
+      if (user?.isAdmin) {
+        return "Admin";
+      }
 
       // If user has explicit role, use it
       if (userAccess?.role) {
@@ -44,22 +48,26 @@ export function useRbac(inventory: Inventory | null | undefined) {
       }
 
       return "None";
-    }, [inventory, userAccess, isLoadingAccess]);
+    }, [inventory, userAccess, isLoadingAccess, user?.isAdmin]);
 
-  const isOwner = effectiveRole === "Owner";
-  const isEditor = effectiveRole === "Editor";
+  const isOwner = effectiveRole === "Owner" || effectiveRole === "Admin";
+  const isEditor = effectiveRole === "Editor" || effectiveRole === "Admin";
   const isViewer =
-    effectiveRole === "Viewer" || effectiveRole === "PublicViewer";
+    effectiveRole === "Viewer" ||
+    effectiveRole === "PublicViewer" ||
+    effectiveRole === "Admin";
+  const isAdmin = effectiveRole === "Admin";
   const isLoading = effectiveRole === "Loading";
 
-  const canView = isOwner || isEditor || isViewer;
-  const canEdit = isOwner || isEditor;
+  const canView = isOwner || isEditor || isViewer || isAdmin;
+  const canEdit = isOwner || isEditor || isAdmin;
 
   return {
     effectiveRole,
     isOwner,
     isEditor,
     isViewer,
+    isAdmin,
     canView,
     canEdit,
     isLoading,

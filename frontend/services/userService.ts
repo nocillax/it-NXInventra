@@ -27,14 +27,6 @@ export const userService = {
     return apiFetch(`/user/${userId}`, { method: "DELETE" });
   },
 
-  // services/userService.ts - FIXED BULK DELETE
-  // async bulkDeleteUsers(userIds: string[]) {
-  //   return apiFetch("/user/bulk", {
-  //     method: "DELETE",
-  //     body: JSON.stringify({ userIds }),
-  //   });
-  // },
-
   async bulkToggleAdmin(userIds: string[], makeAdmin: boolean) {
     const promises = userIds.map((userId) =>
       makeAdmin ? this.promoteToAdmin(userId) : this.demoteFromAdmin(userId)

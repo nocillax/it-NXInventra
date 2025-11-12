@@ -10,7 +10,9 @@
     "theme_toggle": "Theme",
     "language_toggle": "Language",
     "switch_to_dark": "Switch to Dark Mode",
-    "switch_to_light": "Switch to Light Mode"
+    "switch_to_light": "Switch to Light Mode",
+    "all_inventories_link": "All Inventories",
+    "users_link": "Users"
   },
   "UserNav": {
     "log_out": "Log out",
@@ -102,6 +104,12 @@
     "input_placeholder": "Type here...",
     "saving_message": "Adding Item...",
     "save_button": "Add Item"
+  },
+  "ItemCreate": {
+    "text-placeholder": "Enter text",
+    "number-placeholder": "Enter a number",
+    "textarea-placeholder": "Enter long text",
+    "link-placeholder": "Enter a URL"
   },
   "CreateItemPage": {
     "create_success": "Item created successfully",
@@ -396,7 +404,8 @@
     "random_6digit_info": "6-digit random number. Add optional suffix like '-' after.",
     "random_9digit_info": "9-digit random number. Add optional suffix like '_' after.",
     "random_20bit_info": "Format: X5 (hex) or D6 (decimal). Add suffix like '-' after.",
-    "random_32bit_info": "Format: X8 (hex) or D10 (decimal). Add suffix like '_' after."
+    "random_32bit_info": "Format: X8 (hex) or D10 (decimal). Add suffix like '_' after.",
+    "guid_info": "Generate a UUID. Add optional suffix like '-' after."
   },
   "Pagination": {
     "previous": "Previous",

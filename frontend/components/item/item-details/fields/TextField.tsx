@@ -1,5 +1,6 @@
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { useTranslations } from "next-intl";
 
 interface FieldProps {
   field: {
@@ -15,6 +16,7 @@ interface FieldProps {
 }
 
 export function TextField({ field, value, onChange, disabled }: FieldProps) {
+  const t = useTranslations("ItemCreate");
   return (
     <div className="space-y-2">
       <Label htmlFor={`field-${field.id}`}>
@@ -26,7 +28,7 @@ export function TextField({ field, value, onChange, disabled }: FieldProps) {
         value={value || ""}
         onChange={(e) => onChange(e.target.value)}
         disabled={disabled}
-        placeholder={`Enter ${field.title.toLowerCase()}`}
+        placeholder={t("text-placeholder")}
       />
     </div>
   );

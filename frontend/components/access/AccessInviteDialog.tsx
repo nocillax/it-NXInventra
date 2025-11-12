@@ -97,11 +97,11 @@ export function AccessInviteDialog() {
                 {filteredUsers?.map((user) => (
                   <CommandItem
                     key={user.id}
-                    value={`${user.name} ${user.email}`} // ADD THIS LINE - it's required!
+                    value={`${user.name} ${user.email} ${user.provider}`}
                     onSelect={() => setSelectedUser(user)}
-                    className="cursor-pointer text-muted-foreground"
+                    className="cursor-pointer text-xs text-muted-foreground"
                   >
-                    {user.name} ({user.email})
+                    {user.name} - {user.email} ({user.provider})
                   </CommandItem>
                 ))}
               </CommandGroup>

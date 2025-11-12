@@ -73,7 +73,7 @@ export class UserService {
     if (!isValidUserQuery(query)) return [];
     const users = await this.userRepository
       .createQueryBuilder('user')
-      .select(['user.id', 'user.name', 'user.email'])
+      .select(['user.id', 'user.name', 'user.email', 'user.provider'])
       .where('user.name ILIKE :query OR user.email ILIKE :query', {
         query: `%${query}%`,
       })

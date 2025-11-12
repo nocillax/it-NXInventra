@@ -1,5 +1,6 @@
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { useTranslations } from "next-intl";
 
 interface FieldProps {
   field: {
@@ -20,6 +21,7 @@ export function TextareaField({
   onChange,
   disabled,
 }: FieldProps) {
+  const t = useTranslations("ItemCreate");
   return (
     <div className="space-y-2">
       <Label htmlFor={`field-${field.id}`}>
@@ -31,7 +33,7 @@ export function TextareaField({
         value={value || ""}
         onChange={(e) => onChange(e.target.value)}
         disabled={disabled}
-        placeholder={`Enter ${field.title.toLowerCase()}`}
+        placeholder={t("textarea-placeholder")}
         className="min-h-[100px]"
       />
     </div>

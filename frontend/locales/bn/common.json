@@ -110,6 +110,12 @@
     "saving_message": "সংরক্ষণ হচ্ছে...",
     "save_button": "সংরক্ষণ করুন"
   },
+  "ItemCreate": {
+    "text-placeholder": "এখানে টেক্সট লিখুন",
+    "number-placeholder": "এখানে একটি সংখ্যা লিখুন",
+    "textarea-placeholder": "এখানে লং টেক্সট লিখুন",
+    "link-placeholder": "এখানে একটি ইউআরএল লিখুন"
+  },
   "ItemEditDialog": {
     "title": "সম্পাদনা করুন",
     "description": "এই আইটেমের বিবরণ আপডেট করুন।",

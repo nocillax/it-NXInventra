@@ -396,5 +396,10 @@
     "random_9digit_info": "9-digit random number. Add optional suffix like '_' after.",
     "random_20bit_info": "Format: X5 (hex) or D6 (decimal). Add suffix like '-' after.",
     "random_32bit_info": "Format: X8 (hex) or D10 (decimal). Add suffix like '_' after."
+  },
+  "Pagination": {
+    "previous": "Previous",
+    "next": "Next",
+    "page_info": "Page {current} of {total}"
   }
 }

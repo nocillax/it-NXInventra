@@ -9,6 +9,16 @@ import "../globals.css";
 import { LocaleLayoutProps } from "@/types/shared";
 import { ModalProvider } from "@/components/providers/modal-provider";
 import { Footer } from "@/components/shared/Footer";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "NXInventra",
+  description:
+    "An open-source dynamic inventory management system designed for small to medium-sized businesses.",
+  icons: {
+    icon: "/logos/nocillax-logo-light.png",
+  },
+};
 
 const inter = Inter({ subsets: ["latin"] });
 

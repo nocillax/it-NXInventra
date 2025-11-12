@@ -17,7 +17,7 @@ export function StatusPage({
   description,
   showGoHome = true,
 }: StatusPageProps) {
-  const t = useTranslations(); // Using root to get common keys like 'go_home'
+  const t = useTranslations();
 
   return (
     <div className="container flex flex-col items-center justify-center min-h-[calc(100vh-10rem)] text-center py-10">

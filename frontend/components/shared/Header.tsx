@@ -74,6 +74,15 @@ export function Header() {
 
             {user?.isAdmin && (
               <Link
+                href="/all-inventories"
+                className="transition-colors hover:text-foreground/80 text-foreground/60"
+              >
+                {t("all_inventories_link")}
+              </Link>
+            )}
+
+            {user?.isAdmin && (
+              <Link
                 href="/users"
                 className="transition-colors hover:text-foreground/80 text-foreground/60"
               >
@@ -169,6 +178,20 @@ export function Header() {
                 >
                   <Link href="/explore">{t("explore_link")}</Link>
                 </Button>
+
+                {user?.isAdmin && (
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start border-b h-12"
+                    asChild
+                    onClick={() => setSheetOpen(false)}
+                  >
+                    <Link href="/all-inventories">
+                      {t("all_inventories_link")}
+                    </Link>
+                  </Button>
+                )}
+
                 {user?.isAdmin && (
                   <Button
                     variant="ghost"

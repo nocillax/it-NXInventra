@@ -318,6 +318,31 @@ export class InventoryService {
     }
   }
 
+  // This function returns all inventories for admin
+  async findAllInventories(page: number = 1, limit: number = 10): Promise<any> {
+    const skip = helpers.calculateSkip(page, limit);
+
+    const query = this.inventoryRepository
+      .createQueryBuilder('inventory')
+      .leftJoinAndSelect('inventory.creator', 'creator')
+      .leftJoinAndSelect('inventory.customFields', 'customFields')
+      .leftJoinAndSelect('inventory.tags', 'tags');
+
+    const [inventories, total] = await query
+      .skip(skip)
+      .take(limit)
+      .orderBy('inventory.createdAt', 'DESC')
+      .getManyAndCount();
+
+    return helpers.createPaginationResponse(
+      inventories,
+      page,
+      limit,
+      total,
+      'inventories',
+    );
+  }
+
   // This function returns all public inventories
   async findAllPublic(page: number = 1, limit: number = 10): Promise<any> {
     const skip = helpers.calculateSkip(page, limit);

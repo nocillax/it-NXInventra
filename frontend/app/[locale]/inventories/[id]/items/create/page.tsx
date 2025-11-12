@@ -21,7 +21,7 @@ export default function CreateItemPage() {
     isLoading: inventoryLoading,
     mutate,
   } = useInventory(inventoryId);
-  const t = useTranslations("ItemDetailPage");
+  const t = useTranslations("CreateItemPage");
   const [editedFields, setEditedFields] = useState<Record<string, any>>({});
   const [isSaving, setIsSaving] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -43,10 +43,10 @@ export default function CreateItemPage() {
 
       await itemService.createItem(inventoryId, createData);
 
-      toast.success("Item created successfully");
+      toast.success(t("create_success"));
       router.push(`/inventories/${inventoryId}`);
     } catch (error: any) {
-      toast.error("Failed to create item");
+      toast.error(t("create_error"));
       console.error("Create error:", error);
     } finally {
       setIsSaving(false);
@@ -99,7 +99,7 @@ export default function CreateItemPage() {
 
     if (missingFields.length > 0) {
       toast.error(
-        `Please fill all required fields: ${missingFields.join(", ")}`
+        t("required_fields_error", { fields: missingFields.join(", ") })
       );
       return;
     }
@@ -123,14 +123,14 @@ export default function CreateItemPage() {
       // Use the create service
       await itemService.createItem(inventoryId, createData);
 
-      toast.success("Item created successfully");
+      toast.success(t("create_success"));
 
       // Reset form and navigate back
       setFields({});
       router.push(`/inventories/${inventoryId}`);
     } catch (error: any) {
       console.error("Create item error:", error);
-      toast.error("Failed to create item");
+      toast.error(t("create_error"));
     } finally {
       setIsSaving(false);
     }

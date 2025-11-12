@@ -17,6 +17,13 @@
     "profile_link": "Profile",
     "login": "Log In"
   },
+  "UsersPage": {
+    "title": "User Management",
+    "subtitle": "Manage all users in the system",
+    "access_denied": "Admin access required",
+    "load_error": "Failed to load users",
+    "no_users": "No users found"
+  },
   "Dashboard": {
     "dashboard": "Dashboard",
     "create_inventory": "Create Inventory",
@@ -95,6 +102,11 @@
     "saving_message": "Adding Item...",
     "save_button": "Add Item"
   },
+  "CreateItemPage": {
+    "create_success": "Item created successfully",
+    "create_error": "Failed to create item",
+    "required_fields_error": "Please fill all required fields: {fields}"
+  },
   "ItemEditDialog": {
     "title": "Edit Item",
     "description": "Update the details for this item.",
@@ -103,6 +115,10 @@
     "input_placeholder": "Type here...",
     "saving_message": "Updating Item...",
     "save_button": "Update Item"
+  },
+  "ItemDetailPage": {
+    "update_success": "Item updated successfully",
+    "update_error": "Failed to update item"
   },
   "ItemDeleteDialog": {
     "title": "Are you sure?",
@@ -129,7 +145,9 @@
     "no_more_comments": "No more comments to load.",
     "load_more": "Load More",
     "loading_more": "Loading...",
-    "selected_count": "{count} selected"
+    "selected_count": "{count} selected",
+    "delete_success": "Comment(s) deleted.",
+    "delete_error": "Failed to delete comment(s)."
   },
   "InventorySettingsForm": {
     "title_placeholder": "e.g. Office Laptops",
@@ -169,7 +187,8 @@
   },
   "IDPreview": {
     "preview_title": "Custom ID Preview",
-    "preview_description": "Example of what your Custom IDs will look like."
+    "preview_description": "Example of what your Custom IDs will look like.",
+    "preview_note": "This is a sample preview. Actual values will vary."
   },
   "IdSegmentRow": {
     "segment_type": "Segment Type",
@@ -244,8 +263,8 @@
     "update_field_error": "Failed to update field.",
     "field_type_edit_disabled": "Field type cannot be changed after creation.",
     "delete_selected": "Delete",
-    "delete_field_success": "Field(s) deleted successfully!",
-    "delete_field_error": "Failed to delete field(s).",
+    "delete_fields_success": "Field(s) deleted successfully!",
+    "delete_fields_error": "Failed to delete field(s).",
     "field_description_help": "Provide additional context about this field for users."
   },
   "AccessList": {
@@ -353,7 +372,9 @@
     "delete_dialog_cancel": "Cancel",
     "delete_dialog_confirm": "Continue",
     "delete_success_message": "Account deleted successfully.",
-    "delete_failure_message": "Failed to delete account. Please try again."
+    "delete_failure_message": "Failed to delete account. Please try again.",
+    "provider_label": "Authentication Provider",
+    "provider_note": "Your authentication provider cannot be changed."
   },
   "Errors": {
     "server_error_title": "Something Went Wrong",
@@ -366,5 +387,14 @@
     "items": "Items",
     "unknown_inventory": "Unknown Inventory",
     "unknown_item": "Unknown Item"
+  },
+  "CustomIdInput": {
+    "fixed_info": "Enter text or use emoji. This will appear as-is in the ID.",
+    "date_info": "Use: yyyy (year), mm (month), dd (day), ddd (weekday). Add suffix like '-' after.",
+    "sequence_info": "Format: D1-D10 for sequence length. Add suffix like '_' after.",
+    "random_6digit_info": "6-digit random number. Add optional suffix like '-' after.",
+    "random_9digit_info": "9-digit random number. Add optional suffix like '_' after.",
+    "random_20bit_info": "Format: X5 (hex) or D6 (decimal). Add suffix like '-' after.",
+    "random_32bit_info": "Format: X8 (hex) or D10 (decimal). Add suffix like '_' after."
   }
 }

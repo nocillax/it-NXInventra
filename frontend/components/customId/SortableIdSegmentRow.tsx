@@ -1,42 +1,3 @@
-// "use client";
-
-// import { useSortable } from "@dnd-kit/sortable";
-// import { CSS } from "@dnd-kit/utilities";
-// import { IdSegment } from "@/types/shared";
-// import { IdSegmentRow } from "./IdSegmentRow";
-
-// interface SortableIdSegmentRowProps {
-//   segment: IdSegment;
-//   onDelete: () => void;
-//   onUpdate: (updatedSegment: IdSegment) => void;
-// }
-
-// export function SortableIdSegmentRow({
-//   segment,
-//   onDelete,
-//   onUpdate,
-// }: SortableIdSegmentRowProps) {
-//   const { attributes, listeners, setNodeRef, transform, transition } =
-//     useSortable({ id: segment.id });
-
-//   const style = {
-//     transform: CSS.Transform.toString(transform),
-//     transition,
-//   };
-
-//   return (
-//     <IdSegmentRow
-//       ref={setNodeRef}
-//       style={style}
-//       segment={segment}
-//       onDelete={onDelete}
-//       onUpdate={onUpdate}
-//       dragAttributes={attributes}
-//       dragListeners={listeners}
-//     />
-//   );
-// }
-
 "use client";
 
 import * as React from "react";
@@ -54,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { IdSegment } from "@/types/shared";
 import { EmojiPicker } from "@/components/ui/emoji-picker";
+import { useTranslations } from "next-intl";
 
 interface SortableIdSegmentRowProps {
   segment: IdSegment;
@@ -79,6 +41,8 @@ export function SortableIdSegmentRow({
     transform: CSS.Transform.toString(transform),
     transition,
   };
+
+  const t = useTranslations("CustomIdInput");
 
   const handleTypeChange = (type: IdSegment["type"]) => {
     // Clear existing data and set appropriate default
@@ -158,23 +122,25 @@ export function SortableIdSegmentRow({
   };
 
   const getInputInfo = (type: string): string => {
+    const t = useTranslations("CustomIdInput");
+
     switch (type) {
       case "fixed":
-        return "Enter text or use emoji. This will appear as-is in the ID.";
+        return t("fixed_info");
       case "date":
-        return "Use: yyyy (year), mm (month), dd (day), ddd (weekday). Add suffix like '-' after.";
+        return t("date_info");
       case "sequence":
-        return "Format: D1-D10 for sequence length. Add suffix like '_' after.";
+        return t("sequence_info");
       case "random_6digit":
-        return "6-digit random number. Add optional suffix like '-' after.";
+        return t("random_6digit_info");
       case "random_9digit":
-        return "9-digit random number. Add optional suffix like '_' after.";
+        return t("random_9digit_info");
       case "random_20bit":
-        return "Format: X5 (hex) or D6 (decimal). Add suffix like '-' after.";
+        return t("random_20bit_info");
       case "random_32bit":
-        return "Format: X8 (hex) or D10 (decimal). Add suffix like '_' after.";
+        return t("random_32bit_info");
       case "guid":
-        return "UUID format. Add optional suffix like '-' after.";
+        return t("guid_info");
       default:
         return "";
     }

@@ -127,9 +127,7 @@ export function IDPreview({ segments }: IDPreviewProps) {
       <div className="mt-4 rounded-md border bg-accent p-4 font-mono text-center text-lg break-all">
         {previewId || "No preview available"}
       </div>
-      <p className="mt-2 text-xs text-muted-foreground">
-        This is a sample preview. Actual values will vary.
-      </p>
+      <p className="mt-2 text-xs text-muted-foreground">{t("preview_note")}</p>
     </div>
   );
 }

@@ -19,8 +19,8 @@ export default function InventoryDiscussionPage() {
   const { inventory } = useInventory(inventoryId);
 
   const { role, isLoading: isLoadingAccess } = useAccessCheck(inventoryId);
-  const { canEdit, isLoading: isLoadingRbac } = useRbac(inventory);
-  const isOwner = role === "Owner";
+  const { isOwner, canEdit, isLoading: isLoadingRbac } = useRbac(inventory);
+  // const isOwner = role === "Owner";
 
   const { discussions, isLoading, mutate, loadMore, hasMore } =
     useDiscussion(inventoryId);

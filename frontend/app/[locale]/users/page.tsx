@@ -99,7 +99,7 @@ export default function UsersPage() {
     return (
       <div className="container mx-auto p-6">
         <div className="flex items-center justify-center h-64">
-          <p className="text-muted-foreground">Admin access required</p>
+          <p className="text-muted-foreground">{t("access_denied")}</p>
         </div>
       </div>
     );
@@ -109,7 +109,7 @@ export default function UsersPage() {
     return (
       <div className="container mx-auto p-6">
         <div className="flex items-center justify-center h-64">
-          <p className="text-destructive">Failed to load users</p>
+          <p className="text-destructive">{t("load_error")}</p>
         </div>
       </div>
     );
@@ -119,10 +119,10 @@ export default function UsersPage() {
     <div className="container mx-auto p-6">
       <div className="space-y-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">User Management</h1>
-          <p className="text-muted-foreground">
-            Manage all users in the system
-          </p>
+          <h1 className="text-2xl font-semibold tracking-tight">
+            {t("title")}
+          </h1>
+          <p className="text-muted-foreground">{t("subtitle")}</p>
         </div>
 
         <UserBulkActions table={table} />

@@ -89,11 +89,11 @@ export default function ItemDetailPage() {
       if (hasCustomIdChange) updateData.customId = formData.customId;
 
       await itemService.updateItem(itemId, updateData);
-      toast.success("Item updated successfully");
+      toast.success(t("update_success"));
       setIsEditing(false);
       mutate();
     } catch (error: any) {
-      toast.error(error.message || "Failed to update item");
+      toast.error(t("update_error"));
     } finally {
       setIsSaving(false);
     }

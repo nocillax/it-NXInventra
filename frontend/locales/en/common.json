@@ -37,6 +37,10 @@
     "no_shared_inventories": "It looks a bit empty here. When someone shares an inventory with you, it will show up here.",
     "no_my_inventories": "It looks a bit empty here. Get started by creating your first inventory."
   },
+  "AllInventories": {
+    "title": "All Inventories",
+    "description": "Browse all inventories in the platform."
+  },
   "InventoryTable": {
     "no_inventories": "It looks a bit empty here. Get started by creating your first inventory.",
     "name": "Name",

@@ -8,7 +8,7 @@ export function useAccess(inventoryId: string) {
     inventoryId ? `/inventories/${inventoryId}/access` : null,
     () => accessService.getAccessList(inventoryId),
     {
-      refreshInterval: 5000, // Auto-refresh every 5 seconds
+      refreshInterval: 5000,
       revalidateOnFocus: true,
     }
   );

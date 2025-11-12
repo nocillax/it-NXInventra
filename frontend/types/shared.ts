@@ -8,7 +8,7 @@ export interface User {
   name: string;
   email: string;
   provider?: string;
-  isAdmin?: boolean; // Optional since your response doesn't always include it
+  isAdmin?: boolean;
   theme?: string;
   language?: string;
   createdAt?: string;

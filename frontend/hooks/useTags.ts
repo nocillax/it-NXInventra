@@ -5,7 +5,6 @@ import useSWR from "swr";
 import { tagService } from "@/services/tagService";
 import { useMemo } from "react";
 
-// hooks/useTags.ts - Improved for better matching
 export function useTags(query?: string) {
   const { data, error, isLoading } = useSWR<string[]>(
     query ? `tags-${query}` : "tags",

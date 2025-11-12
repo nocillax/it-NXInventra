@@ -17,7 +17,8 @@
   "UserNav": {
     "log_out": "লগ আউট",
     "profile_link": "প্রোফাইল",
-    "login": "লগ ইন"
+    "login": "লগ ইন",
+    "admin": "অ্যাডমিন অ্যাকাউন্ট"
   },
   "Dashboard": {
     "dashboard": "ড্যাশবোর্ড",

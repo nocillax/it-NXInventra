@@ -41,7 +41,7 @@ export function UserNav() {
           <Link href="/login">{t("login")}</Link>
         </Button>
       </div>
-    ); // Or render login button
+    );
   }
 
   return (
@@ -57,6 +57,12 @@ export function UserNav() {
         <Link href="/profile" className="block p-2 rounded-sm hover:bg-accent">
           <div className="flex flex-col space-y-2">
             <p className="text-sm font-medium leading-none">{user.name}</p>
+            {user.isAdmin && (
+              <p className="text-xs leading-none font-bold text-muted-foreground">
+                ({t("admin")})
+              </p>
+            )}
+            <DropdownMenuSeparator />
             <p className="text-xs leading-none text-muted-foreground">
               {user.email}
             </p>

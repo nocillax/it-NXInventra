@@ -15,7 +15,8 @@
   "UserNav": {
     "log_out": "Log out",
     "profile_link": "Profile",
-    "login": "Log In"
+    "login": "Log In",
+    "admin": "Admin Account"
   },
   "UsersPage": {
     "title": "User Management",

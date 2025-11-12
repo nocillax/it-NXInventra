@@ -98,7 +98,7 @@
     "add_item_button": "Add Item",
     "edit_item_button": "Edit",
     "delete_item_button": "Delete",
-    "no_items_message": "This inventory is empty. Add an item to get started."
+    "no_items": "This inventory is empty. Add an item to get started."
   },
   "ItemCreateDialog": {
     "title": "Add Item",

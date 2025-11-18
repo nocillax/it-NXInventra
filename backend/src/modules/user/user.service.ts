@@ -248,7 +248,7 @@ export class UserService {
           if (!accountResult.success) {
             throw new Error('Failed to create Account in Salesforce');
           }
-          accountId = accountResult.id;
+          accountId = accountResult.id as string;
           user.salesforceAccountId = accountId;
         }
       }
@@ -287,7 +287,7 @@ export class UserService {
         if (!contactResult.success) {
           throw new Error('Failed to create Contact in Salesforce');
         }
-        user.salesforceContactId = contactResult.id;
+        user.salesforceContactId = contactResult.id as string;
       }
 
       // Save the updated user with Salesforce IDs

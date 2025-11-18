@@ -217,7 +217,7 @@ export class UserService {
           (process.env.SALESFORCE_SECURITY_TOKEN || ''),
       );
 
-      // Create Account if companyName provided
+      // Create or Update Account
       let accountId: string | undefined;
       if (dto.companyName) {
         const accountData: any = {
@@ -232,19 +232,31 @@ export class UserService {
           if (dto.country) accountData.BillingCountry = dto.country;
         }
 
-        const accountResult = (await conn
-          .sobject('Account')
-          .create(accountData)) as unknown as jsforce.SaveResult;
-        if (!accountResult.success) {
-          throw new Error('Failed to create Account in Salesforce');
+        if (user.salesforceAccountId) {
+          // Update existing Account
+          await conn
+            .sobject('Account')
+            .update({ Id: user.salesforceAccountId, ...accountData });
+          accountId = user.salesforceAccountId;
+        } else {
+          // Create new Account
+          const accountResult = (await conn
+            .sobject('Account')
+            .create(accountData, {
+              headers: { 'Sforce-Duplicate-Rule-Header': 'allowSave=true' },
+            })) as unknown as jsforce.SaveResult;
+          if (!accountResult.success) {
+            throw new Error('Failed to create Account in Salesforce');
+          }
+          accountId = accountResult.id;
+          user.salesforceAccountId = accountId;
         }
-        accountId = accountResult.id;
       }
 
-      // Create Contact
-      const nameParts = user.name.split(' ');
-      const firstName = nameParts[0];
-      const lastName = nameParts.slice(1).join(' ') || 'Unknown';
+      // Create or Update Contact
+      const nameParts = user.name.trim().split(/\s+/);
+      const firstName = nameParts[0] || '';
+      const lastName = nameParts.slice(1).join(' ') || '(unknown)';
 
       const contactData: any = {
         FirstName: firstName,
@@ -260,17 +272,31 @@ export class UserService {
         if (dto.country) contactData.MailingCountry = dto.country;
       }
 
-      const contactResult = (await conn
-        .sobject('Contact')
-        .create(contactData)) as unknown as jsforce.SaveResult;
-      if (!contactResult.success) {
-        throw new Error('Failed to create Contact in Salesforce');
+      if (user.salesforceContactId) {
+        // Update existing Contact
+        await conn
+          .sobject('Contact')
+          .update({ Id: user.salesforceContactId, ...contactData });
+      } else {
+        // Create new Contact
+        const contactResult = (await conn
+          .sobject('Contact')
+          .create(contactData, {
+            headers: { 'Sforce-Duplicate-Rule-Header': 'allowSave=true' },
+          })) as unknown as jsforce.SaveResult;
+        if (!contactResult.success) {
+          throw new Error('Failed to create Contact in Salesforce');
+        }
+        user.salesforceContactId = contactResult.id;
       }
+
+      // Save the updated user with Salesforce IDs
+      await this.userRepository.save(user);
 
       return {
         message: 'Successfully synced to Salesforce',
         accountId,
-        contactId: contactResult.id,
+        contactId: user.salesforceContactId,
       };
     } catch (error) {
       throw new ForbiddenException(`Salesforce sync failed: ${error.message}`);

@@ -1,6 +1,3 @@
-import { v4 as uuidv4 } from "uuid";
-import { Item, NewItem } from "@/types/shared";
-
 // Create a custom error class to preserve backend error details
 class ApiError extends Error {
   constructor(

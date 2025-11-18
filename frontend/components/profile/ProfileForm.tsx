@@ -16,6 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ProfileNameEditor } from "./ProfileNameEditor";
 import { ProfileDeleteAction } from "./ProfileDeleteAction";
+import { SyncToSalesforceForm } from "./SyncToSalesforceForm";
 import { useAuth } from "@/hooks/useAuth";
 
 export function ProfileForm() {
@@ -52,6 +53,7 @@ export function ProfileForm() {
           <Input id="provider" value={user?.provider || ""} disabled />
           <p className="text-xs text-muted-foreground">{t("provider_note")}</p>
         </div>
+        <SyncToSalesforceForm />
       </CardContent>
       <CardFooter className="flex justify-end">
         <ProfileDeleteAction />

@@ -38,8 +38,14 @@ export class User {
   @Column({ type: 'varchar', length: 20, default: 'light' })
   theme: string;
 
-  @Column({ type: 'varchar', length: 10, default: 'en' })
+  @Column({ type: 'varchar', length: 20, default: 'en' })
   language: string;
+
+  @Column({ name: 'salesforce_account_id', type: 'varchar', nullable: true })
+  salesforceAccountId: string | null;
+
+  @Column({ name: 'salesforce_contact_id', type: 'varchar', nullable: true })
+  salesforceContactId: string | null;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamp with time zone' })
   createdAt: Date;

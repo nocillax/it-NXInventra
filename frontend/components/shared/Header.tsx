@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Menu, Search } from "lucide-react";
+import { Menu, Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "./ThemeToggle";
 import { UserNav } from "@/components/shared/UserNav";
@@ -137,7 +137,7 @@ export function Header() {
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="flex w-[280px] flex-col p-0">
-              <SheetHeader className=" p-4">
+              <SheetHeader className="p-4">
                 <Link
                   href="/"
                   className="flex items-center justify-center w-full relative space-x-2  pb-4 border-b"

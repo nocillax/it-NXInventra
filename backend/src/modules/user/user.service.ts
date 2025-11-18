@@ -10,11 +10,13 @@ import { User } from '../../database/entities/user.entity';
 import { Access } from '../../database/entities/access.entity';
 import { Inventory } from '../../database/entities/inventory.entity';
 import { UpdatePreferencesDto } from './dto/update-preferences.dto';
+import { SyncToSalesforceDto } from './dto/sync-to-salesforce.dto';
 import {
   isValidUserQuery,
   mapUserProfile,
   mapUserSearch,
 } from './user.helpers';
+import * as jsforce from 'jsforce';
 
 export interface UserProfile {
   providerId: string;
@@ -191,5 +193,87 @@ export class UserService {
       select: ['id'],
     });
     return !!user;
+  }
+
+  // Syncs user to Salesforce by creating Account and Contact
+  async syncToSalesforce(userId: string, dto: SyncToSalesforceDto) {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) throw new NotFoundException('User not found');
+
+    const conn = new jsforce.Connection({
+      oauth2: {
+        clientId: process.env.SALESFORCE_CLIENT_ID,
+        clientSecret: process.env.SALESFORCE_CLIENT_SECRET,
+        loginUrl:
+          process.env.SALESFORCE_LOGIN_URL ||
+          'https://orgfarm-214468455c-dev-ed.develop.my.salesforce.com',
+      },
+    });
+
+    try {
+      await conn.login(
+        process.env.SALESFORCE_USERNAME!,
+        process.env.SALESFORCE_PASSWORD! +
+          (process.env.SALESFORCE_SECURITY_TOKEN || ''),
+      );
+
+      // Create Account if companyName provided
+      let accountId: string | undefined;
+      if (dto.companyName) {
+        const accountData: any = {
+          Name: dto.companyName,
+        };
+        if (dto.industry) accountData.Industry = dto.industry;
+        if (dto.phone) accountData.Phone = dto.phone;
+        if (dto.street || dto.city || dto.zipCode) {
+          accountData.BillingStreet = dto.street;
+          accountData.BillingCity = dto.city;
+          accountData.BillingPostalCode = dto.zipCode;
+          if (dto.country) accountData.BillingCountry = dto.country;
+        }
+
+        const accountResult = (await conn
+          .sobject('Account')
+          .create(accountData)) as unknown as jsforce.SaveResult;
+        if (!accountResult.success) {
+          throw new Error('Failed to create Account in Salesforce');
+        }
+        accountId = accountResult.id;
+      }
+
+      // Create Contact
+      const nameParts = user.name.split(' ');
+      const firstName = nameParts[0];
+      const lastName = nameParts.slice(1).join(' ') || 'Unknown';
+
+      const contactData: any = {
+        FirstName: firstName,
+        LastName: lastName,
+        Email: user.email,
+      };
+      if (accountId) contactData.AccountId = accountId;
+      if (dto.phone) contactData.Phone = dto.phone;
+      if (dto.street || dto.city || dto.zipCode) {
+        contactData.MailingStreet = dto.street;
+        contactData.MailingCity = dto.city;
+        contactData.MailingPostalCode = dto.zipCode;
+        if (dto.country) contactData.MailingCountry = dto.country;
+      }
+
+      const contactResult = (await conn
+        .sobject('Contact')
+        .create(contactData)) as unknown as jsforce.SaveResult;
+      if (!contactResult.success) {
+        throw new Error('Failed to create Contact in Salesforce');
+      }
+
+      return {
+        message: 'Successfully synced to Salesforce',
+        accountId,
+        contactId: contactResult.id,
+      };
+    } catch (error) {
+      throw new ForbiddenException(`Salesforce sync failed: ${error.message}`);
+    }
   }
 }

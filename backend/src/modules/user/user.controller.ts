@@ -7,6 +7,7 @@ import {
   Param,
   ParseUUIDPipe,
   Patch,
+  Post,
   Query,
   Req,
   UseGuards,
@@ -15,6 +16,7 @@ import {
 import { UserService } from './user.service';
 import { JwtAuthGuard } from '../auth/guards/jwt.guard';
 import { UpdatePreferencesDto } from './dto/update-preferences.dto';
+import { SyncToSalesforceDto } from './dto/sync-to-salesforce.dto';
 
 @Controller('user')
 export class UserController {
@@ -91,5 +93,11 @@ export class UserController {
   @Delete(':id')
   deleteUser(@Param('id', ParseUUIDPipe) userId: string, @Req() req) {
     return this.userService.deleteUser(userId, req.user.id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('sync-to-salesforce')
+  syncToSalesforce(@Body(ValidationPipe) dto: SyncToSalesforceDto, @Req() req) {
+    return this.userService.syncToSalesforce(req.user.id, dto);
   }
 }

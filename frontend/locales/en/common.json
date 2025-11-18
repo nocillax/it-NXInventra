@@ -438,5 +438,22 @@
     "previous": "Previous",
     "next": "Next",
     "page_info": "Page {current} of {total}"
+  },
+  "Support": {
+    "createTicket": "Create Support Ticket",
+    "createSupportTicket": "Create Support Ticket",
+    "createTicketDescription": "Report an issue or request help. We'll get back to you soon.",
+    "summary": "Summary",
+    "summaryPlaceholder": "Describe your issue or request",
+    "priority": "Priority",
+    "selectPriority": "Select priority",
+    "high": "High",
+    "average": "Average",
+    "low": "Low",
+    "inventoryTitle": "Inventory Title",
+    "optional": "optional",
+    "inventoryTitlePlaceholder": "Related inventory (if applicable)",
+    "submit": "Submit",
+    "submitting": "Submitting..."
   }
 }

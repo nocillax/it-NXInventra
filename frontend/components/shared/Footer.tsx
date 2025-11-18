@@ -5,6 +5,7 @@ import { Link } from "@/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
 import Image from "next/image";
+import { SupportTicketDialog } from "./SupportTicketDialog";
 
 export function Footer() {
   const t = useTranslations("Footer");
@@ -33,21 +34,24 @@ export function Footer() {
           )}
           <span className="font-bold">NXInventra</span>
         </Link>
-        <p className="text-sm text-muted-foreground">
-          {t.rich("copyright", {
-            year: new Date().getFullYear(),
-            link: (chunks) => (
-              <a
-                href="https://nocillax-portfolio.vercel.app/"
-                target="_blank"
-                rel="noreferrer"
-                className="font-medium underline underline-offset-4"
-              >
-                {chunks}
-              </a>
-            ),
-          })}
-        </p>
+        <div className="flex items-center gap-4">
+          <p className="text-sm text-muted-foreground">
+            {t.rich("copyright", {
+              year: new Date().getFullYear(),
+              link: (chunks) => (
+                <a
+                  href="https://nocillax-portfolio.vercel.app/"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="font-medium underline underline-offset-4"
+                >
+                  {chunks}
+                </a>
+              ),
+            })}
+          </p>
+          <SupportTicketDialog />
+        </div>
       </div>
     </footer>
   );

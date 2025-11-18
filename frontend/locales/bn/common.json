@@ -438,5 +438,22 @@
     "previous": "পূর্ববর্তী",
     "next": "পরবর্তী",
     "page_info": "পৃষ্ঠা {current} / {total}"
+  },
+  "Support": {
+    "createTicket": "সাপোর্ট টিকেট তৈরি করুন",
+    "createSupportTicket": "সাপোর্ট টিকেট তৈরি করুন",
+    "createTicketDescription": "একটি সমস্যা রিপোর্ট করুন বা সাহায্য চান। আমরা শীঘ্রই যোগাযোগ করব।",
+    "summary": "সারাংশ",
+    "summaryPlaceholder": "আপনার সমস্যা বা অনুরোধ বর্ণনা করুন",
+    "priority": "অগ্রাধিকার",
+    "selectPriority": "অগ্রাধিকার নির্বাচন করুন",
+    "high": "উচ্চ",
+    "average": "মধ্যম",
+    "low": "নিম্ন",
+    "inventoryTitle": "ইনভেন্টরি শিরোনাম",
+    "optional": "ঐচ্ছিক",
+    "inventoryTitlePlaceholder": "সম্পর্কিত ইনভেন্টরি (যদি প্রযোজ্য হয়)",
+    "submit": "জমা দিন",
+    "submitting": "জমা দেওয়া হচ্ছে..."
   }
 }

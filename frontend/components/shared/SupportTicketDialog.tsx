@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
+import { useAuth } from "@/hooks/useAuth";
 import {
   Dialog,
   DialogContent,
@@ -25,12 +26,15 @@ import {
 import { createSupportTicket } from "@/services/supportService";
 
 export function SupportTicketDialog() {
+  const { isAuthenticated } = useAuth();
   const t = useTranslations("Support");
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [summary, setSummary] = useState("");
   const [priority, setPriority] = useState("");
   const [inventoryTitle, setInventoryTitle] = useState("");
+
+  if (!isAuthenticated) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

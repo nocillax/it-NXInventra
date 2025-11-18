@@ -34,23 +34,25 @@ export function Footer() {
           )}
           <span className="font-bold">NXInventra</span>
         </Link>
-        <div className="flex items-center gap-4">
-          <p className="text-sm text-muted-foreground">
-            {t.rich("copyright", {
-              year: new Date().getFullYear(),
-              link: (chunks) => (
-                <a
-                  href="https://nocillax-portfolio.vercel.app/"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="font-medium underline underline-offset-4"
-                >
-                  {chunks}
-                </a>
-              ),
-            })}
-          </p>
-          <SupportTicketDialog />
+                <div className="flex items-center gap-6">
+          <div className="flex flex-col items-end gap-2">
+            <SupportTicketDialog />
+            <p className="text-sm text-muted-foreground">
+              {t.rich("copyright", {
+                year: new Date().getFullYear(),
+                link: (chunks) => (
+                  <a
+                    href="https://nocillax-portfolio.vercel.app/"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="font-medium underline underline-offset-4"
+                  >
+                    {chunks}
+                  </a>
+                ),
+              })}
+            </p>
+          </div>
         </div>
       </div>
     </footer>

@@ -34,7 +34,7 @@ export function Footer() {
           )}
           <span className="font-bold">NXInventra</span>
         </Link>
-                <div className="flex items-center gap-6">
+        <div className="flex items-center gap-6">
           <div className="flex flex-col items-end gap-2">
             <SupportTicketDialog />
             <p className="text-sm text-muted-foreground">

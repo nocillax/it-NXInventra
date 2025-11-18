@@ -23,6 +23,7 @@ import { CategoryController } from './modules/category/category.controller';
 import { CategoryModule } from './modules/category/category.module';
 import { CommentModule } from './modules/comment/comment.module';
 import { SearchModule } from './modules/search/search.module';
+import { SupportModule } from './modules/support/support.module';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { SearchModule } from './modules/search/search.module';
     CategoryModule,
     CommentModule,
     SearchModule,
+    SupportModule,
   ],
   controllers: [AppController],
   providers: [AppService],

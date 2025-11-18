@@ -42,6 +42,7 @@
     "class-validator": "^0.14.2",
     "cookie-parser": "^1.4.7",
     "date-fns": "^4.1.0",
+    "dropbox": "^10.34.0",
     "jsforce": "^3.10.8",
     "jsonwebtoken": "^9.0.2",
     "passport": "^0.7.0",

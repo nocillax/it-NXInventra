@@ -90,7 +90,6 @@ export class InventoryController {
     return this.inventoryService.getAggregatedDataByToken(token);
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
   @Get()
   async findAll(
     @Query('page') page: number = 1,

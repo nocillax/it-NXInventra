@@ -55,6 +55,15 @@ export class Inventory {
   @Column({ name: 'id_format', type: 'jsonb', nullable: true })
   idFormat: IdSegment[];
 
+  @Column({
+    name: 'api_token',
+    type: 'varchar',
+    length: 64,
+    nullable: true,
+    unique: true,
+  })
+  apiToken: string;
+
   @CreateDateColumn({ name: 'created_at', type: 'timestamp with time zone' })
   createdAt: Date;
 

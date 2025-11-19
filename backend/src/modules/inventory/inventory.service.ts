@@ -21,6 +21,7 @@ import { User } from '../../database/entities/user.entity';
 import { UpdateCustomFieldDto } from './dto/update-custom-fields.dto';
 import { AddCustomFieldsDto } from './dto/add-custom-fields.dto';
 import * as helpers from './inventory.helpers';
+import { randomBytes } from 'crypto';
 
 @Injectable()
 export class InventoryService {
@@ -830,5 +831,118 @@ export class InventoryService {
       where: { id: inventoryId },
     });
     return helpers.generateIdFormatString(inventory!.idFormat);
+  }
+
+  // Generates a unique API token for an inventory (owner only)
+  async generateApiToken(
+    inventoryId: string,
+    userId: string,
+  ): Promise<{ apiToken: string }> {
+    // Generate unique token
+    let token: string;
+    let attempts = 0;
+    do {
+      token = randomBytes(32).toString('hex');
+      attempts++;
+      if (attempts > 10) {
+        throw new ConflictException('Failed to generate unique token');
+      }
+    } while (
+      await this.inventoryRepository.findOne({ where: { apiToken: token } })
+    );
+
+    // Save token
+    await this.inventoryRepository.update(inventoryId, { apiToken: token });
+
+    return { apiToken: token };
+  }
+
+  // Returns aggregated data for an inventory by API token
+  async getAggregatedDataByToken(token: string): Promise<any> {
+    // Find inventory by token
+    const inventory = await this.inventoryRepository.findOne({
+      where: { apiToken: token },
+      relations: ['customFields'],
+    });
+    if (!inventory) {
+      throw new NotFoundException('Invalid API token');
+    }
+
+    // Get aggregations for each custom field
+    const fieldsWithAggregations = await Promise.all(
+      inventory.customFields.map(async (field) => {
+        const aggregations = await this.computeFieldAggregations(
+          field.id,
+          inventory.id,
+        );
+        return {
+          title: field.title,
+          type: field.type,
+          aggregations,
+        };
+      }),
+    );
+
+    return {
+      title: inventory.title,
+      fields: fieldsWithAggregations,
+    };
+  }
+
+  // Computes aggregations for a custom field
+  private async computeFieldAggregations(
+    fieldId: number,
+    inventoryId: string,
+  ): Promise<any> {
+    const field = await this.customFieldRepository.findOne({
+      where: { id: fieldId },
+    });
+    if (!field) return {};
+
+    if (field.type === 'number') {
+      // For numbers: avg, min, max
+      const result = await this.dataSource
+        .createQueryBuilder()
+        .select('AVG(value_number)', 'avg')
+        .addSelect('MIN(value_number)', 'min')
+        .addSelect('MAX(value_number)', 'max')
+        .from('item_field_values', 'ifv')
+        .innerJoin('items', 'i', 'ifv.item_id = i.id')
+        .where('ifv.field_id = :fieldId', { fieldId })
+        .andWhere('i.inventory_id = :inventoryId', { inventoryId })
+        .andWhere('ifv.value_number IS NOT NULL')
+        .getRawOne();
+
+      return {
+        avg: result.avg ? parseFloat(result.avg) : null,
+        min: result.min ? parseFloat(result.min) : null,
+        max: result.max ? parseFloat(result.max) : null,
+      };
+    } else if (field.type === 'text' || field.type === 'textarea') {
+      // For text: top 5 most frequent values
+      const results = await this.dataSource
+        .createQueryBuilder()
+        .select('value_text', 'value')
+        .addSelect('COUNT(*)', 'count')
+        .from('item_field_values', 'ifv')
+        .innerJoin('items', 'i', 'ifv.item_id = i.id')
+        .where('ifv.field_id = :fieldId', { fieldId })
+        .andWhere('i.inventory_id = :inventoryId', { inventoryId })
+        .andWhere("ifv.value_text IS NOT NULL AND ifv.value_text != ''")
+        .groupBy('value_text')
+        .orderBy('count', 'DESC')
+        .limit(5)
+        .getRawMany();
+
+      return {
+        topValues: results.map((r) => ({
+          value: r.value,
+          count: parseInt(r.count),
+        })),
+      };
+    }
+
+    // For other types (boolean, link), return empty or counts if needed
+    return {};
   }
 }

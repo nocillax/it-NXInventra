@@ -64,7 +64,23 @@ export class InventoryController {
     );
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('Owner')
+  @Post(':id/generate-token')
+  async generateApiToken(
+    @Param('id', ParseUUIDPipe) inventoryId: string,
+    @Req() req,
+  ): Promise<{ apiToken: string }> {
+    return this.inventoryService.generateApiToken(inventoryId, req.user.id);
+  }
+
   @Public()
+  @Get('aggregated/:token')
+  async getAggregatedData(@Param('token') token: string): Promise<any> {
+    return this.inventoryService.getAggregatedDataByToken(token);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Get()
   async findAll(
     @Query('page') page: number = 1,

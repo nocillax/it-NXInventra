@@ -31,4 +31,10 @@ export const inventoryService = {
   async getIdFormat(inventoryId: string): Promise<{ format: string }> {
     return apiFetch(`/inventories/${inventoryId}/id-format`);
   },
+
+  async generateApiToken(inventoryId: string): Promise<{ apiToken: string }> {
+    return apiFetch(`/inventories/${inventoryId}/generate-token`, {
+      method: "POST",
+    });
+  },
 };

@@ -19,6 +19,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Inventory } from "@/types/shared";
 import { apiFetch } from "@/lib/apiClient";
+import { useRbac } from "@/hooks/useRbac";
+import { inventoryService } from "@/services/inventoryService";
+import { Copy, Key } from "lucide-react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useModalStore } from "@/stores/useModalStore";
 import { CategorySelect } from "../inventory/forms/inputs/category-select";
@@ -46,6 +50,8 @@ export function InventorySettingsForm({
   inventory,
   onUpdate,
 }: InventorySettingsFormProps) {
+  const [apiToken, setApiToken] = useState<string | null>(null);
+  const { isOwner } = useRbac(inventory);
   // Helper function to extract tag names safely
   const getTagNames = (tags: Inventory["tags"]): string[] => {
     if (!tags) return [];
@@ -74,6 +80,23 @@ export function InventorySettingsForm({
   const { onOpen } = useModalStore();
 
   const isSubmitting = form.formState.isSubmitting;
+
+  const handleGenerateToken = async () => {
+    try {
+      const response = await inventoryService.generateApiToken(inventory.id);
+      setApiToken(response.apiToken);
+      toast.success(t("token_generated"));
+    } catch (error) {
+      toast.error(t("token_generation_failed"));
+    }
+  };
+
+  const copyToClipboard = async () => {
+    if (apiToken) {
+      await navigator.clipboard.writeText(apiToken);
+      toast.success(t("token_copied"));
+    }
+  };
 
   async function onSubmit(values: FormValues) {
     try {
@@ -166,6 +189,46 @@ export function InventorySettingsForm({
             />
           )}
         />
+
+        {/* API Token Generation - Only for owners/admins */}
+        {isOwner && (
+          <div className="space-y-4">
+            <Separator />
+            <div className="space-y-2">
+              <h3 className="text-lg font-semibold flex items-center gap-2">
+                <Key className="h-5 w-5" />
+                {t("api_token_title")}
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                {t("api_token_description")}
+              </p>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleGenerateToken}
+                >
+                  {t("generate_token_button")}
+                </Button>
+              </div>
+              {apiToken && (
+                <div className="flex items-center gap-2 p-3 bg-muted rounded-md">
+                  <code className="flex-1 text-sm font-mono break-all">
+                    {apiToken}
+                  </code>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={copyToClipboard}
+                  >
+                    <Copy className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         <Button
           type="submit"

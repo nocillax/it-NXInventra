@@ -182,12 +182,12 @@
     "add_tag": "Add",
     "visibility_label": "Public Inventory",
     "visibility_description": "Allow all users to view and contribute to this inventory",
-    "api_token_title": "API Token",
-    "api_token_description": "Generate a token to access aggregated inventory data externally (e.g., for Odoo integration).",
-    "generate_token_button": "Generate Token",
-    "token_generated": "API token generated successfully.",
-    "token_generation_failed": "Failed to generate API token.",
-    "token_copied": "Token copied to clipboard."
+    "odoo_integration_title": "Odoo Integration",
+    "odoo_integration_description": "Sync with Odoo to view aggregated inventory results and insights.",
+    "sync_to_odoo_button": "Sync to Odoo",
+    "sync_success": "Inventory synced to Odoo successfully!",
+    "sync_failed": "Failed to sync to Odoo.",
+    "syncing_message": "Syncing..."
   },
   "InventoryDeleteDialog": {
     "title": "Are you absolutely sure?",

@@ -21,7 +21,7 @@ import { Inventory } from "@/types/shared";
 import { apiFetch } from "@/lib/apiClient";
 import { useRbac } from "@/hooks/useRbac";
 import { inventoryService } from "@/services/inventoryService";
-import { Copy, Key } from "lucide-react";
+import { Key, RefreshCw } from "lucide-react";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useModalStore } from "@/stores/useModalStore";
@@ -50,7 +50,7 @@ export function InventorySettingsForm({
   inventory,
   onUpdate,
 }: InventorySettingsFormProps) {
-  const [apiToken, setApiToken] = useState<string | null>(null);
+  const [isSyncing, setIsSyncing] = useState(false);
   const { isOwner } = useRbac(inventory);
   // Helper function to extract tag names safely
   const getTagNames = (tags: Inventory["tags"]): string[] => {
@@ -81,20 +81,17 @@ export function InventorySettingsForm({
 
   const isSubmitting = form.formState.isSubmitting;
 
-  const handleGenerateToken = async () => {
+  const handleSyncToOdoo = async () => {
+    setIsSyncing(true);
     try {
-      const response = await inventoryService.generateApiToken(inventory.id);
-      setApiToken(response.apiToken);
-      toast.success(t("token_generated"));
+      await inventoryService.syncToOdoo(inventory.id);
+      toast.success(t("sync_success"));
+      // Refresh the inventory data to get the updated token if it was auto-generated
+      onUpdate();
     } catch (error) {
-      toast.error(t("token_generation_failed"));
-    }
-  };
-
-  const copyToClipboard = async () => {
-    if (apiToken) {
-      await navigator.clipboard.writeText(apiToken);
-      toast.success(t("token_copied"));
+      toast.error(t("sync_failed"));
+    } finally {
+      setIsSyncing(false);
     }
   };
 
@@ -190,42 +187,30 @@ export function InventorySettingsForm({
           )}
         />
 
-        {/* API Token Generation - Only for owners/admins */}
+        {/* Odoo Integration - Only for owners/admins */}
         {isOwner && (
-          <div className="space-y-4">
-            <Separator />
+          <div className="space-y-4 rounded-lg border border-border bg-card p-4">
             <div className="space-y-2">
-              <h3 className="text-lg font-semibold flex items-center gap-2">
-                <Key className="h-5 w-5" />
-                {t("api_token_title")}
+              <h3 className="text-base font-medium flex items-center gap-2">
+                {t("odoo_integration_title")}
               </h3>
               <p className="text-sm text-muted-foreground">
-                {t("api_token_description")}
+                {t("odoo_integration_description")}
               </p>
               <div className="flex gap-2">
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={handleGenerateToken}
+                  onClick={handleSyncToOdoo}
+                  disabled={isSyncing}
+                  className="flex items-center gap-2"
                 >
-                  {t("generate_token_button")}
+                  <RefreshCw
+                    className={`h-4 w-4 ${isSyncing ? "animate-spin" : ""}`}
+                  />
+                  {isSyncing ? t("syncing_message") : t("sync_to_odoo_button")}
                 </Button>
               </div>
-              {apiToken && (
-                <div className="flex items-center gap-2 p-3 bg-muted rounded-md">
-                  <code className="flex-1 text-sm font-mono break-all">
-                    {apiToken}
-                  </code>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={copyToClipboard}
-                  >
-                    <Copy className="h-4 w-4" />
-                  </Button>
-                </div>
-              )}
             </div>
           </div>
         )}

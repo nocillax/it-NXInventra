@@ -37,4 +37,10 @@ export const inventoryService = {
       method: "POST",
     });
   },
+
+  async syncToOdoo(inventoryId: string): Promise<{ message: string }> {
+    return apiFetch(`/inventories/${inventoryId}/sync-to-odoo`, {
+      method: "POST",
+    });
+  },
 };

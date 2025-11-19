@@ -22,6 +22,7 @@ import { UpdateCustomFieldDto } from './dto/update-custom-fields.dto';
 import { AddCustomFieldsDto } from './dto/add-custom-fields.dto';
 import * as helpers from './inventory.helpers';
 import { randomBytes } from 'crypto';
+import { OdooService } from '../../odoo/odoo.service';
 
 @Injectable()
 export class InventoryService {
@@ -34,6 +35,7 @@ export class InventoryService {
     private readonly accessRepository: Repository<Access>,
     private readonly dataSource: DataSource,
     private readonly tagService: TagService,
+    private readonly odooService: OdooService,
   ) {}
 
   // This function counts how many owners an inventory has
@@ -944,5 +946,38 @@ export class InventoryService {
 
     // For other types (boolean, link), return empty or counts if needed
     return {};
+  }
+
+  // Syncs inventory aggregated data to Odoo
+  async syncToOdoo(
+    inventoryId: string,
+    userId: string,
+  ): Promise<{ message: string }> {
+    // Get the inventory with apiToken
+    const inventory = await this.inventoryRepository.findOne({
+      where: { id: inventoryId },
+      relations: ['customFields'],
+    });
+
+    if (!inventory) {
+      throw new NotFoundException('Inventory not found');
+    }
+
+    // Generate token if it doesn't exist
+    let apiToken = inventory.apiToken;
+    if (!apiToken) {
+      const tokenResponse = await this.generateApiToken(inventoryId, userId);
+      apiToken = tokenResponse.apiToken;
+      // Refresh inventory data to get the updated token
+      inventory.apiToken = apiToken;
+    }
+
+    // Get aggregated data
+    const aggregatedData = await this.getAggregatedDataByToken(apiToken);
+
+    // Sync to Odoo
+    await this.odooService.syncInventoryToOdoo(inventory, aggregatedData);
+
+    return { message: 'Inventory synced to Odoo successfully' };
   }
 }

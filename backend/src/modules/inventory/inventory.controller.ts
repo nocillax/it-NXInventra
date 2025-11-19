@@ -74,6 +74,16 @@ export class InventoryController {
     return this.inventoryService.generateApiToken(inventoryId, req.user.id);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('Owner')
+  @Post(':id/sync-to-odoo')
+  async syncToOdoo(
+    @Param('id', ParseUUIDPipe) inventoryId: string,
+    @Req() req,
+  ): Promise<{ message: string }> {
+    return this.inventoryService.syncToOdoo(inventoryId, req.user.id);
+  }
+
   @Public()
   @Get('aggregated/:token')
   async getAggregatedData(@Param('token') token: string): Promise<any> {

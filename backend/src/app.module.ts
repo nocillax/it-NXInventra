@@ -24,6 +24,7 @@ import { CategoryModule } from './modules/category/category.module';
 import { CommentModule } from './modules/comment/comment.module';
 import { SearchModule } from './modules/search/search.module';
 import { SupportModule } from './modules/support/support.module';
+import { OdooService } from './odoo/odoo.service';
 
 @Module({
   imports: [
@@ -50,6 +51,6 @@ import { SupportModule } from './modules/support/support.module';
     SupportModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, OdooService],
 })
 export class AppModule {}

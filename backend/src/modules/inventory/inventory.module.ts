@@ -10,6 +10,7 @@ import { Tag } from '../../database/entities/tag.entity';
 import { TagService } from '../tag/tag.service';
 import { User } from '../../database/entities/user.entity';
 import { Comment } from '../../database/entities/comment.entity';
+import { OdooService } from '../../odoo/odoo.service';
 
 @Module({
   imports: [
@@ -24,6 +25,6 @@ import { Comment } from '../../database/entities/comment.entity';
     ]),
   ],
   controllers: [InventoryController],
-  providers: [InventoryService, TagService],
+  providers: [InventoryService, TagService, OdooService],
 })
 export class InventoryModule {}
